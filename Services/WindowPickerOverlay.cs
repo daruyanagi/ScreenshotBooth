@@ -53,6 +53,9 @@ public sealed class WindowPickerOverlay : IDisposable
     /// <summary>The picker was dismissed without a choice.</summary>
     public event Action? Cancelled;
 
+    /// <summary>The click landed where there is no pickable window (desktop, taskbar, our own windows).</summary>
+    public event Action? NothingPicked;
+
     public WindowPickerOverlay()
     {
         var hInstance = (HINSTANCE)(IntPtr)Kernel32.GetModuleHandle(null);
@@ -262,7 +265,7 @@ public sealed class WindowPickerOverlay : IDisposable
                     }
                     else
                     {
-                        Cancelled?.Invoke();
+                        NothingPicked?.Invoke();
                     }
                 }
                 return IntPtr.Zero;

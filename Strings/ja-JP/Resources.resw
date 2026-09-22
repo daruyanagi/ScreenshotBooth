@@ -72,6 +72,7 @@
   <data name="RetakeButton.Label" xml:space="preserve"><value>撮り直し</value></data>
   <data name="CountdownButton.Label" xml:space="preserve"><value>カウントダウン</value></data>
   <data name="TrayPick.Text" xml:space="preserve"><value>撮影するウィンドウを選択</value></data>
+  <data name="NoticePickerNothingMessage" xml:space="preserve"><value>そこには撮影できるウィンドウがありません。デスクトップやタスクバー、このアプリ自身は対象にできません。ウィンドウをクリックしてください。</value></data>
   <data name="PresetCustom" xml:space="preserve"><value>カスタム</value></data>
   <data name="NoticeCancelledTitle" xml:space="preserve"><value>キャンセルしました</value></data>
 </root>

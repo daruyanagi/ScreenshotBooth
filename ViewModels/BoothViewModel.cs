@@ -260,6 +260,13 @@ public partial class BoothViewModel : ObservableObject
 
     public void OnPickerCancelled() => IsPicking = false;
 
+    /// <summary>The picker click hit the desktop, the taskbar or something else that cannot be captured.</summary>
+    public void OnPickerNothingPicked()
+    {
+        IsPicking = false;
+        ShowNotice(InfoBarSeverity.Warning, "", R.Get("NoticePickerNothingMessage"));
+    }
+
     /// <summary>Opens the window picker (or closes it when it is already up).</summary>
     [RelayCommand]
     private void PickWindow()

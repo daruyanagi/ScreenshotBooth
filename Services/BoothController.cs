@@ -59,6 +59,9 @@ public sealed class BoothController
     /// <summary>Raised when the window picker was dismissed without a choice.</summary>
     public event Action? PickerCancelled;
 
+    /// <summary>Raised when the picker click hit nothing pickable (desktop, taskbar...).</summary>
+    public event Action? PickerNothingPicked;
+
     // Only one window is ever held topmost by this app. Process-level exit handlers reach the
     // live controller through this so the window is restored even on abnormal shutdown paths.
     private static BoothController? _current;
@@ -398,6 +401,7 @@ public sealed class BoothController
             _picker = new WindowPickerOverlay();
             _picker.WindowPicked += hwnd => WindowPicked?.Invoke(hwnd);
             _picker.Cancelled += () => PickerCancelled?.Invoke();
+            _picker.NothingPicked += () => PickerNothingPicked?.Invoke();
         }
         _picker.Start(new[] { (nint)_boothHwnd });
     }

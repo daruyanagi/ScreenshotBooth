@@ -40,6 +40,7 @@ public sealed partial class MainWindow : Window
         controller.TargetResized += () => ViewModel.OnTargetResized();
         controller.WindowPicked += hwnd => ViewModel.OnWindowPicked(hwnd);
         controller.PickerCancelled += () => ViewModel.OnPickerCancelled();
+        controller.PickerNothingPicked += () => ViewModel.OnPickerNothingPicked();
         ViewModel.Captured += () => CaptureEffect.Begin();
 
         // The shutter's countdown face is driven by hand: x:Bind inside that button's content did not apply.
