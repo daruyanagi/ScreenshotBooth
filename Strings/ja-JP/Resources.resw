@@ -63,6 +63,7 @@
   <data name="CountdownTipSeconds" xml:space="preserve"><value>カウントダウン: {0} 秒後に撮影（もう一度シャッターを押すか Esc で中止）</value></data>
   <data name="NoticeCountdownCancelledMessage" xml:space="preserve"><value>カウントダウンを中止しました。</value></data>
   <data name="ShutterButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>撮影（クリップボードへコピー）。カウントダウン中は中止</value></data>
+  <data name="CopiedToastLabel.Text" xml:space="preserve"><value>撮影しました。クリップボードにコピー済み</value></data>
   <data name="PresetCustom" xml:space="preserve"><value>カスタム</value></data>
   <data name="NoticeCancelledTitle" xml:space="preserve"><value>キャンセルしました</value></data>
 </root>

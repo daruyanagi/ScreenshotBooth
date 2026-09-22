@@ -417,6 +417,20 @@ public partial class BoothViewModel : ObservableObject
     [RelayCommand(AllowConcurrentExecutions = true)]
     private async Task CaptureAsync()
     {
+        try
+        {
+            await CaptureCoreAsync();
+        }
+        catch (Exception ex)
+        {
+            AppLog.Write($"Capture: failed {ex}");
+            ShowNotice(InfoBarSeverity.Error, "", ex.Message, autoClose: false);
+        }
+    }
+
+    private async Task CaptureCoreAsync()
+    {
+        AppLog.Write($"Capture: requested countingDown={IsCountingDown} hasTarget={_controller.HasTarget} area={(BoothAreaElement is null ? "null" : "ok")}");
         // A second press while counting down cancels it.
         if (IsCountingDown)
         {

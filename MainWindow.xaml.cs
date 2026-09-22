@@ -35,12 +35,17 @@ public sealed partial class MainWindow : Window
         controller.ReleaseRequested += () => ViewModel.ReleaseCommand.Execute(null);
         controller.TargetLost += reason => ViewModel.OnTargetLost(reason);
         controller.TargetResized += () => ViewModel.OnTargetResized();
-        ViewModel.Captured += () =>
+        ViewModel.Captured += () => CaptureEffect.Begin();
+
+        // The shutter's countdown face is driven by hand: x:Bind inside that button's content did not apply.
+        ViewModel.PropertyChanged += (_, e) =>
         {
-            // Scale around the center of the preview, not its top-left corner.
-            PreviewShake.CenterX = PreviewImageElement.ActualWidth / 2;
-            PreviewShake.CenterY = PreviewImageElement.ActualHeight / 2;
-            CaptureEffect.Begin();
+            if (e.PropertyName is nameof(BoothViewModel.IsCountingDown) or nameof(BoothViewModel.CountdownRemaining))
+            {
+                ShutterCameraIcon.Visibility = ViewModel.IsCountingDown ? Visibility.Collapsed : Visibility.Visible;
+                ShutterCountdownPanel.Visibility = ViewModel.IsCountingDown ? Visibility.Visible : Visibility.Collapsed;
+                ShutterCountdownText.Text = ViewModel.CountdownRemaining.ToString();
+            }
         };
 
         InitializeComponent();

@@ -63,6 +63,7 @@
   <data name="CountdownTipSeconds" xml:space="preserve"><value>Countdown: {0} seconds before capturing (press the shutter again or Esc to cancel)</value></data>
   <data name="NoticeCountdownCancelledMessage" xml:space="preserve"><value>Countdown cancelled.</value></data>
   <data name="ShutterButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>Capture (copies to the clipboard); during a countdown, cancels it</value></data>
+  <data name="CopiedToastLabel.Text" xml:space="preserve"><value>Captured and copied to the clipboard</value></data>
   <data name="PresetCustom" xml:space="preserve"><value>Custom</value></data>
   <data name="NoticeCancelledTitle" xml:space="preserve"><value>Cancelled</value></data>
 </root>

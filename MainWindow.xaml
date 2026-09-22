@@ -71,13 +71,12 @@
                     Style="{StaticResource AccentButtonStyle}"
                     VerticalAlignment="Center"
                     MinWidth="44">
+                    <!-- Driven from code-behind (ShutterCountdown*): x:Bind inside this content did not apply. -->
                     <Grid>
-                        <FontIcon Glyph="&#xE722;" FontSize="18"
-                            Visibility="{x:Bind local:MainWindow.InvertedBoolToVisibility(ViewModel.IsCountingDown), Mode=OneWay}" />
+                        <FontIcon x:Name="ShutterCameraIcon" Glyph="&#xE722;" FontSize="18" />
                         <!-- While counting down: the remaining seconds plus a small X (press = cancel). -->
-                        <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center"
-                            Visibility="{x:Bind local:MainWindow.BoolToVisibility(ViewModel.IsCountingDown), Mode=OneWay}">
-                            <TextBlock Text="{x:Bind ViewModel.CountdownRemaining, Mode=OneWay}" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                        <StackPanel x:Name="ShutterCountdownPanel" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center" Visibility="Collapsed">
+                            <TextBlock x:Name="ShutterCountdownText" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
                             <FontIcon Glyph="&#xE711;" FontSize="10" VerticalAlignment="Center" />
                         </StackPanel>
                     </Grid>
@@ -233,58 +232,78 @@
         <Border x:Name="BoothArea" Grid.Row="2" Background="White">
             <Grid>
                 <Grid.Resources>
-                    <!-- "It is a photo now": a flash and a shake when the capture lands, otherwise the
-                         preview is pixel-identical to the live window and the eye cannot tell. -->
+                    <!-- "It is a photo now": a flash, then the capture settles into a slightly smaller,
+                         tilted print with a white border and a shadow, and a toast lands on top of it.
+                         Otherwise the preview is pixel-identical to the live window and the eye cannot tell. -->
                     <Storyboard x:Name="CaptureEffect">
-                        <DoubleAnimation Storyboard.TargetName="Flash" Storyboard.TargetProperty="Opacity" From="1" To="0" Duration="0:0:0.5" />
-                        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="PreviewShake" Storyboard.TargetProperty="TranslateX">
-                            <LinearDoubleKeyFrame KeyTime="0:0:0" Value="0" />
-                            <LinearDoubleKeyFrame KeyTime="0:0:0.06" Value="-16" />
-                            <LinearDoubleKeyFrame KeyTime="0:0:0.12" Value="16" />
-                            <LinearDoubleKeyFrame KeyTime="0:0:0.18" Value="-13" />
-                            <LinearDoubleKeyFrame KeyTime="0:0:0.24" Value="13" />
-                            <LinearDoubleKeyFrame KeyTime="0:0:0.3" Value="-9" />
-                            <LinearDoubleKeyFrame KeyTime="0:0:0.36" Value="9" />
-                            <LinearDoubleKeyFrame KeyTime="0:0:0.42" Value="-5" />
-                            <LinearDoubleKeyFrame KeyTime="0:0:0.48" Value="5" />
-                            <LinearDoubleKeyFrame KeyTime="0:0:0.54" Value="-2" />
-                            <LinearDoubleKeyFrame KeyTime="0:0:0.6" Value="0" />
-                        </DoubleAnimationUsingKeyFrames>
-                        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="PreviewShake" Storyboard.TargetProperty="TranslateY">
-                            <LinearDoubleKeyFrame KeyTime="0:0:0" Value="0" />
-                            <LinearDoubleKeyFrame KeyTime="0:0:0.08" Value="8" />
-                            <LinearDoubleKeyFrame KeyTime="0:0:0.16" Value="-8" />
-                            <LinearDoubleKeyFrame KeyTime="0:0:0.24" Value="6" />
-                            <LinearDoubleKeyFrame KeyTime="0:0:0.32" Value="-6" />
-                            <LinearDoubleKeyFrame KeyTime="0:0:0.4" Value="3" />
-                            <LinearDoubleKeyFrame KeyTime="0:0:0.48" Value="-3" />
-                            <LinearDoubleKeyFrame KeyTime="0:0:0.6" Value="0" />
-                        </DoubleAnimationUsingKeyFrames>
-                        <!-- A "pop": the photo drops back slightly smaller, then settles. -->
-                        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="PreviewShake" Storyboard.TargetProperty="ScaleX">
+                        <DoubleAnimation Storyboard.TargetName="Flash" Storyboard.TargetProperty="Opacity" From="1" To="0" Duration="0:0:0.45" />
+                        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="PhotoTransform" Storyboard.TargetProperty="ScaleX">
                             <LinearDoubleKeyFrame KeyTime="0:0:0" Value="1" />
-                            <SplineDoubleKeyFrame KeyTime="0:0:0.15" Value="0.9" KeySpline="0.2,0,0.4,1" />
-                            <SplineDoubleKeyFrame KeyTime="0:0:0.45" Value="1.03" KeySpline="0.2,0,0.4,1" />
-                            <SplineDoubleKeyFrame KeyTime="0:0:0.6" Value="1" KeySpline="0.2,0,0.4,1" />
+                            <SplineDoubleKeyFrame KeyTime="0:0:0.6" Value="0.92" KeySpline="0.2,0.8,0.3,1" />
                         </DoubleAnimationUsingKeyFrames>
-                        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="PreviewShake" Storyboard.TargetProperty="ScaleY">
+                        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="PhotoTransform" Storyboard.TargetProperty="ScaleY">
                             <LinearDoubleKeyFrame KeyTime="0:0:0" Value="1" />
-                            <SplineDoubleKeyFrame KeyTime="0:0:0.15" Value="0.9" KeySpline="0.2,0,0.4,1" />
-                            <SplineDoubleKeyFrame KeyTime="0:0:0.45" Value="1.03" KeySpline="0.2,0,0.4,1" />
-                            <SplineDoubleKeyFrame KeyTime="0:0:0.6" Value="1" KeySpline="0.2,0,0.4,1" />
+                            <SplineDoubleKeyFrame KeyTime="0:0:0.6" Value="0.92" KeySpline="0.2,0.8,0.3,1" />
+                        </DoubleAnimationUsingKeyFrames>
+                        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="PhotoTransform" Storyboard.TargetProperty="Rotation">
+                            <LinearDoubleKeyFrame KeyTime="0:0:0" Value="0" />
+                            <SplineDoubleKeyFrame KeyTime="0:0:0.6" Value="-1.5" KeySpline="0.2,0.8,0.3,1" />
+                        </DoubleAnimationUsingKeyFrames>
+                        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="PhotoBorder" Storyboard.TargetProperty="Opacity">
+                            <LinearDoubleKeyFrame KeyTime="0:0:0" Value="0" />
+                            <LinearDoubleKeyFrame KeyTime="0:0:0.6" Value="1" />
+                        </DoubleAnimationUsingKeyFrames>
+                        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="CopiedToast" Storyboard.TargetProperty="Opacity">
+                            <LinearDoubleKeyFrame KeyTime="0:0:0" Value="0" />
+                            <LinearDoubleKeyFrame KeyTime="0:0:0.3" Value="0" />
+                            <LinearDoubleKeyFrame KeyTime="0:0:0.5" Value="1" />
+                            <LinearDoubleKeyFrame KeyTime="0:0:2.2" Value="1" />
+                            <LinearDoubleKeyFrame KeyTime="0:0:2.7" Value="0" />
                         </DoubleAnimationUsingKeyFrames>
                     </Storyboard>
                 </Grid.Resources>
-                <Image
-                    x:Name="PreviewImageElement"
-                    Source="{x:Bind ViewModel.PreviewImage, Mode=OneWay}"
+
+                <!-- The print: white border + shadow, scaled/tilted by the storyboard. -->
+                <Border
+                    x:Name="PhotoBorder"
                     Visibility="{x:Bind local:MainWindow.BoolToVisibility(ViewModel.IsPreviewShown), Mode=OneWay}"
-                    Stretch="UniformToFill">
-                    <Image.RenderTransform>
-                        <CompositeTransform x:Name="PreviewShake" />
-                    </Image.RenderTransform>
-                </Image>
+                    Background="White"
+                    BorderBrush="#33000000"
+                    BorderThickness="1"
+                    Padding="10"
+                    Opacity="0"
+                    Translation="0,0,24"
+                    RenderTransformOrigin="0.5,0.5">
+                    <Border.Shadow>
+                        <ThemeShadow />
+                    </Border.Shadow>
+                    <Border.RenderTransform>
+                        <CompositeTransform x:Name="PhotoTransform" />
+                    </Border.RenderTransform>
+                    <Image
+                        x:Name="PreviewImageElement"
+                        Source="{x:Bind ViewModel.PreviewImage, Mode=OneWay}"
+                        Stretch="Uniform" />
+                </Border>
+
                 <Rectangle x:Name="Flash" Fill="White" Opacity="0" IsHitTestVisible="False" />
+
+                <!-- Lands on top of the photo so it cannot be missed. -->
+                <Border
+                    x:Name="CopiedToast"
+                    Opacity="0"
+                    IsHitTestVisible="False"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Background="#DD202020"
+                    CornerRadius="12"
+                    Padding="24,16">
+                    <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                        <FontIcon Glyph="&#xE73E;" FontSize="22" Foreground="#FF6CCB5F" VerticalAlignment="Center" />
+                        <TextBlock x:Uid="CopiedToastLabel" Style="{StaticResource SubtitleTextBlockStyle}" Foreground="White" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Border>
+
                 <TextBlock
                     x:Uid="IdleHint"
                     Visibility="{x:Bind local:MainWindow.BoolToVisibility(ViewModel.IsIdleHintVisible), Mode=OneWay}"
