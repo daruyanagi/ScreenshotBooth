@@ -21,22 +21,18 @@
   <data name="FitToBoothTipOn" xml:space="preserve"><value>フィットモード オン: ブースをリサイズすると、対象ウィンドウが（影の余白を残して）ブースいっぱいに追従します。</value></data>
   <data name="FitToBoothTipOff" xml:space="preserve"><value>フィットモード オフ: ブースをリサイズしても対象ウィンドウはそのままです。追従させたいときはオンにしてください。</value></data>
   <data name="ShutterButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>撮影</value></data>
-  <data name="ShutterButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>撮影（クリップボードへコピー）</value></data>
   <data name="RetakeButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>撮り直し</value></data>
   <data name="RetakeButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>撮り直し</value></data>
   <data name="SaveButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>保存</value></data>
   <data name="SaveButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>PNG として保存</value></data>
   <data name="ShareButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>共有</value></data>
   <data name="ShareButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>共有</value></data>
-  <data name="CountdownButton.Label" xml:space="preserve"><value>カウントダウン</value></data>
   <data name="CountdownButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>カウントダウン</value></data>
   <data name="CountdownOffItem.Text" xml:space="preserve"><value>なし</value></data>
   <data name="Countdown3Item.Text" xml:space="preserve"><value>3 秒</value></data>
   <data name="Countdown5Item.Text" xml:space="preserve"><value>5 秒</value></data>
   <data name="Countdown10Item.Text" xml:space="preserve"><value>10 秒</value></data>
   <data name="CountdownTipOff" xml:space="preserve"><value>カウントダウン: なし（すぐに撮影）</value></data>
-  <data name="CountdownTipSeconds" xml:space="preserve"><value>カウントダウン: {0} 秒後に撮影（オーバーレイは未実装）</value></data>
-  <data name="RetakeButton.Label" xml:space="preserve"><value>撮り直し</value></data>
   <data name="CopyButton.Label" xml:space="preserve"><value>クリップボードにコピー</value></data>
   <data name="CopyButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>クリップボードにコピー</value></data>
   <data name="CopyButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>スクリーンショットをもう一度クリップボードにコピーします</value></data>
@@ -64,6 +60,9 @@
   <data name="NoticeTargetMinimizedMessage" xml:space="preserve"><value>対象ウィンドウが最小化されたため、固定を解除しました。</value></data>
   <data name="NoticeTargetClosedMessage" xml:space="preserve"><value>対象ウィンドウが閉じられたため、固定を解除しました。</value></data>
   <data name="NoticeTargetMaximizedMessage" xml:space="preserve"><value>対象ウィンドウが最大化されたため、固定を解除しました。</value></data>
+  <data name="CountdownTipSeconds" xml:space="preserve"><value>カウントダウン: {0} 秒後に撮影（もう一度シャッターを押すか Esc で中止）</value></data>
+  <data name="NoticeCountdownCancelledMessage" xml:space="preserve"><value>カウントダウンを中止しました。</value></data>
+  <data name="ShutterButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>撮影（クリップボードへコピー）。カウントダウン中は中止</value></data>
   <data name="PresetCustom" xml:space="preserve"><value>カスタム</value></data>
   <data name="NoticeCancelledTitle" xml:space="preserve"><value>キャンセルしました</value></data>
 </root>

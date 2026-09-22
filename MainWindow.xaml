@@ -18,7 +18,7 @@
          Window.SystemBackdrop with a MicaBackdrop. -->
     <!-- Classic Binding is used where x:Bind cannot convert types (bool -> bool?): a Window is not a
          FrameworkElement, so x:Bind cannot resolve a StaticResource converter here either. -->
-    <Grid x:Name="Root">
+    <Grid x:Name="Root" KeyDown="OnRootKeyDown">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -70,7 +70,7 @@
                     Command="{x:Bind ViewModel.CaptureCommand}"
                     Style="{StaticResource AccentButtonStyle}"
                     VerticalAlignment="Center">
-                    <FontIcon Glyph="&#xE722;" FontSize="18" />
+                    <FontIcon Glyph="{x:Bind local:MainWindow.ShutterGlyph(ViewModel.IsCountingDown), Mode=OneWay}" FontSize="18" />
                 </Button>
                 <ComboBox
                     x:Name="PresetComboBox"
@@ -122,25 +122,53 @@
                             </Grid>
                         </ToggleButton>
                     </AppBarElementContainer>
-                    <AppBarButton
-                        x:Name="RetakeButton"
-                        x:Uid="RetakeButton"
-                        AutomationProperties.AutomationId="RetakeButton"
-                        Command="{x:Bind ViewModel.RetakeCommand}"
-                        IsEnabled="{x:Bind ViewModel.IsPreviewShown, Mode=OneWay}">
-                        <AppBarButton.Icon>
-                            <FontIcon Glyph="&#xE7A7;" />
-                        </AppBarButton.Icon>
-                    </AppBarButton>
-                    <AppBarButton
-                        x:Name="CountdownButton"
-                        x:Uid="CountdownButton"
-                        AutomationProperties.AutomationId="CountdownButton"
-                        ToolTipService.ToolTip="{x:Bind ViewModel.CountdownToolTip, Mode=OneWay}">
-                        <AppBarButton.Icon>
-                            <FontIcon Glyph="&#xE916;" />
-                        </AppBarButton.Icon>
-                        <AppBarButton.Flyout>
+                    <!-- Retake: undo arrow with a small camera badge. -->
+                    <AppBarElementContainer VerticalAlignment="Center">
+                        <Button
+                            x:Name="RetakeButton"
+                            x:Uid="RetakeButton"
+                            AutomationProperties.AutomationId="RetakeButton"
+                            Command="{x:Bind ViewModel.RetakeCommand}"
+                            IsEnabled="{x:Bind ViewModel.IsPreviewShown, Mode=OneWay}"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Width="40"
+                            Height="36"
+                            Padding="0"
+                            Margin="4,0">
+                            <Grid Width="20" Height="20">
+                                <FontIcon Glyph="&#xE7A7;" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                <FontIcon Glyph="&#xE722;" FontSize="9" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,-3,-3" />
+                            </Grid>
+                        </Button>
+                    </AppBarElementContainer>
+                    <!-- Countdown: stopwatch with the chosen seconds as a small badge. -->
+                    <AppBarElementContainer VerticalAlignment="Center">
+                        <Button
+                            x:Name="CountdownButton"
+                            x:Uid="CountdownButton"
+                            AutomationProperties.AutomationId="CountdownButton"
+                            ToolTipService.ToolTip="{x:Bind ViewModel.CountdownToolTip, Mode=OneWay}"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Width="40"
+                            Height="36"
+                            Padding="0"
+                            Margin="4,0">
+                            <Grid Width="20" Height="20">
+                                <FontIcon Glyph="&#xE916;" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                <Border
+                                    Background="{ThemeResource SolidBackgroundFillColorBaseBrush}"
+                                    CornerRadius="6"
+                                    Padding="2,0"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Bottom"
+                                    Margin="0,0,-5,-4"
+                                    Visibility="{x:Bind local:MainWindow.BoolToVisibility(ViewModel.HasCountdown), Mode=OneWay}">
+                                    <TextBlock Text="{x:Bind ViewModel.CountdownBadge, Mode=OneWay}" FontSize="9" FontWeight="SemiBold" />
+                                </Border>
+                            </Grid>
+                            <Button.Flyout>
                             <MenuFlyout>
                                 <RadioMenuFlyoutItem x:Uid="CountdownOffItem" GroupName="Countdown" Tag="0" Click="OnCountdownItemClick"
                                     IsChecked="{x:Bind local:MainWindow.IntEquals(ViewModel.CountdownSeconds, 0), Mode=OneWay}" />
@@ -151,8 +179,9 @@
                                 <RadioMenuFlyoutItem x:Uid="Countdown10Item" GroupName="Countdown" Tag="10" Click="OnCountdownItemClick"
                                     IsChecked="{x:Bind local:MainWindow.IntEquals(ViewModel.CountdownSeconds, 10), Mode=OneWay}" />
                             </MenuFlyout>
-                        </AppBarButton.Flyout>
-                    </AppBarButton>
+                            </Button.Flyout>
+                        </Button>
+                    </AppBarElementContainer>
                     <AppBarButton
                         x:Name="CopyButton"
                         x:Uid="CopyButton"

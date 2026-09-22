@@ -40,9 +40,20 @@ public partial class BoothViewModel : ObservableObject
     // The 4:3 size the booth was given when the target was acquired; offered as the "Custom" preset.
     private System.Drawing.Size? _initialArea;
 
-    /// <summary>Seconds to count down before capturing; 0 captures immediately. TODO: countdown overlay not implemented yet.</summary>
+    /// <summary>Seconds to count down before capturing; 0 captures immediately.</summary>
     [ObservableProperty]
     public partial int CountdownSeconds { get; set; }
+
+    /// <summary>The seconds shown as a badge on the countdown button ("" when off).</summary>
+    public string CountdownBadge => CountdownSeconds > 0 ? CountdownSeconds.ToString() : "";
+
+    public bool HasCountdown => CountdownSeconds > 0;
+
+    /// <summary>True while the pre-capture countdown is running; the shutter then acts as Cancel.</summary>
+    [ObservableProperty]
+    public partial bool IsCountingDown { get; set; }
+
+    private CancellationTokenSource? _countdownCts;
 
     /// <summary>Explains the current countdown setting (shown as the button's tooltip).</summary>
     public string CountdownToolTip => CountdownSeconds == 0
@@ -52,6 +63,8 @@ public partial class BoothViewModel : ObservableObject
     partial void OnCountdownSecondsChanged(int value)
     {
         OnPropertyChanged(nameof(CountdownToolTip));
+        OnPropertyChanged(nameof(CountdownBadge));
+        OnPropertyChanged(nameof(HasCountdown));
         _settings.DefaultCountdownSeconds = value;
         SettingsService.Save(_settings);
     }
@@ -262,6 +275,7 @@ public partial class BoothViewModel : ObservableObject
     /// <summary>Called when the booth window is hidden to the tray: the target must not stay always-on-top.</summary>
     public void OnBoothHidden()
     {
+        CancelCountdown();
         if (_controller.HasTarget)
         {
             _controller.SetTargetTopMost(false);
@@ -391,18 +405,40 @@ public partial class BoothViewModel : ObservableObject
         ShowNotice(InfoBarSeverity.Informational, R.Get("NoticeCancelledTitle"), R.Get("NoticeReleasedMessage"));
     }
 
-    [RelayCommand]
+    // Concurrent executions allowed on purpose: a second press during the countdown must reach
+    // this method to cancel it (the generated command would otherwise disable the button).
+    [RelayCommand(AllowConcurrentExecutions = true)]
     private async Task CaptureAsync()
     {
+        // A second press while counting down cancels it.
+        if (IsCountingDown)
+        {
+            CancelCountdown();
+            return;
+        }
+
         if (!_controller.HasTarget || BoothAreaElement is null)
         {
             ShowNotice(InfoBarSeverity.Warning, "", R.Get("NoticeNoTargetMessage"));
             return;
         }
 
+        IsNoticeOpen = false;
+
+        if (CountdownSeconds > 0 && !await RunCountdownAsync())
+        {
+            ShowNotice(InfoBarSeverity.Informational, "", R.Get("NoticeCountdownCancelledMessage"));
+            return;
+        }
+
+        if (!_controller.HasTarget)
+        {
+            // The target went away during the countdown (closed, minimized...).
+            return;
+        }
+
         // Nothing of ours may be in the shot: the notice overlays the booth area and the frame
         // ring sits around the target.
-        IsNoticeOpen = false;
         _controller.HideTargetFrame();
 
         // Restore the target's active/focused visual state before grabbing pixels: clicking our
@@ -418,6 +454,39 @@ public partial class BoothViewModel : ObservableObject
         await ClipboardService.CopyPngAsync(result.PngBytes);
         ShowNotice(InfoBarSeverity.Success, R.Get("NoticeCapturedTitle"), R.Get("NoticeCapturedMessage"));
     }
+
+    /// <summary>Counts down on the overlay; false when cancelled.</summary>
+    private async Task<bool> RunCountdownAsync()
+    {
+        IsCountingDown = true;
+        _countdownCts = new CancellationTokenSource();
+        try
+        {
+            for (var remaining = CountdownSeconds; remaining > 0; remaining--)
+            {
+                if (!_controller.HasTarget)
+                {
+                    return false;
+                }
+                _controller.ShowCountdown(remaining);
+                await Task.Delay(1000, _countdownCts.Token);
+            }
+            return true;
+        }
+        catch (OperationCanceledException)
+        {
+            return false;
+        }
+        finally
+        {
+            _controller.HideCountdown();
+            _countdownCts.Dispose();
+            _countdownCts = null;
+            IsCountingDown = false;
+        }
+    }
+
+    public void CancelCountdown() => _countdownCts?.Cancel();
 
     [RelayCommand]
     private void Retake()

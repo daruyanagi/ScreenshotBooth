@@ -330,6 +330,17 @@ public sealed class BoothController
         }
     }
 
+    /// <summary>Shows the countdown number over the target (call once per second with the remaining seconds).</summary>
+    public void ShowCountdown(int seconds)
+    {
+        if (HasTarget)
+        {
+            _frame.ShowCountdown(GetTargetExtendedFrameBounds(), seconds, DpiScale);
+        }
+    }
+
+    public void HideCountdown() => _frame.HideCountdown();
+
     /// <summary>Hides the frame ring and chip without releasing the target - called right before a capture so neither is in the shot.</summary>
     public void HideTargetFrame() => HideIndicators();
 

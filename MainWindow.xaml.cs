@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Input;
 using ScreenshotBooth.Models;
 using ScreenshotBooth.Services;
 using ScreenshotBooth.ViewModels;
@@ -168,6 +169,18 @@ public sealed partial class MainWindow : Window
 
     /// <summary>x:Bind helper for RadioMenuFlyoutItem.IsChecked.</summary>
     public static bool IntEquals(int a, int b) => a == b;
+
+    private void OnRootKeyDown(object sender, KeyRoutedEventArgs e)
+    {
+        if (e.Key == Windows.System.VirtualKey.Escape && ViewModel.IsCountingDown)
+        {
+            ViewModel.CancelCountdown();
+            e.Handled = true;
+        }
+    }
+
+    /// <summary>x:Bind helper: the shutter shows a camera, or an X while a countdown can be cancelled.</summary>
+    public static string ShutterGlyph(bool countingDown) => countingDown ? "\uE711" : "\uE722";
 
     /// <summary>x:Bind helper: false -&gt; Visible (for "off" badges).</summary>
     public static Visibility InvertedBoolToVisibility(bool value) => value ? Visibility.Collapsed : Visibility.Visible;
