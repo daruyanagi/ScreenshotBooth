@@ -14,7 +14,7 @@
   </resheader>
   <data name="TrayOpen.Text" xml:space="preserve"><value>Open booth</value></data>
   <data name="TrayExit.Text" xml:space="preserve"><value>Exit</value></data>
-  <data name="PresetComboBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Booth size (the captured image size)</value></data>
+  <data name="SizeDropDown.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Booth size (the captured image size)</value></data>
   <data name="FitToBoothSwitch.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Fit mode</value></data>
   <data name="FitToBoothSwitch.OnContent" xml:space="preserve"><value>Fit: on</value></data>
   <data name="FitToBoothSwitch.OffContent" xml:space="preserve"><value>Fit: off</value></data>
@@ -46,7 +46,7 @@
   <data name="NoticeNoTargetMessage" xml:space="preserve"><value>No target window - press Win+Shift+B over a window first.</value></data>
   <data name="NoticeHotkeyFailedTitle" xml:space="preserve"><value>Hotkey unavailable</value></data>
   <data name="NoticeHotkeyFailedMessage" xml:space="preserve"><value>Couldn't register Win+Shift+B (another app may be using it).</value></data>
-  <data name="PresetComboBox.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>Sizes marked ❗ are smaller than the target window plus its shadow margin, so the target would stick out of the booth. Turn on Fit to make the target follow instead.</value></data>
+  <data name="SizeDropDown.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>Sizes marked ❗ are smaller than the target window plus its shadow margin, so the target would stick out of the booth. Turn on Fit to make the target follow instead.</value></data>
   <data name="NoticeAutoFitTitle" xml:space="preserve"><value>Target resized</value></data>
   <data name="IdleHint.Text" xml:space="preserve"><value>Activate the window you want to capture, then press Win+Shift+B.</value></data>
   <data name="FitToBoothToggle.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Fit mode</value></data>
@@ -62,7 +62,6 @@
   <data name="NoticeCountdownCancelledMessage" xml:space="preserve"><value>Countdown cancelled.</value></data>
   <data name="ShutterButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>Capture (copies to the clipboard); during a countdown, cancels it</value></data>
   <data name="CopiedToastLabel.Text" xml:space="preserve"><value>Captured and copied to the clipboard</value></data>
-  <data name="PickerButton.Label" xml:space="preserve"><value>Pick a window</value></data>
   <data name="PickerButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Pick a window</value></data>
   <data name="PickerButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>Click the window you want to capture (Esc or right-click to cancel)</value></data>
   <data name="PickerHint" xml:space="preserve"><value>Click the window you want to capture  (Esc or right-click to cancel)</value></data>

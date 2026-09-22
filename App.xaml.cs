@@ -71,6 +71,14 @@ public partial class App : Application
 
         // Tray-resident: the booth window is created but not shown. It appears when the global
         // hotkey fires (or from the tray menu) and hides again on close.
-        Window = new MainWindow();
+        try
+        {
+            Window = new MainWindow();
+        }
+        catch (Exception ex)
+        {
+            AppLog.Write($"Startup: MainWindow failed {ex}");
+            throw;
+        }
     }
 }

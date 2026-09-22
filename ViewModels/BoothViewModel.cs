@@ -33,9 +33,23 @@ public partial class BoothViewModel : ObservableObject
     [ObservableProperty]
     public partial TargetSizePreset? SelectedPreset { get; set; }
 
-    /// <summary>The booth area's current size as "WxH", shown as the size picker's placeholder.</summary>
+    /// <summary>The booth area's current size as "WxH", shown when it matches no preset.</summary>
     [ObservableProperty]
     public partial string CurrentSizeText { get; set; } = "";
+
+    /// <summary>What the size picker's face shows: the selected preset, or the raw current size.</summary>
+    public string SizeLabel => SelectedPreset?.ToString() ?? CurrentSizeText;
+
+    partial void OnCurrentSizeTextChanged(string value) => OnPropertyChanged(nameof(SizeLabel));
+
+    /// <summary>User picked a size from the menu.</summary>
+    public void SelectPreset(TargetSizePreset preset)
+    {
+        var wasProgrammatic = _isApplyingPresetProgrammatically;
+        _isApplyingPresetProgrammatically = false;
+        SelectedPreset = preset;
+        _isApplyingPresetProgrammatically = wasProgrammatic;
+    }
 
     // The 4:3 size the booth was given when the target was acquired; offered as the "Custom" preset.
     private System.Drawing.Size? _initialArea;
@@ -155,6 +169,7 @@ public partial class BoothViewModel : ObservableObject
 
     partial void OnSelectedPresetChanged(TargetSizePreset? value)
     {
+        OnPropertyChanged(nameof(SizeLabel));
         // Null: the ComboBox clearing itself while Presets is rebuilt, or a size matching no preset.
         // Programmatic selection (startup, preset refresh, syncing to the real size) must only update
         // the control - never resize the booth.
@@ -182,7 +197,8 @@ public partial class BoothViewModel : ObservableObject
     /// Rebuilds <see cref="Presets"/> to the built-in sizes that fit the selected display plus the
     /// acquire-time "Custom" size. Keeps the current selection when it is still listed.
     /// </summary>
-    private void RefreshPresets()
+    /// <returns>True when the list was rebuilt (the ComboBox then needs a layout pass before a new selection sticks).</returns>
+    private bool RefreshPresets()
     {
         var display = DisplayService.GetSelectedDisplay(_settings);
         var max = _controller.GetMaxAreaSize(display);
@@ -205,7 +221,7 @@ public partial class BoothViewModel : ObservableObject
 
         if (Presets.SequenceEqual(fitting))
         {
-            return;
+            return false;
         }
 
         var previous = SelectedPreset;
@@ -219,6 +235,7 @@ public partial class BoothViewModel : ObservableObject
 
         SelectedPreset = previous is null ? null : Presets.FirstOrDefault(p => p.SameSizeAs(previous));
         _isApplyingPresetProgrammatically = wasProgrammatic;
+        return true;
     }
 
     /// <summary>Reflects the booth area's actual size in the size picker without changing anything.</summary>
@@ -309,8 +326,16 @@ public partial class BoothViewModel : ObservableObject
         IsTargetPinned = true;
 
         _initialArea = area;
-        RefreshPresets();
-        SyncSizeControlsToArea(area);
+        if (RefreshPresets())
+        {
+            // Selecting an item of a freshly rebuilt list in the same pass leaves the ComboBox blank;
+            // let it realize the new items first.
+            DispatcherQueue.GetForCurrentThread().TryEnqueue(() => SyncSizeControlsToArea(area));
+        }
+        else
+        {
+            SyncSizeControlsToArea(area);
+        }
 
         PreviewImage = null;
         IsPreviewShown = false;

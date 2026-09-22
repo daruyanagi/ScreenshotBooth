@@ -8,10 +8,20 @@ public sealed record TargetSizePreset(string Name, int Width, int Height, bool I
     {
         get
         {
+            // Sizes derived from a window plus margins are rarely exact; snap to the familiar ratios.
+            var ratio = (double)Width / Height;
+            foreach (var (a, b) in new[] { (4, 3), (16, 9), (16, 10), (3, 2), (1, 1), (5, 4), (21, 9) })
+            {
+                if (Math.Abs(ratio - (double)a / b) < 0.01)
+                {
+                    return $"{a}:{b}";
+                }
+            }
+
             var g = Gcd(Width, Height);
-            var a = Width / g;
-            var b = Height / g;
-            return a <= 32 && b <= 32 ? $"{a}:{b}" : $"{(double)Width / Height:0.00}:1";
+            var ra = Width / g;
+            var rb = Height / g;
+            return ra <= 32 && rb <= 32 ? $"{ra}:{rb}" : $"{ratio:0.00}:1";
         }
     }
 

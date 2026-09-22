@@ -81,14 +81,33 @@
                         </StackPanel>
                     </Grid>
                 </Button>
-                <ComboBox
-                    x:Name="PresetComboBox"
-                    x:Uid="PresetComboBox"
-                    AutomationProperties.AutomationId="PresetComboBox"
-                    ItemsSource="{x:Bind ViewModel.Presets}"
-                    SelectedItem="{x:Bind ViewModel.SelectedPreset, Mode=TwoWay}"
-                    PlaceholderText="{x:Bind ViewModel.CurrentSizeText, Mode=OneWay}"
-                    Width="180" />
+                <!-- Window picker (Spy++-style "finder" scope): click to pick the target on screen. -->
+                <Button
+                    x:Name="PickerButton"
+                    x:Uid="PickerButton"
+                    AutomationProperties.AutomationId="PickerButton"
+                    Command="{x:Bind ViewModel.PickWindowCommand}"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Width="36"
+                    Height="36"
+                    Padding="0"
+                    VerticalAlignment="Center">
+                    <TextBlock Text="&#x2316;" FontFamily="Segoe UI Symbol" FontSize="22" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                </Button>
+                <!-- Size picker as a DropDownButton: the ComboBox left its face blank after its item
+                     list was rebuilt on acquire, so label and menu are driven from code-behind. -->
+                <DropDownButton
+                    x:Name="SizeDropDown"
+                    x:Uid="SizeDropDown"
+                    AutomationProperties.AutomationId="SizeDropDown"
+                    MinWidth="180"
+                    VerticalAlignment="Center">
+                    <TextBlock x:Name="SizeDropDownText" />
+                    <DropDownButton.Flyout>
+                        <MenuFlyout Placement="BottomEdgeAlignedLeft" />
+                    </DropDownButton.Flyout>
+                </DropDownButton>
             </StackPanel>
 
             <!-- Actions. The CommandBar sits in a star column so it is measured with the real remaining
@@ -96,7 +115,7 @@
             <CommandBar
                 Grid.Column="1"
                 DefaultLabelPosition="Collapsed"
-                OverflowButtonVisibility="Auto"
+                OverflowButtonVisibility="Visible"
                 IsDynamicOverflowEnabled="True"
                 Background="Transparent"
                 VerticalAlignment="Center"
@@ -116,10 +135,10 @@
                             ToolTipService.ToolTip="{x:Bind ViewModel.FitToBoothToolTip, Mode=OneWay}"
                             Background="Transparent"
                             BorderThickness="0"
-                            Width="40"
+                            Width="36"
                             Height="36"
                             Padding="0"
-                            Margin="4,0">
+                            Margin="2,0">
                             <Grid Width="20" Height="20">
                                 <FontIcon Glyph="&#xE740;" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                 <FontIcon
@@ -132,26 +151,6 @@
                             </Grid>
                         </ToggleButton>
                     </AppBarElementContainer>
-                    <!-- Window picker: Snipping-Tool-style hover-and-click selection of the target. -->
-                    <AppBarButton
-                        x:Name="PickerButton"
-                        x:Uid="PickerButton"
-                        AutomationProperties.AutomationId="PickerButton"
-                        Command="{x:Bind ViewModel.PickWindowCommand}">
-                        <AppBarButton.Icon>
-                            <FontIcon Glyph="&#xE721;" />
-                        </AppBarButton.Icon>
-                    </AppBarButton>
-                    <!-- Restore layout: put the target back where it was once the booth lets go of it. -->
-                    <AppBarToggleButton
-                        x:Name="RestoreLayoutToggle"
-                        x:Uid="RestoreLayoutToggle"
-                        AutomationProperties.AutomationId="RestoreLayoutToggle"
-                        IsChecked="{Binding IsRestoreLayoutEnabled, Mode=TwoWay}">
-                        <AppBarToggleButton.Icon>
-                            <FontIcon Glyph="&#xE72B;" />
-                        </AppBarToggleButton.Icon>
-                    </AppBarToggleButton>
                     <!-- Retake: undo arrow with a small camera badge. -->
                     <AppBarElementContainer VerticalAlignment="Center">
                         <Button
@@ -162,10 +161,10 @@
                             IsEnabled="{x:Bind ViewModel.IsPreviewShown, Mode=OneWay}"
                             Background="Transparent"
                             BorderThickness="0"
-                            Width="40"
+                            Width="36"
                             Height="36"
                             Padding="0"
-                            Margin="4,0">
+                            Margin="2,0">
                             <Grid Width="20" Height="20">
                                 <FontIcon Glyph="&#xE7A7;" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                 <FontIcon Glyph="&#xE722;" FontSize="9" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,-3,-3" />
@@ -181,10 +180,10 @@
                             ToolTipService.ToolTip="{x:Bind ViewModel.CountdownToolTip, Mode=OneWay}"
                             Background="Transparent"
                             BorderThickness="0"
-                            Width="40"
+                            Width="36"
                             Height="36"
                             Padding="0"
-                            Margin="4,0">
+                            Margin="2,0">
                             <Grid Width="20" Height="20">
                                 <FontIcon Glyph="&#xE916;" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                 <!-- Driven from code-behind: x:Bind inside button content does not apply here. -->
@@ -245,6 +244,17 @@
                         </AppBarButton.Icon>
                     </AppBarButton>
                 </CommandBar.PrimaryCommands>
+                <CommandBar.SecondaryCommands>
+                    <AppBarToggleButton
+                        x:Name="RestoreLayoutToggle"
+                        x:Uid="RestoreLayoutToggle"
+                        AutomationProperties.AutomationId="RestoreLayoutToggle"
+                        IsChecked="{Binding IsRestoreLayoutEnabled, Mode=TwoWay}">
+                        <AppBarToggleButton.Icon>
+                            <FontIcon Glyph="&#xE72B;" />
+                        </AppBarToggleButton.Icon>
+                    </AppBarToggleButton>
+                </CommandBar.SecondaryCommands>
             </CommandBar>
         </Grid>
 

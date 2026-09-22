@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using ScreenshotBooth.Models;
 using ScreenshotBooth.Services;
@@ -47,6 +48,15 @@ public sealed partial class MainWindow : Window
                 UpdateCountdownBadge();
             }
 
+            if (e.PropertyName == nameof(BoothViewModel.SizeLabel))
+            {
+                SizeDropDownText.Text = ViewModel.SizeLabel;
+                foreach (var item in SizeMenu.Items.OfType<RadioMenuFlyoutItem>())
+                {
+                    item.IsChecked = ReferenceEquals(item.Tag, ViewModel.SelectedPreset);
+                }
+            }
+
             if (e.PropertyName is nameof(BoothViewModel.IsCountingDown) or nameof(BoothViewModel.CountdownRemaining))
             {
                 ShutterCameraIcon.Visibility = ViewModel.IsCountingDown ? Visibility.Collapsed : Visibility.Visible;
@@ -57,6 +67,11 @@ public sealed partial class MainWindow : Window
 
         InitializeComponent();
         Root.DataContext = ViewModel;
+
+        // Size picker face + menu, rebuilt from the view model (see SizeDropDown in XAML).
+        ViewModel.Presets.CollectionChanged += (_, _) => RebuildSizeMenu();
+        RebuildSizeMenu();
+        SizeDropDownText.Text = ViewModel.SizeLabel;
         FitToBoothToggle.DataContext = ViewModel;   // CommandBar items do not always inherit it
         RestoreLayoutToggle.DataContext = ViewModel;
         OnFitToggleStateChanged(FitToBoothToggle, new RoutedEventArgs());
@@ -196,6 +211,26 @@ public sealed partial class MainWindow : Window
 
     /// <summary>x:Bind helper for RadioMenuFlyoutItem.IsChecked.</summary>
     public static bool IntEquals(int a, int b) => a == b;
+
+    // Named elements inside a Flyout are not wired to fields at construction time; go through the button.
+    private MenuFlyout SizeMenu => (MenuFlyout)SizeDropDown.Flyout;
+
+    private void RebuildSizeMenu()
+    {
+        SizeMenu.Items.Clear();
+        foreach (var preset in ViewModel.Presets)
+        {
+            var item = new RadioMenuFlyoutItem
+            {
+                Text = preset.ToString(),
+                Tag = preset,
+                GroupName = "BoothSize",
+                IsChecked = ReferenceEquals(preset, ViewModel.SelectedPreset),
+            };
+            item.Click += (_, _) => ViewModel.SelectPreset(preset);
+            SizeMenu.Items.Add(item);
+        }
+    }
 
     private void UpdateCountdownBadge()
     {
