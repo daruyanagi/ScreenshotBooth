@@ -26,10 +26,6 @@
   <data name="ReleaseButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Release target</value></data>
   <data name="ReleaseButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>Release the target (stop keeping it on top)</value></data>
   <data name="ReleaseLabel.Text" xml:space="preserve"><value>Release</value></data>
-  <data name="CountdownComboBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Countdown delay</value></data>
-  <data name="CountdownComboBox.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>Countdown delay (not implemented yet)</value></data>
-  <data name="WindowPickerButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Pick window</value></data>
-  <data name="WindowPickerButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>Window picker (not implemented yet)</value></data>
   <data name="ShutterButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Capture screenshot</value></data>
   <data name="ShutterButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>Capture (copies to the clipboard)</value></data>
   <data name="RetakeButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Retake</value></data>
@@ -38,10 +34,22 @@
   <data name="SaveButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>Save as PNG</value></data>
   <data name="ShareButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Share screenshot</value></data>
   <data name="ShareButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>Share</value></data>
+  <data name="CountdownButton.Label" xml:space="preserve"><value>Countdown</value></data>
+  <data name="CountdownButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Countdown</value></data>
+  <data name="CountdownOffItem.Text" xml:space="preserve"><value>Off</value></data>
+  <data name="Countdown3Item.Text" xml:space="preserve"><value>3 seconds</value></data>
+  <data name="Countdown5Item.Text" xml:space="preserve"><value>5 seconds</value></data>
+  <data name="Countdown10Item.Text" xml:space="preserve"><value>10 seconds</value></data>
+  <data name="CountdownTipOff" xml:space="preserve"><value>Countdown: off (captures immediately)</value></data>
+  <data name="CountdownTipSeconds" xml:space="preserve"><value>Countdown: {0} seconds before capturing (overlay not implemented yet)</value></data>
+  <data name="RetakeButton.Label" xml:space="preserve"><value>Retake</value></data>
+  <data name="CopyButton.Label" xml:space="preserve"><value>Copy to clipboard</value></data>
+  <data name="CopyButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Copy to clipboard</value></data>
+  <data name="CopyButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>Copy the screenshot to the clipboard again</value></data>
+  <data name="SaveButton.Label" xml:space="preserve"><value>Save</value></data>
+  <data name="ShareButton.Label" xml:space="preserve"><value>Share</value></data>
+  <data name="StatusCopied" xml:space="preserve"><value>Copied to the clipboard.</value></data>
   <data name="PresetCustom" xml:space="preserve"><value>Custom</value></data>
-  <data name="CountdownOff" xml:space="preserve"><value>Off</value></data>
-  <data name="CountdownSeconds" xml:space="preserve"><value>{0}s</value></data>
-  <data name="CountdownCustom" xml:space="preserve"><value>Custom</value></data>
   <data name="StatusIdle" xml:space="preserve"><value>Press Win+Shift+B over a window to begin.</value></data>
   <data name="StatusHotkeyFailed" xml:space="preserve"><value>Couldn't register the global hotkey (it may be in use by another app).</value></data>
   <data name="StatusNoForeground" xml:space="preserve"><value>No suitable foreground window found.</value></data>

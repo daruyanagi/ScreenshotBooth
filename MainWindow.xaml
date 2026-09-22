@@ -53,14 +53,13 @@
         </TitleBar>
 
         <!-- Toolbar (on top, so drop-downs open over the booth instead of off the bottom edge) -->
-        <Grid Grid.Row="1" Padding="16,8,16,12" ColumnSpacing="24" BorderThickness="0,0,0,1" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}">
+        <Grid Grid.Row="1" Padding="16,4,8,4" ColumnSpacing="16" BorderThickness="0,0,0,1" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
-            <!-- Target size -->
+            <!-- Booth size -->
             <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
                 <ComboBox
                     x:Name="PresetComboBox"
@@ -106,98 +105,138 @@
                     VerticalAlignment="Center" />
             </StackPanel>
 
-            <!-- Pinned indicator + status text -->
-            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center" HorizontalAlignment="Center">
-                <Border
-                    x:Name="PinnedIndicator"
-                    Visibility="{x:Bind local:MainWindow.BoolToVisibility(ViewModel.IsTargetPinned), Mode=OneWay}"
-                    Background="{ThemeResource AccentFillColorDefaultBrush}"
-                    CornerRadius="14"
-                    Padding="10,2,2,2">
-                    <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
-                        <FontIcon Glyph="&#xE718;" FontSize="12" Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}" />
-                        <TextBlock
-                            x:Uid="PinnedLabel"
-                            Style="{StaticResource CaptionTextBlockStyle}"
-                            Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
-                            VerticalAlignment="Center" />
-                        <Button
-                            x:Name="ReleaseButton"
-                            x:Uid="ReleaseButton"
-                            AutomationProperties.AutomationId="ReleaseButton"
-                            Command="{x:Bind ViewModel.ReleaseCommand}"
-                            Padding="6,2"
-                            MinHeight="0"
-                            CornerRadius="12">
-                            <StackPanel Orientation="Horizontal" Spacing="4">
-                                <FontIcon Glyph="&#xE77A;" FontSize="12" />
-                                <TextBlock x:Uid="ReleaseLabel" Style="{StaticResource CaptionTextBlockStyle}" />
+            <!-- Status + actions. The CommandBar sits in a star column so it is measured with the
+                 real remaining width and moves trailing commands into its overflow menu when the
+                 booth is narrow. -->
+            <CommandBar
+                Grid.Column="1"
+                DefaultLabelPosition="Collapsed"
+                OverflowButtonVisibility="Auto"
+                IsDynamicOverflowEnabled="True"
+                Background="Transparent"
+                VerticalAlignment="Center"
+                VerticalContentAlignment="Center">
+                <CommandBar.Content>
+                    <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center" Height="48">
+                        <Border
+                            x:Name="PinnedIndicator"
+                            Visibility="{x:Bind local:MainWindow.BoolToVisibility(ViewModel.IsTargetPinned), Mode=OneWay}"
+                            Background="{ThemeResource AccentFillColorDefaultBrush}"
+                            CornerRadius="14"
+                            Padding="10,2,2,2"
+                            VerticalAlignment="Center">
+                            <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                                <FontIcon Glyph="&#xE718;" FontSize="12" Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}" />
+                                <TextBlock
+                                    x:Uid="PinnedLabel"
+                                    Style="{StaticResource CaptionTextBlockStyle}"
+                                    Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
+                                    VerticalAlignment="Center" />
+                                <Button
+                                    x:Name="ReleaseButton"
+                                    x:Uid="ReleaseButton"
+                                    AutomationProperties.AutomationId="ReleaseButton"
+                                    Command="{x:Bind ViewModel.ReleaseCommand}"
+                                    Padding="6,2"
+                                    MinHeight="0"
+                                    CornerRadius="12">
+                                    <StackPanel Orientation="Horizontal" Spacing="4">
+                                        <FontIcon Glyph="&#xE77A;" FontSize="12" />
+                                        <TextBlock x:Uid="ReleaseLabel" Style="{StaticResource CaptionTextBlockStyle}" />
+                                    </StackPanel>
+                                </Button>
                             </StackPanel>
-                        </Button>
+                        </Border>
+                        <TextBlock
+                            Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}"
+                            Style="{StaticResource CaptionTextBlockStyle}"
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                            VerticalAlignment="Center"
+                            TextTrimming="CharacterEllipsis" />
                     </StackPanel>
-                </Border>
-                <TextBlock
-                    Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}"
-                    Style="{StaticResource CaptionTextBlockStyle}"
-                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                    VerticalAlignment="Center"
-                    TextTrimming="CharacterEllipsis" />
-            </StackPanel>
+                </CommandBar.Content>
 
-            <!-- Capture actions -->
-            <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                <ComboBox
-                    x:Name="CountdownComboBox"
-                    x:Uid="CountdownComboBox"
-                    AutomationProperties.AutomationId="CountdownComboBox"
-                    ItemsSource="{x:Bind ViewModel.CountdownOptions}"
-                    SelectedItem="{x:Bind ViewModel.SelectedCountdown, Mode=TwoWay}"
-                    Width="90" />
-                <Button
-                    x:Name="WindowPickerButton"
-                    x:Uid="WindowPickerButton"
-                    AutomationProperties.AutomationId="WindowPickerButton"
-                    IsEnabled="False">
-                    <FontIcon Glyph="&#xE7C4;" FontSize="16" />
-                </Button>
-                <Button
-                    x:Name="ShutterButton"
-                    x:Uid="ShutterButton"
-                    AutomationProperties.AutomationId="ShutterButton"
-                    Command="{x:Bind ViewModel.CaptureCommand}"
-                    Style="{StaticResource AccentButtonStyle}">
-                    <FontIcon Glyph="&#xE722;" FontSize="18" />
-                </Button>
-                <Button
-                    x:Name="RetakeButton"
-                    x:Uid="RetakeButton"
-                    AutomationProperties.AutomationId="RetakeButton"
-                    Command="{x:Bind ViewModel.RetakeCommand}"
-                    IsEnabled="{x:Bind ViewModel.IsPreviewShown, Mode=OneWay}">
-                    <FontIcon Glyph="&#xE7A7;" FontSize="16" />
-                </Button>
-                <Button
-                    x:Name="SaveButton"
-                    x:Uid="SaveButton"
-                    AutomationProperties.AutomationId="SaveButton"
-                    Command="{x:Bind ViewModel.SaveCommand}"
-                    IsEnabled="{x:Bind ViewModel.IsPreviewShown, Mode=OneWay}">
-                    <FontIcon Glyph="&#xE74E;" FontSize="16" />
-                </Button>
-                <Button
-                    x:Name="ShareButton"
-                    x:Uid="ShareButton"
-                    AutomationProperties.AutomationId="ShareButton"
-                    Command="{x:Bind ViewModel.ShareCommand}"
-                    IsEnabled="{x:Bind ViewModel.IsPreviewShown, Mode=OneWay}">
-                    <FontIcon Glyph="&#xE72D;" FontSize="16" />
-                </Button>
-            </StackPanel>
+                <!-- Overflow moves commands from the end: Share, Save, Copy, Countdown, then Retake. -->
+                <CommandBar.PrimaryCommands>
+                    <AppBarElementContainer VerticalAlignment="Center">
+                        <Button
+                            x:Name="ShutterButton"
+                            x:Uid="ShutterButton"
+                            AutomationProperties.AutomationId="ShutterButton"
+                            Command="{x:Bind ViewModel.CaptureCommand}"
+                            Style="{StaticResource AccentButtonStyle}"
+                            Margin="4,0">
+                            <FontIcon Glyph="&#xE722;" FontSize="18" />
+                        </Button>
+                    </AppBarElementContainer>
+                    <AppBarButton
+                        x:Name="RetakeButton"
+                        x:Uid="RetakeButton"
+                        AutomationProperties.AutomationId="RetakeButton"
+                        Command="{x:Bind ViewModel.RetakeCommand}"
+                        IsEnabled="{x:Bind ViewModel.IsPreviewShown, Mode=OneWay}">
+                        <AppBarButton.Icon>
+                            <FontIcon Glyph="&#xE7A7;" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
+                    <AppBarButton
+                        x:Name="CountdownButton"
+                        x:Uid="CountdownButton"
+                        AutomationProperties.AutomationId="CountdownButton"
+                        ToolTipService.ToolTip="{x:Bind ViewModel.CountdownToolTip, Mode=OneWay}">
+                        <AppBarButton.Icon>
+                            <FontIcon Glyph="&#xE916;" />
+                        </AppBarButton.Icon>
+                        <AppBarButton.Flyout>
+                            <MenuFlyout>
+                                <RadioMenuFlyoutItem x:Uid="CountdownOffItem" GroupName="Countdown" Tag="0" Click="OnCountdownItemClick"
+                                    IsChecked="{x:Bind local:MainWindow.IntEquals(ViewModel.CountdownSeconds, 0), Mode=OneWay}" />
+                                <RadioMenuFlyoutItem x:Uid="Countdown3Item" GroupName="Countdown" Tag="3" Click="OnCountdownItemClick"
+                                    IsChecked="{x:Bind local:MainWindow.IntEquals(ViewModel.CountdownSeconds, 3), Mode=OneWay}" />
+                                <RadioMenuFlyoutItem x:Uid="Countdown5Item" GroupName="Countdown" Tag="5" Click="OnCountdownItemClick"
+                                    IsChecked="{x:Bind local:MainWindow.IntEquals(ViewModel.CountdownSeconds, 5), Mode=OneWay}" />
+                                <RadioMenuFlyoutItem x:Uid="Countdown10Item" GroupName="Countdown" Tag="10" Click="OnCountdownItemClick"
+                                    IsChecked="{x:Bind local:MainWindow.IntEquals(ViewModel.CountdownSeconds, 10), Mode=OneWay}" />
+                            </MenuFlyout>
+                        </AppBarButton.Flyout>
+                    </AppBarButton>
+                    <AppBarButton
+                        x:Name="CopyButton"
+                        x:Uid="CopyButton"
+                        AutomationProperties.AutomationId="CopyButton"
+                        Command="{x:Bind ViewModel.CopyCommand}"
+                        IsEnabled="{x:Bind ViewModel.IsPreviewShown, Mode=OneWay}">
+                        <AppBarButton.Icon>
+                            <FontIcon Glyph="&#xE8C8;" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
+                    <AppBarButton
+                        x:Name="SaveButton"
+                        x:Uid="SaveButton"
+                        AutomationProperties.AutomationId="SaveButton"
+                        Command="{x:Bind ViewModel.SaveCommand}"
+                        IsEnabled="{x:Bind ViewModel.IsPreviewShown, Mode=OneWay}">
+                        <AppBarButton.Icon>
+                            <FontIcon Glyph="&#xE74E;" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
+                    <AppBarButton
+                        x:Name="ShareButton"
+                        x:Uid="ShareButton"
+                        AutomationProperties.AutomationId="ShareButton"
+                        Command="{x:Bind ViewModel.ShareCommand}"
+                        IsEnabled="{x:Bind ViewModel.IsPreviewShown, Mode=OneWay}">
+                        <AppBarButton.Icon>
+                            <FontIcon Glyph="&#xE72D;" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
+                </CommandBar.PrimaryCommands>
+            </CommandBar>
         </Grid>
 
-        <!-- Booth client area: plain white 4:3 backdrop. The live target window is positioned by
-             BoothController to sit on top of this, centered in it. After a capture, PreviewImage
-             replaces the white backdrop with the captured screenshot. -->
+        <!-- Booth client area: plain white backdrop whose size is the captured image size. The live
+             target window is positioned by BoothController to sit on top of this, centered in it.
+             After a capture, PreviewImage replaces the white backdrop with the captured screenshot. -->
         <Border x:Name="BoothArea" Grid.Row="2" Background="White">
             <Grid>
                 <Image

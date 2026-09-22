@@ -136,6 +136,17 @@ public sealed partial class MainWindow : Window
         _hotkeyService.Dispose();
     }
 
+    private void OnCountdownItemClick(object sender, RoutedEventArgs e)
+    {
+        if (sender is FrameworkElement { Tag: string tag } && int.TryParse(tag, out var seconds))
+        {
+            ViewModel.CountdownSeconds = seconds;
+        }
+    }
+
+    /// <summary>x:Bind helper for RadioMenuFlyoutItem.IsChecked.</summary>
+    public static bool IntEquals(int a, int b) => a == b;
+
     /// <summary>x:Bind helper: bool -&gt; Visibility (WinUI 3 has no built-in bool/Visibility converter).</summary>
     public static Visibility BoolToVisibility(bool value) => value ? Visibility.Visible : Visibility.Collapsed;
 }

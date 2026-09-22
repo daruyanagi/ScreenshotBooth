@@ -26,10 +26,6 @@
   <data name="ReleaseButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>対象を解放</value></data>
   <data name="ReleaseButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>対象ウィンドウの最前面固定を解除します</value></data>
   <data name="ReleaseLabel.Text" xml:space="preserve"><value>解除</value></data>
-  <data name="CountdownComboBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>カウントダウン</value></data>
-  <data name="CountdownComboBox.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>カウントダウン（未実装）</value></data>
-  <data name="WindowPickerButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>ウィンドウを選択</value></data>
-  <data name="WindowPickerButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>ウィンドウ選択（未実装）</value></data>
   <data name="ShutterButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>撮影</value></data>
   <data name="ShutterButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>撮影（クリップボードへコピー）</value></data>
   <data name="RetakeButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>撮り直し</value></data>
@@ -38,10 +34,22 @@
   <data name="SaveButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>PNG として保存</value></data>
   <data name="ShareButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>共有</value></data>
   <data name="ShareButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>共有</value></data>
+  <data name="CountdownButton.Label" xml:space="preserve"><value>カウントダウン</value></data>
+  <data name="CountdownButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>カウントダウン</value></data>
+  <data name="CountdownOffItem.Text" xml:space="preserve"><value>なし</value></data>
+  <data name="Countdown3Item.Text" xml:space="preserve"><value>3 秒</value></data>
+  <data name="Countdown5Item.Text" xml:space="preserve"><value>5 秒</value></data>
+  <data name="Countdown10Item.Text" xml:space="preserve"><value>10 秒</value></data>
+  <data name="CountdownTipOff" xml:space="preserve"><value>カウントダウン: なし（すぐに撮影）</value></data>
+  <data name="CountdownTipSeconds" xml:space="preserve"><value>カウントダウン: {0} 秒後に撮影（オーバーレイは未実装）</value></data>
+  <data name="RetakeButton.Label" xml:space="preserve"><value>撮り直し</value></data>
+  <data name="CopyButton.Label" xml:space="preserve"><value>クリップボードにコピー</value></data>
+  <data name="CopyButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>クリップボードにコピー</value></data>
+  <data name="CopyButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>スクリーンショットをもう一度クリップボードにコピーします</value></data>
+  <data name="SaveButton.Label" xml:space="preserve"><value>保存</value></data>
+  <data name="ShareButton.Label" xml:space="preserve"><value>共有</value></data>
+  <data name="StatusCopied" xml:space="preserve"><value>クリップボードにコピーしました。</value></data>
   <data name="PresetCustom" xml:space="preserve"><value>カスタム</value></data>
-  <data name="CountdownOff" xml:space="preserve"><value>なし</value></data>
-  <data name="CountdownSeconds" xml:space="preserve"><value>{0} 秒</value></data>
-  <data name="CountdownCustom" xml:space="preserve"><value>カスタム</value></data>
   <data name="StatusIdle" xml:space="preserve"><value>撮りたいウィンドウをアクティブにして Win+Shift+B を押してください。</value></data>
   <data name="StatusHotkeyFailed" xml:space="preserve"><value>グローバルホットキーを登録できませんでした（他のアプリが使用中かもしれません）。</value></data>
   <data name="StatusNoForeground" xml:space="preserve"><value>対象にできるウィンドウが見つかりませんでした。</value></data>

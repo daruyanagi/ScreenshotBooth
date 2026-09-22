@@ -28,16 +28,6 @@ public partial class BoothViewModel : ObservableObject
     /// <summary>Built-in presets that fit the 4:3 booth on the selected display, plus "Custom". See <see cref="RefreshPresets"/>.</summary>
     public ObservableCollection<TargetSizePreset> Presets { get; } = new();
 
-    // TODO (follow-up): wire this to a real countdown overlay. For this pass it's UI-only.
-    public ObservableCollection<string> CountdownOptions { get; } = new(
-    [
-        R.Get("CountdownOff"),
-        R.F("CountdownSeconds", 3),
-        R.F("CountdownSeconds", 5),
-        R.F("CountdownSeconds", 10),
-        R.Get("CountdownCustom"),
-    ]);
-
     [ObservableProperty]
     public partial TargetSizePreset SelectedPreset { get; set; }
 
@@ -51,8 +41,21 @@ public partial class BoothViewModel : ObservableObject
     [ObservableProperty]
     public partial bool IsCustomSizeVisible { get; set; }
 
+    /// <summary>Seconds to count down before capturing; 0 captures immediately. TODO: countdown overlay not implemented yet.</summary>
     [ObservableProperty]
-    public partial string SelectedCountdown { get; set; } = R.Get("CountdownOff");
+    public partial int CountdownSeconds { get; set; }
+
+    /// <summary>Explains the current countdown setting (shown as the button's tooltip).</summary>
+    public string CountdownToolTip => CountdownSeconds == 0
+        ? R.Get("CountdownTipOff")
+        : R.F("CountdownTipSeconds", CountdownSeconds);
+
+    partial void OnCountdownSecondsChanged(int value)
+    {
+        OnPropertyChanged(nameof(CountdownToolTip));
+        _settings.DefaultCountdownSeconds = value;
+        SettingsService.Save(_settings);
+    }
 
     [ObservableProperty]
     public partial BitmapImage? PreviewImage { get; set; }
@@ -111,6 +114,7 @@ public partial class BoothViewModel : ObservableObject
         CustomHeight = settings.BoothHeight;
         IsCustomSizeVisible = SelectedPreset.IsCustom;
         IsFitToBoothEnabled = settings.FitToBooth;
+        CountdownSeconds = settings.DefaultCountdownSeconds;
 
         _isApplyingPresetProgrammatically = false;
     }
@@ -406,6 +410,19 @@ public partial class BoothViewModel : ObservableObject
         StatusMessage = _controller.HasTarget
             ? R.Get("StatusLive")
             : R.Get("StatusIdle");
+    }
+
+    /// <summary>Puts the last capture on the clipboard again (it is copied automatically at capture time).</summary>
+    [RelayCommand]
+    private async Task CopyAsync()
+    {
+        if (_lastCapturePngBytes is null)
+        {
+            return;
+        }
+
+        await ClipboardService.CopyPngAsync(_lastCapturePngBytes);
+        StatusMessage = R.Get("StatusCopied");
     }
 
     [RelayCommand]
