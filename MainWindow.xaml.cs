@@ -3,6 +3,8 @@ using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml.Markup;
+using Microsoft.UI.Xaml.Media;
 using ScreenshotBooth.Models;
 using ScreenshotBooth.Services;
 using ScreenshotBooth.ViewModels;
@@ -76,6 +78,11 @@ public sealed partial class MainWindow : Window
         RestoreLayoutToggle.DataContext = ViewModel;
         OnFitToggleStateChanged(FitToBoothToggle, new RoutedEventArgs());
         UpdateCountdownBadge();
+        RetakeButton.Icon = Icon("RetakeIcon");
+
+        // Compact 40px buttons in the bar, but natural (full-row) width once they overflow into the menu.
+        Toolbar.DynamicOverflowItemsChanging += (_, _) => DispatcherQueue.TryEnqueue(UpdateOverflowWidths);
+        UpdateOverflowWidths();
 
         ExtendsContentIntoTitleBar = true;
         SetTitleBar(AppTitleBar);
@@ -232,15 +239,38 @@ public sealed partial class MainWindow : Window
         }
     }
 
-    private void UpdateCountdownBadge()
+    private void UpdateOverflowWidths()
     {
-        CountdownBadge.Visibility = ViewModel.HasCountdown ? Visibility.Visible : Visibility.Collapsed;
-        CountdownBadgeText.Text = ViewModel.CountdownBadge;
+        foreach (var command in Toolbar.PrimaryCommands)
+        {
+            if (command is FrameworkElement element)
+            {
+                element.Width = command.IsInOverflow ? double.NaN : 40;
+            }
+        }
     }
+
+    private void UpdateCountdownBadge() =>
+        CountdownButton.Icon = Icon(ViewModel.CountdownSeconds switch
+        {
+            3 => "Countdown3Icon",
+            5 => "Countdown5Icon",
+            10 => "Countdown10Icon",
+            _ => "CountdownOffIcon",
+        });
 
     /// <summary>The "off" badge follows the toggle's own visual state so the two can never disagree.</summary>
     private void OnFitToggleStateChanged(object sender, RoutedEventArgs e) =>
-        FitOffBadge.Visibility = FitToBoothToggle.IsChecked == true ? Visibility.Collapsed : Visibility.Visible;
+        FitToBoothToggle.Icon = Icon(FitToBoothToggle.IsChecked == true ? "FitOnIcon" : "FitOffIcon");
+
+    /// <summary>Builds a vector icon from the path data generated into Assets/Icons/IconPaths.xaml.</summary>
+    private static IconElement Icon(string key)
+    {
+        var data = (string)Application.Current.Resources[key];
+        var geometry = (Geometry)XamlReader.Load(
+            $"<Geometry xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\">{data}</Geometry>");
+        return new PathIcon { Data = geometry };
+    }
 
     private void OnRootKeyDown(object sender, KeyRoutedEventArgs e)
     {

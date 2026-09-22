@@ -113,6 +113,7 @@
             <!-- Actions. The CommandBar sits in a star column so it is measured with the real remaining
                  width and moves trailing commands into its overflow menu when the booth is narrow. -->
             <CommandBar
+                x:Name="Toolbar"
                 Grid.Column="1"
                 DefaultLabelPosition="Collapsed"
                 OverflowButtonVisibility="Visible"
@@ -122,84 +123,36 @@
                 VerticalContentAlignment="Center">
                 <!-- Overflow moves commands from the end: Share, Save, Copy, Countdown, Retake, then Fit. -->
                 <CommandBar.PrimaryCommands>
-                    <!-- A plain ToggleButton (not AppBarToggleButton) so the icon can carry a small
-                         "blocked" badge while fit mode is off; the checked state itself shows "on". -->
-                    <AppBarElementContainer VerticalAlignment="Center">
-                        <ToggleButton
-                            x:Name="FitToBoothToggle"
-                            x:Uid="FitToBoothToggle"
-                            AutomationProperties.AutomationId="FitToBoothToggle"
-                            IsChecked="{Binding IsFitToBoothEnabled, Mode=TwoWay}"
-                            Checked="OnFitToggleStateChanged"
-                            Unchecked="OnFitToggleStateChanged"
-                            ToolTipService.ToolTip="{x:Bind ViewModel.FitToBoothToolTip, Mode=OneWay}"
-                            Background="Transparent"
-                            BorderThickness="0"
-                            Width="36"
-                            Height="36"
-                            Padding="0"
-                            Margin="2,0">
-                            <Grid Width="20" Height="20">
-                                <FontIcon Glyph="&#xE740;" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                <FontIcon
-                                    x:Name="FitOffBadge"
-                                    Glyph="&#xE733;"
-                                    FontSize="9"
-                                    HorizontalAlignment="Right"
-                                    VerticalAlignment="Bottom"
-                                    Margin="0,0,-3,-3" />
-                            </Grid>
-                        </ToggleButton>
-                    </AppBarElementContainer>
-                    <!-- Retake: undo arrow with a small camera badge. -->
-                    <AppBarElementContainer VerticalAlignment="Center">
-                        <Button
-                            x:Name="RetakeButton"
-                            x:Uid="RetakeButton"
-                            AutomationProperties.AutomationId="RetakeButton"
-                            Command="{x:Bind ViewModel.RetakeCommand}"
-                            IsEnabled="{x:Bind ViewModel.IsPreviewShown, Mode=OneWay}"
-                            Background="Transparent"
-                            BorderThickness="0"
-                            Width="36"
-                            Height="36"
-                            Padding="0"
-                            Margin="2,0">
-                            <Grid Width="20" Height="20">
-                                <FontIcon Glyph="&#xE7A7;" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                <FontIcon Glyph="&#xE722;" FontSize="9" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,-3,-3" />
-                            </Grid>
-                        </Button>
-                    </AppBarElementContainer>
-                    <!-- Countdown: stopwatch with the chosen seconds as a small badge. -->
-                    <AppBarElementContainer VerticalAlignment="Center">
-                        <Button
-                            x:Name="CountdownButton"
-                            x:Uid="CountdownButton"
-                            AutomationProperties.AutomationId="CountdownButton"
-                            ToolTipService.ToolTip="{x:Bind ViewModel.CountdownToolTip, Mode=OneWay}"
-                            Background="Transparent"
-                            BorderThickness="0"
-                            Width="36"
-                            Height="36"
-                            Padding="0"
-                            Margin="2,0">
-                            <Grid Width="20" Height="20">
-                                <FontIcon Glyph="&#xE916;" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                <!-- Driven from code-behind: x:Bind inside button content does not apply here. -->
-                                <Border
-                                    x:Name="CountdownBadge"
-                                    Background="{ThemeResource SolidBackgroundFillColorBaseBrush}"
-                                    CornerRadius="6"
-                                    Padding="2,0"
-                                    HorizontalAlignment="Right"
-                                    VerticalAlignment="Bottom"
-                                    Margin="0,0,-5,-4"
-                                    Visibility="Collapsed">
-                                    <TextBlock x:Name="CountdownBadgeText" FontSize="9" FontWeight="SemiBold" />
-                                </Border>
-                            </Grid>
-                            <Button.Flyout>
+                    <!-- Fit / retake / countdown carry badges, drawn as vector PathIcons generated from
+                         the Segoe glyphs (Tools/Generate-Icons.ps1). Being AppBar buttons, they line up
+                         with the others and show icon + label in the overflow menu. The fit and countdown
+                         icons are swapped from code-behind. -->
+                    <AppBarToggleButton
+                        x:Name="FitToBoothToggle"
+                        x:Uid="FitToBoothToggle"
+                        AutomationProperties.AutomationId="FitToBoothToggle"
+                        Width="40"
+                        MinWidth="0"
+                        IsChecked="{Binding IsFitToBoothEnabled, Mode=TwoWay}"
+                        Checked="OnFitToggleStateChanged"
+                        Unchecked="OnFitToggleStateChanged"
+                        ToolTipService.ToolTip="{x:Bind ViewModel.FitToBoothToolTip, Mode=OneWay}" />
+                    <AppBarButton
+                        x:Name="RetakeButton"
+                        x:Uid="RetakeButton"
+                        AutomationProperties.AutomationId="RetakeButton"
+                        Width="40"
+                        MinWidth="0"
+                        Command="{x:Bind ViewModel.RetakeCommand}"
+                        IsEnabled="{x:Bind ViewModel.IsPreviewShown, Mode=OneWay}" />
+                    <AppBarButton
+                        x:Name="CountdownButton"
+                        x:Uid="CountdownButton"
+                        AutomationProperties.AutomationId="CountdownButton"
+                        Width="40"
+                        MinWidth="0"
+                        ToolTipService.ToolTip="{x:Bind ViewModel.CountdownToolTip, Mode=OneWay}">
+                        <AppBarButton.Flyout>
                             <MenuFlyout>
                                 <RadioMenuFlyoutItem x:Uid="CountdownOffItem" GroupName="Countdown" Tag="0" Click="OnCountdownItemClick"
                                     IsChecked="{x:Bind local:MainWindow.IntEquals(ViewModel.CountdownSeconds, 0), Mode=OneWay}" />
@@ -210,9 +163,8 @@
                                 <RadioMenuFlyoutItem x:Uid="Countdown10Item" GroupName="Countdown" Tag="10" Click="OnCountdownItemClick"
                                     IsChecked="{x:Bind local:MainWindow.IntEquals(ViewModel.CountdownSeconds, 10), Mode=OneWay}" />
                             </MenuFlyout>
-                            </Button.Flyout>
-                        </Button>
-                    </AppBarElementContainer>
+                        </AppBarButton.Flyout>
+                    </AppBarButton>
                     <AppBarButton
                         x:Name="CopyButton"
                         Width="40"

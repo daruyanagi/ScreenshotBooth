@@ -68,6 +68,9 @@
   <data name="RestoreLayoutToggle.Label" xml:space="preserve"><value>撮影後に対象ウィンドウのレイアウトを復元する</value></data>
   <data name="RestoreLayoutToggle.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>対象を元の位置に戻す</value></data>
   <data name="RestoreLayoutToggle.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>オン: 解除や撮影でブースが対象を手放したとき、元の位置とサイズに戻します</value></data>
+  <data name="FitToBoothToggle.Label" xml:space="preserve"><value>フィット</value></data>
+  <data name="RetakeButton.Label" xml:space="preserve"><value>撮り直し</value></data>
+  <data name="CountdownButton.Label" xml:space="preserve"><value>カウントダウン</value></data>
   <data name="PresetCustom" xml:space="preserve"><value>カスタム</value></data>
   <data name="NoticeCancelledTitle" xml:space="preserve"><value>キャンセルしました</value></data>
 </root>

@@ -49,7 +49,23 @@ public partial class App : Application
             Windows.Globalization.ApplicationLanguages.PrimaryLanguageOverride = language;
         }
 
-        InitializeComponent();
+        try
+        {
+            InitializeComponent();
+        }
+        catch (Exception ex)
+        {
+            AppLog.Write($"Startup: App.InitializeComponent failed {ex}");
+            throw;
+        }
+
+        // Whatever way the process goes down, never leave the held window stuck topmost.
+        AppDomain.CurrentDomain.ProcessExit += (_, _) => BoothController.ReleaseHeldTargetOnExit();
+        UnhandledException += (_, e) =>
+        {
+            AppLog.Write($"Unhandled: {e.Message}\n{e.Exception}");
+            BoothController.ReleaseHeldTargetOnExit();
+        };
     }
 
     /// <summary>
