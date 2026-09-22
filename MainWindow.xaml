@@ -96,15 +96,6 @@
                 <CommandBar.Content>
                     <StackPanel Orientation="Horizontal" Spacing="4" HorizontalAlignment="Right" VerticalAlignment="Center" Height="48">
                         <Button
-                            x:Name="ReleaseButton"
-                            x:Uid="ReleaseButton"
-                            AutomationProperties.AutomationId="ReleaseButton"
-                            Command="{x:Bind ViewModel.ReleaseCommand}"
-                            IsEnabled="{x:Bind ViewModel.IsTargetPinned, Mode=OneWay}"
-                            VerticalAlignment="Center">
-                            <FontIcon Glyph="&#xE77A;" FontSize="16" />
-                        </Button>
-                        <Button
                             x:Name="ShutterButton"
                             x:Uid="ShutterButton"
                             AutomationProperties.AutomationId="ShutterButton"

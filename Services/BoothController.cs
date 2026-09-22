@@ -45,6 +45,16 @@ public sealed class BoothController
     private Point? _lastAreaCenter;
 
     private readonly TargetFrameOverlay _frame;
+    private readonly TargetChipWindow _chip;
+    private const int ChipGapPx = 8;
+
+    // Where the booth was last placed (by us, or by a user resize): while a target is held, a
+    // plain drag of the booth snaps back here so the booth and target cannot drift apart.
+    private Windows.Graphics.PointInt32? _lockedBoothPosition;
+    private Windows.Graphics.SizeInt32? _lockedBoothSize;
+
+    /// <summary>Raised when the Release button on the target chip is clicked.</summary>
+    public event Action? ReleaseRequested;
     private readonly WinEventDelegate _winEventProc;   // rooted for the hook's lifetime
     private readonly IntPtr _moveSizeHook;
 
@@ -59,6 +69,8 @@ public sealed class BoothController
         _boothAppWindow = AppWindow.GetFromWindowId(windowId);
 
         _frame = new TargetFrameOverlay();
+        _chip = new TargetChipWindow();
+        _chip.ReleaseRequested += () => ReleaseRequested?.Invoke();
 
         // EVENT_SYSTEM_MOVESIZEEND (0x000B): fires on this (UI) thread when a user move/resize of
         // any window ends; we only react for the held target.
@@ -160,7 +172,7 @@ public sealed class BoothController
         _isPinned = topMost && HasTarget;
         if (!HasTarget)
         {
-            _frame.Hide();
+            HideIndicators();
             return;
         }
 
@@ -170,23 +182,72 @@ public sealed class BoothController
 
         if (topMost)
         {
-            _frame.Show(GetTargetExtendedFrameBounds());
+            ShowIndicators();
         }
         else
         {
-            _frame.Hide();
+            HideIndicators();
         }
     }
 
-    /// <summary>Hides the frame ring without releasing the target - called right before a capture so the ring is not in the shot.</summary>
-    public void HideTargetFrame() => _frame.Hide();
+    /// <summary>Hides the frame ring and chip without releasing the target - called right before a capture so neither is in the shot.</summary>
+    public void HideTargetFrame() => HideIndicators();
+
+    private void ShowIndicators()
+    {
+        var frame = GetTargetExtendedFrameBounds();
+        _frame.Show(frame);
+        _chip.ShowBelow(frame, ChipGapPx);
+    }
+
+    private void HideIndicators()
+    {
+        _frame.Hide();
+        _chip.HideChip();
+    }
 
     private void OnWinEvent(IntPtr hook, uint eventType, IntPtr hwnd, int idObject, int idChild, uint eventThread, uint eventTime)
     {
-        if (_isPinned && hwnd == (IntPtr)_targetHwnd && _lastAreaCenter is { } center)
+        if (!_isPinned)
+        {
+            return;
+        }
+
+        if (hwnd == (IntPtr)_targetHwnd && _lastAreaCenter is { } center)
         {
             CenterTargetAt(center.X, center.Y);
         }
+        else if (hwnd == (IntPtr)_boothHwnd)
+        {
+            var size = _boothAppWindow.Size;
+            var position = _boothAppWindow.Position;
+            var sameSize = _lockedBoothSize is { } ls && ls.Width == size.Width && ls.Height == size.Height;
+            if (sameSize && _lockedBoothPosition is { } lp && (lp.X != position.X || lp.Y != position.Y))
+            {
+                // A plain move: put the booth back.
+                _boothAppWindow.Move(lp);
+                return;
+            }
+
+            // A resize (allowed): accept the new geometry and keep the target centered in the area.
+            _lockedBoothPosition = position;
+            _lockedBoothSize = size;
+            RecenterTargetInArea();
+        }
+    }
+
+    /// <summary>Centers the target in the booth area as it currently is on screen.</summary>
+    private void RecenterTargetInArea()
+    {
+        var scale = DpiScale;
+        var chromeTopPx = (int)(_chromeTopDip * scale);
+        var chromeBottomPx = (int)(_chromeBottomDip * scale);
+        var client = _boothAppWindow.ClientSize;
+        var origin = new POINT(0, 0);
+        ClientToScreen(_boothHwnd, ref origin);
+        var areaH = Math.Max(1, client.Height - chromeTopPx - chromeBottomPx);
+        _lastAreaCenter = new Point(origin.X + client.Width / 2, origin.Y + chromeTopPx + areaH / 2);
+        CenterTargetAt(_lastAreaCenter.Value.X, _lastAreaCenter.Value.Y);
     }
 
     private delegate void WinEventDelegate(IntPtr hWinEventHook, uint eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime);
@@ -298,6 +359,8 @@ public sealed class BoothController
         _boothAppWindow.Move(new Windows.Graphics.PointInt32(x, y));
 
         LastLayoutSize = recordLayoutSize ? size : null;
+        _lockedBoothPosition = new Windows.Graphics.PointInt32(x, y);
+        _lockedBoothSize = size;
 
         // Center the target in the booth AREA (not the window), so the margins are even.
         var origin = new POINT(0, 0);
@@ -362,7 +425,7 @@ public sealed class BoothController
 
         if (_isPinned)
         {
-            _frame.Show(GetTargetExtendedFrameBounds());
+            ShowIndicators();
         }
     }
 

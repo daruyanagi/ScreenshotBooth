@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Window
+    x:Class="ScreenshotBooth.TargetChipWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="">
+
+    <!-- Fills the whole (borderless) window; the rounded corners come from DWM. -->
+    <Border x:Name="Chip" Background="{ThemeResource AccentFillColorDefaultBrush}" Padding="12,4,6,4">
+        <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+            <FontIcon Glyph="&#xE718;" FontSize="12" Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}" VerticalAlignment="Center" />
+            <TextBlock
+                x:Uid="ChipLabel"
+                Style="{StaticResource CaptionTextBlockStyle}"
+                Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
+                VerticalAlignment="Center" />
+            <Button
+                x:Name="ReleaseButton"
+                x:Uid="ChipReleaseButton"
+                AutomationProperties.AutomationId="ChipReleaseButton"
+                Click="OnReleaseClick"
+                Padding="10,2"
+                MinHeight="0"
+                CornerRadius="6"
+                VerticalAlignment="Center" />
+        </StackPanel>
+    </Border>
+</Window>

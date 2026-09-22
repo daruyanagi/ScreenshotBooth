@@ -31,6 +31,7 @@ public sealed partial class MainWindow : Window
         var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
         var controller = new BoothController(hwnd);
         ViewModel = new BoothViewModel(controller, _settings);
+        controller.ReleaseRequested += () => ViewModel.ReleaseCommand.Execute(null);
 
         InitializeComponent();
 

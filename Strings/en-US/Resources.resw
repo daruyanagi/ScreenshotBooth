@@ -20,8 +20,6 @@
   <data name="FitToBoothSwitch.OffContent" xml:space="preserve"><value>Fit: off</value></data>
   <data name="FitToBoothTipOn" xml:space="preserve"><value>Fit mode is ON: resizing the booth resizes the target window to fill it (minus the shadow margin).</value></data>
   <data name="FitToBoothTipOff" xml:space="preserve"><value>Fit mode is OFF: resizing the booth leaves the target window as it is. Turn it on to make the target follow.</value></data>
-  <data name="ReleaseButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Release target</value></data>
-  <data name="ReleaseButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>Release the target (stop keeping it on top)</value></data>
   <data name="ShutterButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Capture screenshot</value></data>
   <data name="ShutterButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>Capture (copies to the clipboard)</value></data>
   <data name="RetakeButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Retake</value></data>
@@ -55,6 +53,8 @@
   <data name="NoticeHotkeyFailedTitle" xml:space="preserve"><value>Hotkey unavailable</value></data>
   <data name="NoticeHotkeyFailedMessage" xml:space="preserve"><value>Couldn't register Win+Shift+B (another app may be using it).</value></data>
   <data name="PresetComboBox.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>Sizes marked ❗ are smaller than the target window plus its shadow margin, so the target would stick out of the booth. Turn on Fit to make the target follow instead.</value></data>
+  <data name="ChipLabel.Text" xml:space="preserve"><value>Held as the capture target</value></data>
+  <data name="ChipReleaseButton.Content" xml:space="preserve"><value>Release</value></data>
   <data name="PresetCustom" xml:space="preserve"><value>Custom</value></data>
   <data name="NoticeCancelledTitle" xml:space="preserve"><value>Cancelled</value></data>
 </root>

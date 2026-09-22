@@ -20,8 +20,6 @@
   <data name="FitToBoothSwitch.OffContent" xml:space="preserve"><value>フィット: オフ</value></data>
   <data name="FitToBoothTipOn" xml:space="preserve"><value>フィットモード オン: ブースをリサイズすると、対象ウィンドウが（影の余白を残して）ブースいっぱいに追従します。</value></data>
   <data name="FitToBoothTipOff" xml:space="preserve"><value>フィットモード オフ: ブースをリサイズしても対象ウィンドウはそのままです。追従させたいときはオンにしてください。</value></data>
-  <data name="ReleaseButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>対象を解放</value></data>
-  <data name="ReleaseButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>対象ウィンドウの最前面固定を解除します</value></data>
   <data name="ShutterButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>撮影</value></data>
   <data name="ShutterButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>撮影（クリップボードへコピー）</value></data>
   <data name="RetakeButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>撮り直し</value></data>
@@ -55,6 +53,8 @@
   <data name="NoticeHotkeyFailedTitle" xml:space="preserve"><value>ホットキーを使えません</value></data>
   <data name="NoticeHotkeyFailedMessage" xml:space="preserve"><value>Win+Shift+B を登録できませんでした（他のアプリが使用中かもしれません）。</value></data>
   <data name="PresetComboBox.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>❗ の付いたサイズは対象ウィンドウ＋影の余白より小さく、対象がブースからはみ出します。フィットをオンにすると対象が追従します。</value></data>
+  <data name="ChipLabel.Text" xml:space="preserve"><value>撮影対象として固定中</value></data>
+  <data name="ChipReleaseButton.Content" xml:space="preserve"><value>解除</value></data>
   <data name="PresetCustom" xml:space="preserve"><value>カスタム</value></data>
   <data name="NoticeCancelledTitle" xml:space="preserve"><value>キャンセルしました</value></data>
 </root>
