@@ -35,11 +35,18 @@ public sealed partial class MainWindow : Window
         controller.ReleaseRequested += () => ViewModel.ReleaseCommand.Execute(null);
         controller.TargetLost += reason => ViewModel.OnTargetLost(reason);
         controller.TargetResized += () => ViewModel.OnTargetResized();
-        ViewModel.Captured += () => CaptureEffect.Begin();
+        ViewModel.Captured += () =>
+        {
+            // Scale around the center of the preview, not its top-left corner.
+            PreviewShake.CenterX = PreviewImageElement.ActualWidth / 2;
+            PreviewShake.CenterY = PreviewImageElement.ActualHeight / 2;
+            CaptureEffect.Begin();
+        };
 
         InitializeComponent();
         Root.DataContext = ViewModel;
         FitToBoothToggle.DataContext = ViewModel;   // CommandBar items do not always inherit it
+        OnFitToggleStateChanged(FitToBoothToggle, new RoutedEventArgs());
 
         ExtendsContentIntoTitleBar = true;
         SetTitleBar(AppTitleBar);
@@ -170,6 +177,10 @@ public sealed partial class MainWindow : Window
 
     /// <summary>x:Bind helper for RadioMenuFlyoutItem.IsChecked.</summary>
     public static bool IntEquals(int a, int b) => a == b;
+
+    /// <summary>The "off" badge follows the toggle's own visual state so the two can never disagree.</summary>
+    private void OnFitToggleStateChanged(object sender, RoutedEventArgs e) =>
+        FitOffBadge.Visibility = FitToBoothToggle.IsChecked == true ? Visibility.Collapsed : Visibility.Visible;
 
     private void OnRootKeyDown(object sender, KeyRoutedEventArgs e)
     {

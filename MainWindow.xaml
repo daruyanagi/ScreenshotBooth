@@ -112,6 +112,8 @@
                             x:Uid="FitToBoothToggle"
                             AutomationProperties.AutomationId="FitToBoothToggle"
                             IsChecked="{Binding IsFitToBoothEnabled, Mode=TwoWay}"
+                            Checked="OnFitToggleStateChanged"
+                            Unchecked="OnFitToggleStateChanged"
                             ToolTipService.ToolTip="{x:Bind ViewModel.FitToBoothToolTip, Mode=OneWay}"
                             Background="Transparent"
                             BorderThickness="0"
@@ -127,8 +129,7 @@
                                     FontSize="9"
                                     HorizontalAlignment="Right"
                                     VerticalAlignment="Bottom"
-                                    Margin="0,0,-3,-3"
-                                    Visibility="{x:Bind local:MainWindow.InvertedBoolToVisibility(ViewModel.IsFitToBoothEnabled), Mode=OneWay}" />
+                                    Margin="0,0,-3,-3" />
                             </Grid>
                         </ToggleButton>
                     </AppBarElementContainer>
@@ -235,20 +236,47 @@
                     <!-- "It is a photo now": a flash and a shake when the capture lands, otherwise the
                          preview is pixel-identical to the live window and the eye cannot tell. -->
                     <Storyboard x:Name="CaptureEffect">
-                        <DoubleAnimation Storyboard.TargetName="Flash" Storyboard.TargetProperty="Opacity" From="0.9" To="0" Duration="0:0:0.3" />
+                        <DoubleAnimation Storyboard.TargetName="Flash" Storyboard.TargetProperty="Opacity" From="1" To="0" Duration="0:0:0.5" />
                         <DoubleAnimationUsingKeyFrames Storyboard.TargetName="PreviewShake" Storyboard.TargetProperty="TranslateX">
                             <LinearDoubleKeyFrame KeyTime="0:0:0" Value="0" />
-                            <LinearDoubleKeyFrame KeyTime="0:0:0.05" Value="-8" />
-                            <LinearDoubleKeyFrame KeyTime="0:0:0.1" Value="8" />
-                            <LinearDoubleKeyFrame KeyTime="0:0:0.15" Value="-6" />
-                            <LinearDoubleKeyFrame KeyTime="0:0:0.2" Value="6" />
-                            <LinearDoubleKeyFrame KeyTime="0:0:0.25" Value="-3" />
-                            <LinearDoubleKeyFrame KeyTime="0:0:0.3" Value="3" />
-                            <LinearDoubleKeyFrame KeyTime="0:0:0.35" Value="0" />
+                            <LinearDoubleKeyFrame KeyTime="0:0:0.06" Value="-16" />
+                            <LinearDoubleKeyFrame KeyTime="0:0:0.12" Value="16" />
+                            <LinearDoubleKeyFrame KeyTime="0:0:0.18" Value="-13" />
+                            <LinearDoubleKeyFrame KeyTime="0:0:0.24" Value="13" />
+                            <LinearDoubleKeyFrame KeyTime="0:0:0.3" Value="-9" />
+                            <LinearDoubleKeyFrame KeyTime="0:0:0.36" Value="9" />
+                            <LinearDoubleKeyFrame KeyTime="0:0:0.42" Value="-5" />
+                            <LinearDoubleKeyFrame KeyTime="0:0:0.48" Value="5" />
+                            <LinearDoubleKeyFrame KeyTime="0:0:0.54" Value="-2" />
+                            <LinearDoubleKeyFrame KeyTime="0:0:0.6" Value="0" />
+                        </DoubleAnimationUsingKeyFrames>
+                        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="PreviewShake" Storyboard.TargetProperty="TranslateY">
+                            <LinearDoubleKeyFrame KeyTime="0:0:0" Value="0" />
+                            <LinearDoubleKeyFrame KeyTime="0:0:0.08" Value="8" />
+                            <LinearDoubleKeyFrame KeyTime="0:0:0.16" Value="-8" />
+                            <LinearDoubleKeyFrame KeyTime="0:0:0.24" Value="6" />
+                            <LinearDoubleKeyFrame KeyTime="0:0:0.32" Value="-6" />
+                            <LinearDoubleKeyFrame KeyTime="0:0:0.4" Value="3" />
+                            <LinearDoubleKeyFrame KeyTime="0:0:0.48" Value="-3" />
+                            <LinearDoubleKeyFrame KeyTime="0:0:0.6" Value="0" />
+                        </DoubleAnimationUsingKeyFrames>
+                        <!-- A "pop": the photo drops back slightly smaller, then settles. -->
+                        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="PreviewShake" Storyboard.TargetProperty="ScaleX">
+                            <LinearDoubleKeyFrame KeyTime="0:0:0" Value="1" />
+                            <SplineDoubleKeyFrame KeyTime="0:0:0.15" Value="0.9" KeySpline="0.2,0,0.4,1" />
+                            <SplineDoubleKeyFrame KeyTime="0:0:0.45" Value="1.03" KeySpline="0.2,0,0.4,1" />
+                            <SplineDoubleKeyFrame KeyTime="0:0:0.6" Value="1" KeySpline="0.2,0,0.4,1" />
+                        </DoubleAnimationUsingKeyFrames>
+                        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="PreviewShake" Storyboard.TargetProperty="ScaleY">
+                            <LinearDoubleKeyFrame KeyTime="0:0:0" Value="1" />
+                            <SplineDoubleKeyFrame KeyTime="0:0:0.15" Value="0.9" KeySpline="0.2,0,0.4,1" />
+                            <SplineDoubleKeyFrame KeyTime="0:0:0.45" Value="1.03" KeySpline="0.2,0,0.4,1" />
+                            <SplineDoubleKeyFrame KeyTime="0:0:0.6" Value="1" KeySpline="0.2,0,0.4,1" />
                         </DoubleAnimationUsingKeyFrames>
                     </Storyboard>
                 </Grid.Resources>
                 <Image
+                    x:Name="PreviewImageElement"
                     Source="{x:Bind ViewModel.PreviewImage, Mode=OneWay}"
                     Visibility="{x:Bind local:MainWindow.BoolToVisibility(ViewModel.IsPreviewShown), Mode=OneWay}"
                     Stretch="UniformToFill">
