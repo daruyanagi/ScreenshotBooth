@@ -60,6 +60,8 @@
   <data name="NoticeAutoFitMessage" xml:space="preserve"><value>対象ウィンドウが最大プリセットより大きいため、ブースを {0}x{1} にして縮小し、フィットモードをオンにしました。</value></data>
   <data name="ChipHeldLabel" xml:space="preserve"><value>撮影対象として固定中</value></data>
   <data name="ChipReleaseLabel" xml:space="preserve"><value>解除</value></data>
+  <data name="NoticeRecoveredTitle" xml:space="preserve"><value>前回の終了時に固定が残っていました</value></data>
+  <data name="NoticeRecoveredMessage" xml:space="preserve"><value>前回、正常に終了できなかったため「{0}」が最前面に固定されたままでした。固定を解除しました。ご迷惑をおかけしました。</value></data>
   <data name="PresetCustom" xml:space="preserve"><value>カスタム</value></data>
   <data name="NoticeCancelledTitle" xml:space="preserve"><value>キャンセルしました</value></data>
 </root>

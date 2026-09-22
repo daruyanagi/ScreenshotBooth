@@ -266,6 +266,10 @@ public partial class BoothViewModel : ObservableObject
         IsTargetPinned = false;
     }
 
+    /// <summary>Called at startup when a window left on top by a crashed previous run was just released.</summary>
+    public void NotifyRecoveredStuckTopMost(string title) =>
+        ShowNotice(InfoBarSeverity.Warning, R.Get("NoticeRecoveredTitle"), R.F("NoticeRecoveredMessage", title), autoClose: false);
+
     /// <summary>Called by MainWindow when the global hotkey could not be registered.</summary>
     public void NotifyHotkeyFailed() =>
         ShowNotice(InfoBarSeverity.Error, R.Get("NoticeHotkeyFailedTitle"), R.Get("NoticeHotkeyFailedMessage"), autoClose: false);

@@ -57,6 +57,16 @@ public sealed partial class MainWindow : Window
 
         AppWindow.Closing += OnAppWindowClosing;
         Closed += OnWindowClosed;
+
+        // A previous run may have died while holding a window on top; repair it and own up to it.
+        if (HeldTargetRecord.TryRecover() is { } recoveredTitle)
+        {
+            DispatcherQueue.TryEnqueue(() =>
+            {
+                AppWindow.Show(activateWindow: false);
+                ViewModel.NotifyRecoveredStuckTopMost(recoveredTitle);
+            });
+        }
     }
 
     private void OnHotkeyPressed(object? sender, EventArgs e)

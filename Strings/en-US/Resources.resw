@@ -60,6 +60,8 @@
   <data name="NoticeAutoFitMessage" xml:space="preserve"><value>The window was larger than the largest preset, so the booth was set to {0}x{1}, the window was shrunk into it, and Fit mode was turned on.</value></data>
   <data name="ChipHeldLabel" xml:space="preserve"><value>Held as the capture target</value></data>
   <data name="ChipReleaseLabel" xml:space="preserve"><value>Release</value></data>
+  <data name="NoticeRecoveredTitle" xml:space="preserve"><value>A window was left on top</value></data>
+  <data name="NoticeRecoveredMessage" xml:space="preserve"><value>"{0}" was still kept always-on-top from the previous run (the app did not exit cleanly). It has been released. Sorry about that.</value></data>
   <data name="PresetCustom" xml:space="preserve"><value>Custom</value></data>
   <data name="NoticeCancelledTitle" xml:space="preserve"><value>Cancelled</value></data>
 </root>

@@ -210,6 +210,18 @@ public sealed class BoothController
                 SetWindowPosFlags.SWP_NOMOVE | SetWindowPosFlags.SWP_NOSIZE | SetWindowPosFlags.SWP_NOACTIVATE);
         }
 
+        // Persist which window we put on top, so a crash can be repaired on the next run.
+        if (topMost && !_targetWasTopMost)
+        {
+            var title = new System.Text.StringBuilder(256);
+            GetWindowText(_targetHwnd, title, title.Capacity);
+            HeldTargetRecord.Save((nint)_targetHwnd, title.ToString());
+        }
+        else if (!topMost)
+        {
+            HeldTargetRecord.Clear();
+        }
+
         if (topMost)
         {
             ShowIndicators();
