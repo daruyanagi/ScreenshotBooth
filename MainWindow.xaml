@@ -172,7 +172,6 @@
                             </MenuFlyout>
                         </AppBarButton.Flyout>
                     </AppBarButton>
-                    <AppBarSeparator />
                     <AppBarButton
                         x:Name="CopyButton"
                         Width="40"
