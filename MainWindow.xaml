@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Window
+    x:Class="ScreenshotBooth.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:ScreenshotBooth"
+    xmlns:models="using:ScreenshotBooth.Models"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Title="ScreenshotBooth"
+    mc:Ignorable="d">
+
+    <!-- No Window.SystemBackdrop (Mica/Acrylic) here by design: the booth window's content is a
+         plain white 4:3 area anyway, so a translucent backdrop wouldn't be visible around it in
+         practice, and on this dev VM's software (WARP) rendering path MicaBackdrop reliably made
+         the process exit silently within ~10s of Window.Activate() (confirmed by bisection - the
+         app is stable with it removed). If you have real GPU/DWM composition available and want
+         the chrome polish back, `<Window.SystemBackdrop><MicaBackdrop /></Window.SystemBackdrop>`
+         is safe to re-add. -->
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <TitleBar x:Name="AppTitleBar" Title="ScreenshotBooth" Grid.Row="0">
+            <TitleBar.IconSource>
+                <ImageIconSource ImageSource="Assets/AppIcon.ico" />
+            </TitleBar.IconSource>
+        </TitleBar>
+
+        <!-- Booth client area: plain white 4:3 backdrop. The live target window is positioned by
+             MainWindow.xaml.cs to sit on top of this, centered on the same display. After a
+             capture, PreviewImage replaces the white backdrop with the captured screenshot. -->
+        <Border x:Name="BoothArea" Grid.Row="1" Background="White">
+            <Image
+                Source="{x:Bind ViewModel.PreviewImage, Mode=OneWay}"
+                Visibility="{x:Bind local:MainWindow.BoolToVisibility(ViewModel.IsPreviewShown), Mode=OneWay}"
+                Stretch="UniformToFill" />
+        </Border>
+
+        <!-- Toolbar -->
+        <Grid Grid.Row="2" Padding="16,12" ColumnSpacing="24" BorderThickness="0,1,0,0" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Target size -->
+            <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                <ComboBox
+                    x:Name="PresetComboBox"
+                    AutomationProperties.AutomationId="PresetComboBox"
+                    AutomationProperties.Name="Target window size"
+                    ItemsSource="{x:Bind ViewModel.Presets}"
+                    SelectedItem="{x:Bind ViewModel.SelectedPreset, Mode=TwoWay}"
+                    Width="160" />
+                <NumberBox
+                    x:Name="CustomWidthNumberBox"
+                    AutomationProperties.AutomationId="CustomWidthNumberBox"
+                    AutomationProperties.Name="Custom target width"
+                    Value="{x:Bind ViewModel.CustomWidth, Mode=TwoWay}"
+                    Visibility="{x:Bind local:MainWindow.BoolToVisibility(ViewModel.IsCustomSizeVisible), Mode=OneWay}"
+                    SpinButtonPlacementMode="Compact"
+                    Minimum="100"
+                    Maximum="7680"
+                    Width="90"
+                    PlaceholderText="W" />
+                <TextBlock
+                    Text="&#xD7;"
+                    VerticalAlignment="Center"
+                    Visibility="{x:Bind local:MainWindow.BoolToVisibility(ViewModel.IsCustomSizeVisible), Mode=OneWay}" />
+                <NumberBox
+                    x:Name="CustomHeightNumberBox"
+                    AutomationProperties.AutomationId="CustomHeightNumberBox"
+                    AutomationProperties.Name="Custom target height"
+                    Value="{x:Bind ViewModel.CustomHeight, Mode=TwoWay}"
+                    Visibility="{x:Bind local:MainWindow.BoolToVisibility(ViewModel.IsCustomSizeVisible), Mode=OneWay}"
+                    SpinButtonPlacementMode="Compact"
+                    Minimum="100"
+                    Maximum="4320"
+                    Width="90"
+                    PlaceholderText="H" />
+            </StackPanel>
+
+            <!-- Status text -->
+            <TextBlock
+                Grid.Column="1"
+                Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}"
+                Style="{StaticResource CaptionTextBlockStyle}"
+                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                VerticalAlignment="Center"
+                HorizontalAlignment="Center"
+                TextTrimming="CharacterEllipsis" />
+
+            <!-- Capture actions -->
+            <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                <ComboBox
+                    x:Name="CountdownComboBox"
+                    AutomationProperties.AutomationId="CountdownComboBox"
+                    AutomationProperties.Name="Countdown delay"
+                    ItemsSource="{x:Bind ViewModel.CountdownOptions}"
+                    SelectedItem="{x:Bind ViewModel.SelectedCountdown, Mode=TwoWay}"
+                    ToolTipService.ToolTip="Countdown delay (TODO: overlay not implemented yet)"
+                    Width="90" />
+                <Button
+                    x:Name="WindowPickerButton"
+                    AutomationProperties.AutomationId="WindowPickerButton"
+                    AutomationProperties.Name="Pick window"
+                    IsEnabled="False"
+                    ToolTipService.ToolTip="Window picker - not implemented yet (TODO: hover-to-highlight via WindowFromPoint)">
+                    <FontIcon Glyph="&#xE7C4;" FontSize="16" />
+                </Button>
+                <Button
+                    x:Name="ShutterButton"
+                    AutomationProperties.AutomationId="ShutterButton"
+                    AutomationProperties.Name="Capture screenshot"
+                    Command="{x:Bind ViewModel.CaptureCommand}"
+                    Style="{StaticResource AccentButtonStyle}">
+                    <FontIcon Glyph="&#xE722;" FontSize="18" />
+                </Button>
+                <Button
+                    x:Name="RetakeButton"
+                    AutomationProperties.AutomationId="RetakeButton"
+                    AutomationProperties.Name="Retake"
+                    Command="{x:Bind ViewModel.RetakeCommand}"
+                    IsEnabled="{x:Bind ViewModel.IsPreviewShown, Mode=OneWay}">
+                    <FontIcon Glyph="&#xE7A7;" FontSize="16" />
+                </Button>
+                <Button
+                    x:Name="SaveButton"
+                    AutomationProperties.AutomationId="SaveButton"
+                    AutomationProperties.Name="Save screenshot"
+                    Command="{x:Bind ViewModel.SaveCommand}"
+                    IsEnabled="{x:Bind ViewModel.IsPreviewShown, Mode=OneWay}">
+                    <FontIcon Glyph="&#xE74E;" FontSize="16" />
+                </Button>
+                <Button
+                    x:Name="ShareButton"
+                    AutomationProperties.AutomationId="ShareButton"
+                    AutomationProperties.Name="Share screenshot"
+                    Command="{x:Bind ViewModel.ShareCommand}"
+                    IsEnabled="{x:Bind ViewModel.IsPreviewShown, Mode=OneWay}">
+                    <FontIcon Glyph="&#xE72D;" FontSize="16" />
+                </Button>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Window>
