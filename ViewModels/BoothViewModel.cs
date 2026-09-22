@@ -221,18 +221,20 @@ public partial class BoothViewModel : ObservableObject
         var bounds = _controller.CenterTarget(display);
         var max = _controller.GetMaxAreaSize(display);
         var min = _controller.GetMinAreaForTarget();
+        var largest = TargetSizePreset.BuiltIn
+            .Where(p => p.Width <= max.Width && p.Height <= max.Height)
+            .OrderByDescending(p => p.Width * p.Height)
+            .FirstOrDefault();
         var autoFitted = false;
         System.Drawing.Size area;
-        if (min is { } needed && (needed.Width > max.Width || needed.Height > max.Height))
+        if (largest is not null && min is { } needed && (needed.Width > largest.Width || needed.Height > largest.Height))
         {
-            var largest = TargetSizePreset.BuiltIn
-                .Where(p => p.Width <= max.Width && p.Height <= max.Height)
-                .OrderByDescending(p => p.Width * p.Height)
-                .FirstOrDefault();
-            var target = largest is null ? max : new System.Drawing.Size(largest.Width, largest.Height);
-            area = _controller.LayoutBoothWithAreaSize(target.Width, target.Height, display, recordLayoutSize: true);
+            // "Too big" = bigger than the largest preset offered: the booth takes that size, the
+            // target is shrunk into it, and fit mode stays on so the two keep matching.
+            area = _controller.LayoutBoothWithAreaSize(largest.Width, largest.Height, display, recordLayoutSize: true);
             var fitted = _controller.FitTargetToLayoutArea();
             autoFitted = fitted.Size != bounds.Size;
+            IsFitToBoothEnabled = true;
         }
         else
         {
@@ -250,7 +252,7 @@ public partial class BoothViewModel : ObservableObject
 
         if (autoFitted)
         {
-            ShowNotice(InfoBarSeverity.Informational, R.Get("NoticeAutoFitTitle"), R.Get("NoticeAutoFitMessage"));
+            ShowNotice(InfoBarSeverity.Informational, R.Get("NoticeAutoFitTitle"), R.F("NoticeAutoFitMessage", area.Width, area.Height));
         }
     }
 

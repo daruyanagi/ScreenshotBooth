@@ -56,8 +56,10 @@
   <data name="ChipLabel.Text" xml:space="preserve"><value>Held as the capture target</value></data>
   <data name="ChipReleaseButton.Content" xml:space="preserve"><value>Release</value></data>
   <data name="NoticeAutoFitTitle" xml:space="preserve"><value>Target resized</value></data>
-  <data name="NoticeAutoFitMessage" xml:space="preserve"><value>The window was too large for the booth on this display, so it was shrunk to fit and keep the booth usable.</value></data>
   <data name="IdleHint.Text" xml:space="preserve"><value>Activate the window you want to capture, then press Win+Shift+B.</value></data>
+  <data name="FitToBoothToggle.Label" xml:space="preserve"><value>Fit</value></data>
+  <data name="FitToBoothToggle.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Fit mode</value></data>
+  <data name="NoticeAutoFitMessage" xml:space="preserve"><value>The window was larger than the largest preset, so the booth was set to {0}x{1}, the window was shrunk into it, and Fit mode was turned on.</value></data>
   <data name="PresetCustom" xml:space="preserve"><value>Custom</value></data>
   <data name="NoticeCancelledTitle" xml:space="preserve"><value>Cancelled</value></data>
 </root>

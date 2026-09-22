@@ -56,8 +56,10 @@
   <data name="ChipLabel.Text" xml:space="preserve"><value>撮影対象として固定中</value></data>
   <data name="ChipReleaseButton.Content" xml:space="preserve"><value>解除</value></data>
   <data name="NoticeAutoFitTitle" xml:space="preserve"><value>対象ウィンドウをリサイズしました</value></data>
-  <data name="NoticeAutoFitMessage" xml:space="preserve"><value>このディスプレイのブースに収まらない大きさだったため、操作性確保のために自動で縮小しました。</value></data>
   <data name="IdleHint.Text" xml:space="preserve"><value>撮影したいウィンドウをアクティブにした状態で Win+Shift+B を押してください。</value></data>
+  <data name="FitToBoothToggle.Label" xml:space="preserve"><value>フィット</value></data>
+  <data name="FitToBoothToggle.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>フィットモード</value></data>
+  <data name="NoticeAutoFitMessage" xml:space="preserve"><value>対象ウィンドウが最大プリセットより大きいため、ブースを {0}x{1} にして縮小し、フィットモードをオンにしました。</value></data>
   <data name="PresetCustom" xml:space="preserve"><value>カスタム</value></data>
   <data name="NoticeCancelledTitle" xml:space="preserve"><value>キャンセルしました</value></data>
 </root>

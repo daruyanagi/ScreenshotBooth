@@ -40,6 +40,10 @@ public sealed class BoothController
     private HWND _targetHwnd;
     private bool _isPinned;
 
+    // Only one window is ever held topmost by this app. Process-level exit handlers reach the
+    // live controller through this so the window is restored even on abnormal shutdown paths.
+    private static BoothController? _current;
+
     // Where the target was last centered, so a user drag can be snapped back (the target is
     // effectively immovable while the booth holds it).
     private Point? _lastAreaCenter;
@@ -70,6 +74,7 @@ public sealed class BoothController
         var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(boothWindowHandle);
         _boothAppWindow = AppWindow.GetFromWindowId(windowId);
 
+        _current = this;
         _frame = new TargetFrameOverlay();
         _chip = new TargetChipWindow();
         _chip.ReleaseRequested += () => ReleaseRequested?.Invoke();
@@ -96,6 +101,12 @@ public sealed class BoothController
         if (fg.IsNull || fg == _boothHwnd || !IsWindow(fg) || !IsWindowVisible(fg))
         {
             return false;
+        }
+
+        // Switching targets restores the previous one first: never more than one window is held.
+        if (HasTarget && _targetHwnd != fg)
+        {
+            SetTargetTopMost(false);
         }
 
         _targetHwnd = fg;
@@ -202,6 +213,30 @@ public sealed class BoothController
         else
         {
             HideIndicators();
+        }
+    }
+
+    /// <summary>Lets go of the held window entirely (un-topmost, indicators hidden, nothing tracked).</summary>
+    public void ReleaseHeldTarget()
+    {
+        if (HasTarget)
+        {
+            SetTargetTopMost(false);
+        }
+        _targetHwnd = HWND.NULL;
+        _isPinned = false;
+    }
+
+    /// <summary>For exit paths (ProcessExit, unhandled exceptions, window close): make sure no window is left topmost.</summary>
+    public static void ReleaseHeldTargetOnExit()
+    {
+        try
+        {
+            _current?.ReleaseHeldTarget();
+        }
+        catch
+        {
+            // Best effort while shutting down.
         }
     }
 
@@ -357,6 +392,13 @@ public sealed class BoothController
     /// </summary>
     public Size LayoutBoothWithAreaSize(int areaW, int areaH, DisplayArea display, bool recordLayoutSize)
     {
+        // A minimized booth reports a bogus (-32000,-32000) geometry, which would send the target
+        // off-screen; restore it first without activating it.
+        if (IsIconic(_boothHwnd))
+        {
+            ShowWindow(_boothHwnd, ShowWindowCommand.SW_SHOWNOACTIVATE);
+        }
+
         var scale = DpiScale;
         var chromeTopPx = (int)(_chromeTopDip * scale);
         var chromeBottomPx = (int)(_chromeBottomDip * scale);

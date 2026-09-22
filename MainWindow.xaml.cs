@@ -40,6 +40,16 @@ public sealed partial class MainWindow : Window
         AppWindow.SetIcon(Path.Combine(AppContext.BaseDirectory, "Assets", "AppIcon.ico"));
 
         BoothArea.Loaded += (_, _) => ViewModel.BoothAreaElement = BoothArea;
+
+        // AppBarToggleButton.IsChecked is bool?, which x:Bind will not convert from bool; mirror it by hand.
+        FitToBoothToggle.IsChecked = ViewModel.IsFitToBoothEnabled;
+        ViewModel.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(BoothViewModel.IsFitToBoothEnabled))
+            {
+                FitToBoothToggle.IsChecked = ViewModel.IsFitToBoothEnabled;
+            }
+        };
         BoothArea.SizeChanged += (_, _) => ViewModel.OnBoothAreaLayoutUpdated();
 
         _hotkeyService = new HotkeyService();
@@ -133,6 +143,10 @@ public sealed partial class MainWindow : Window
             ViewModel.CountdownSeconds = seconds;
         }
     }
+
+    private void OnFitToggleChecked(object sender, RoutedEventArgs e) => ViewModel.IsFitToBoothEnabled = true;
+
+    private void OnFitToggleUnchecked(object sender, RoutedEventArgs e) => ViewModel.IsFitToBoothEnabled = false;
 
     /// <summary>x:Bind helper for RadioMenuFlyoutItem.IsChecked.</summary>
     public static bool IntEquals(int a, int b) => a == b;

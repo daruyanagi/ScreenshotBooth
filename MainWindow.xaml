@@ -59,8 +59,17 @@
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <!-- Booth size -->
-            <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+            <!-- Shutter first: it must never be hidden, so it stays out of the overflowable CommandBar. -->
+            <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                <Button
+                    x:Name="ShutterButton"
+                    x:Uid="ShutterButton"
+                    AutomationProperties.AutomationId="ShutterButton"
+                    Command="{x:Bind ViewModel.CaptureCommand}"
+                    Style="{StaticResource AccentButtonStyle}"
+                    VerticalAlignment="Center">
+                    <FontIcon Glyph="&#xE722;" FontSize="18" />
+                </Button>
                 <ComboBox
                     x:Name="PresetComboBox"
                     x:Uid="PresetComboBox"
@@ -69,21 +78,10 @@
                     SelectedItem="{x:Bind ViewModel.SelectedPreset, Mode=TwoWay}"
                     PlaceholderText="{x:Bind ViewModel.CurrentSizeText, Mode=OneWay}"
                     Width="180" />
-                <ToggleSwitch
-                    x:Name="FitToBoothSwitch"
-                    x:Uid="FitToBoothSwitch"
-                    AutomationProperties.AutomationId="FitToBoothSwitch"
-                    IsOn="{x:Bind ViewModel.IsFitToBoothEnabled, Mode=TwoWay}"
-                    ToolTipService.ToolTip="{x:Bind ViewModel.FitToBoothToolTip, Mode=OneWay}"
-                    MinWidth="0"
-                    Margin="8,0,0,0"
-                    VerticalAlignment="Center" />
             </StackPanel>
 
             <!-- Actions. The CommandBar sits in a star column so it is measured with the real remaining
-                 width and moves trailing commands into its overflow menu when the booth is narrow.
-                 Release and the shutter live in its Content, which never overflows - a shutter inside
-                 the overflow menu would put the open menu into the screenshot. -->
+                 width and moves trailing commands into its overflow menu when the booth is narrow. -->
             <CommandBar
                 Grid.Column="1"
                 DefaultLabelPosition="Collapsed"
@@ -91,25 +89,20 @@
                 IsDynamicOverflowEnabled="True"
                 Background="Transparent"
                 VerticalAlignment="Center"
-                HorizontalContentAlignment="Right"
                 VerticalContentAlignment="Center">
-                <CommandBar.Content>
-                    <StackPanel Orientation="Horizontal" Spacing="4" HorizontalAlignment="Right" VerticalAlignment="Center" Height="48">
-                        <Button
-                            x:Name="ShutterButton"
-                            x:Uid="ShutterButton"
-                            AutomationProperties.AutomationId="ShutterButton"
-                            Command="{x:Bind ViewModel.CaptureCommand}"
-                            Style="{StaticResource AccentButtonStyle}"
-                            VerticalAlignment="Center"
-                            Margin="4,0">
-                            <FontIcon Glyph="&#xE722;" FontSize="18" />
-                        </Button>
-                    </StackPanel>
-                </CommandBar.Content>
-
-                <!-- Overflow moves commands from the end: Share, Save, Copy, Countdown, then Retake. -->
+                <!-- Overflow moves commands from the end: Share, Save, Copy, Countdown, Retake, then Fit. -->
                 <CommandBar.PrimaryCommands>
+                    <AppBarToggleButton
+                        x:Name="FitToBoothToggle"
+                        x:Uid="FitToBoothToggle"
+                        AutomationProperties.AutomationId="FitToBoothToggle"
+                        Checked="OnFitToggleChecked"
+                        Unchecked="OnFitToggleUnchecked"
+                        ToolTipService.ToolTip="{x:Bind ViewModel.FitToBoothToolTip, Mode=OneWay}">
+                        <AppBarToggleButton.Icon>
+                            <FontIcon Glyph="&#xE740;" />
+                        </AppBarToggleButton.Icon>
+                    </AppBarToggleButton>
                     <AppBarButton
                         x:Name="RetakeButton"
                         x:Uid="RetakeButton"
