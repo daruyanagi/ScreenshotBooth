@@ -40,6 +40,11 @@ public sealed partial class MainWindow : Window
         // The shutter's countdown face is driven by hand: x:Bind inside that button's content did not apply.
         ViewModel.PropertyChanged += (_, e) =>
         {
+            if (e.PropertyName == nameof(BoothViewModel.CountdownSeconds))
+            {
+                UpdateCountdownBadge();
+            }
+
             if (e.PropertyName is nameof(BoothViewModel.IsCountingDown) or nameof(BoothViewModel.CountdownRemaining))
             {
                 ShutterCameraIcon.Visibility = ViewModel.IsCountingDown ? Visibility.Collapsed : Visibility.Visible;
@@ -52,6 +57,7 @@ public sealed partial class MainWindow : Window
         Root.DataContext = ViewModel;
         FitToBoothToggle.DataContext = ViewModel;   // CommandBar items do not always inherit it
         OnFitToggleStateChanged(FitToBoothToggle, new RoutedEventArgs());
+        UpdateCountdownBadge();
 
         ExtendsContentIntoTitleBar = true;
         SetTitleBar(AppTitleBar);
@@ -182,6 +188,12 @@ public sealed partial class MainWindow : Window
 
     /// <summary>x:Bind helper for RadioMenuFlyoutItem.IsChecked.</summary>
     public static bool IntEquals(int a, int b) => a == b;
+
+    private void UpdateCountdownBadge()
+    {
+        CountdownBadge.Visibility = ViewModel.HasCountdown ? Visibility.Visible : Visibility.Collapsed;
+        CountdownBadgeText.Text = ViewModel.CountdownBadge;
+    }
 
     /// <summary>The "off" badge follows the toggle's own visual state so the two can never disagree.</summary>
     private void OnFitToggleStateChanged(object sender, RoutedEventArgs e) =>

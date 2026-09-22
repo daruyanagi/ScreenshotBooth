@@ -76,8 +76,8 @@
                         <FontIcon x:Name="ShutterCameraIcon" Glyph="&#xE722;" FontSize="18" />
                         <!-- While counting down: the remaining seconds plus a small X (press = cancel). -->
                         <StackPanel x:Name="ShutterCountdownPanel" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center" Visibility="Collapsed">
-                            <TextBlock x:Name="ShutterCountdownText" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
                             <FontIcon Glyph="&#xE769;" FontSize="12" VerticalAlignment="Center" />
+                            <TextBlock x:Name="ShutterCountdownText" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
                         </StackPanel>
                     </Grid>
                 </Button>
@@ -167,15 +167,17 @@
                             Margin="4,0">
                             <Grid Width="20" Height="20">
                                 <FontIcon Glyph="&#xE916;" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                <!-- Driven from code-behind: x:Bind inside button content does not apply here. -->
                                 <Border
+                                    x:Name="CountdownBadge"
                                     Background="{ThemeResource SolidBackgroundFillColorBaseBrush}"
                                     CornerRadius="6"
                                     Padding="2,0"
                                     HorizontalAlignment="Right"
                                     VerticalAlignment="Bottom"
                                     Margin="0,0,-5,-4"
-                                    Visibility="{x:Bind local:MainWindow.BoolToVisibility(ViewModel.HasCountdown), Mode=OneWay}">
-                                    <TextBlock Text="{x:Bind ViewModel.CountdownBadge, Mode=OneWay}" FontSize="9" FontWeight="SemiBold" />
+                                    Visibility="Collapsed">
+                                    <TextBlock x:Name="CountdownBadgeText" FontSize="9" FontWeight="SemiBold" />
                                 </Border>
                             </Grid>
                             <Button.Flyout>
