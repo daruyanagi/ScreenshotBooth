@@ -109,15 +109,44 @@
                     PlaceholderText="H" />
             </StackPanel>
 
-            <!-- Status text -->
-            <TextBlock
-                Grid.Column="1"
-                Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}"
-                Style="{StaticResource CaptionTextBlockStyle}"
-                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                VerticalAlignment="Center"
-                HorizontalAlignment="Center"
-                TextTrimming="CharacterEllipsis" />
+            <!-- Pinned indicator + status text -->
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center" HorizontalAlignment="Center">
+                <Border
+                    x:Name="PinnedIndicator"
+                    Visibility="{x:Bind local:MainWindow.BoolToVisibility(ViewModel.IsTargetPinned), Mode=OneWay}"
+                    Background="{ThemeResource AccentFillColorDefaultBrush}"
+                    CornerRadius="14"
+                    Padding="10,2,2,2">
+                    <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                        <FontIcon Glyph="&#xE718;" FontSize="12" Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}" />
+                        <TextBlock
+                            Text="Target on top"
+                            Style="{StaticResource CaptionTextBlockStyle}"
+                            Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
+                            VerticalAlignment="Center" />
+                        <Button
+                            x:Name="ReleaseButton"
+                            AutomationProperties.AutomationId="ReleaseButton"
+                            AutomationProperties.Name="Release target"
+                            Command="{x:Bind ViewModel.ReleaseCommand}"
+                            ToolTipService.ToolTip="Release the target (stop keeping it on top)"
+                            Padding="6,2"
+                            MinHeight="0"
+                            CornerRadius="12">
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <FontIcon Glyph="&#xE77A;" FontSize="12" />
+                                <TextBlock Text="Release" Style="{StaticResource CaptionTextBlockStyle}" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </Border>
+                <TextBlock
+                    Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}"
+                    Style="{StaticResource CaptionTextBlockStyle}"
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                    VerticalAlignment="Center"
+                    TextTrimming="CharacterEllipsis" />
+            </StackPanel>
 
             <!-- Capture actions -->
             <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">

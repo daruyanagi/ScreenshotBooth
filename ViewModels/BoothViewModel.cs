@@ -52,6 +52,10 @@ public partial class BoothViewModel : ObservableObject
     [ObservableProperty]
     public partial bool IsPreviewShown { get; set; }
 
+    /// <summary>True while the target window is being held always-on-top by the booth.</summary>
+    [ObservableProperty]
+    public partial bool IsTargetPinned { get; set; }
+
     [ObservableProperty]
     public partial string StatusMessage { get; set; } = "Press Win+Shift+B over a window to begin.";
 
@@ -208,6 +212,7 @@ public partial class BoothViewModel : ObservableObject
         var bounds = _controller.ResizeAndCenterTarget((int)Math.Round(CustomWidth), (int)Math.Round(CustomHeight), display);
         _controller.LayoutBoothWindowAroundTarget(bounds, display);
         _controller.SetTargetTopMost(true);
+        IsTargetPinned = true;
 
         PreviewImage = null;
         IsPreviewShown = false;
@@ -221,6 +226,16 @@ public partial class BoothViewModel : ObservableObject
         {
             _controller.SetTargetTopMost(false);
         }
+        IsTargetPinned = false;
+    }
+
+    /// <summary>Lets the target go without capturing: the escape hatch for a hotkey pressed by mistake.</summary>
+    [RelayCommand]
+    private void Release()
+    {
+        _controller.SetTargetTopMost(false);
+        IsTargetPinned = false;
+        StatusMessage = "Released - the target is no longer on top.";
     }
 
     [RelayCommand]
@@ -240,6 +255,7 @@ public partial class BoothViewModel : ObservableObject
 
         var result = await _controller.CaptureAsync(BoothAreaElement);
         _controller.SetTargetTopMost(false);
+        IsTargetPinned = false;
         await ClipboardService.CopyPngAsync(result.PngBytes);
 
         _lastCapturePngBytes = result.PngBytes;
@@ -254,6 +270,7 @@ public partial class BoothViewModel : ObservableObject
         PreviewImage = null;
         IsPreviewShown = false;
         _controller.ReturnToLiveState();
+        IsTargetPinned = _controller.HasTarget;
         StatusMessage = _controller.HasTarget
             ? "Live - press the shutter to capture."
             : "Press Win+Shift+B over a window to begin.";
