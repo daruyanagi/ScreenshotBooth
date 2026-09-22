@@ -43,6 +43,7 @@ public sealed class BoothController
     // Where the target was last centered, so a user drag can be snapped back (the target is
     // effectively immovable while the booth holds it).
     private Point? _lastAreaCenter;
+    private Rectangle? _lastAreaRect;
 
     private readonly TargetFrameOverlay _frame;
     private readonly TargetChipWindow _chip;
@@ -144,7 +145,20 @@ public sealed class BoothController
     {
         var chromePx = (int)((_chromeTopDip + _chromeBottomDip) * DpiScale);
         var work = display.WorkArea;
-        return new Size(Math.Max(1, work.Width), Math.Max(1, work.Height - chromePx));
+
+        // The window is a little bigger than its client area (invisible resize borders).
+        var extraW = Math.Max(0, _boothAppWindow.Size.Width - _boothAppWindow.ClientSize.Width);
+        var extraH = Math.Max(0, _boothAppWindow.Size.Height - _boothAppWindow.ClientSize.Height);
+        return new Size(Math.Max(1, work.Width - extraW), Math.Max(1, work.Height - chromePx - extraH));
+    }
+
+    /// <summary>Re-applies the last booth area size (e.g. after the chrome was measured for real), keeping the target centered.</summary>
+    public void RelayoutWithLastArea(DisplayArea display)
+    {
+        if (_lastAreaRect is { } area)
+        {
+            LayoutBoothWithAreaSize(area.Width, area.Height, display, recordLayoutSize: true);
+        }
     }
 
     /// <summary>The smallest booth area (physical px) that shows the held target with its full shadow margin, or null without a target.</summary>
@@ -269,9 +283,19 @@ public sealed class BoothController
     /// Resizes the target to fill the booth area as it is on screen right now (minus the shadow
     /// margin) and centers it there, without moving the booth. Returns the target's actual bounds.
     /// </summary>
-    public Rectangle FitTargetToArea(FrameworkElement boothArea)
+    public Rectangle FitTargetToArea(FrameworkElement boothArea) => FitTargetToRect(GetScreenRectOfElement(boothArea));
+
+    /// <summary>Fits the target into the booth area as last laid out - usable before the XAML area has been rendered (first hotkey press).</summary>
+    public Rectangle FitTargetToLayoutArea() => _lastAreaRect is { } area ? FitTargetToRect(area) : GetTargetExtendedFrameBounds();
+
+    private Rectangle FitTargetToRect(Rectangle area)
     {
-        var area = GetScreenRectOfElement(boothArea);
+        // A maximized window ignores SetWindowPos sizing; bring it back to normal first.
+        if (IsZoomed(_targetHwnd))
+        {
+            ShowWindow(_targetHwnd, ShowWindowCommand.SW_RESTORE);
+        }
+
         var marginPx = (int)(MarginDip * DpiScale);
         var width = Math.Max(1, area.Width - marginPx * 2);
         var height = Math.Max(1, area.Height - marginPx * 2);
@@ -366,6 +390,7 @@ public sealed class BoothController
         // Center the target in the booth AREA (not the window), so the margins are even.
         var origin = new POINT(0, 0);
         ClientToScreen(_boothHwnd, ref origin);
+        _lastAreaRect = new Rectangle(origin.X, origin.Y + chromeTopPx, areaW, areaH);
         _lastAreaCenter = new Point(origin.X + areaW / 2, origin.Y + chromeTopPx + areaH / 2);
         CenterTargetAt(_lastAreaCenter.Value.X, _lastAreaCenter.Value.Y);
 

@@ -147,7 +147,7 @@ public partial class BoothViewModel : ObservableObject
         var fitting = TargetSizePreset.BuiltIn
             .Where(p => p.Width <= max.Width && p.Height <= max.Height)
             .ToList();
-        if (_initialArea is { } initial)
+        if (_initialArea is { } initial && !fitting.Any(p => p.Width == initial.Width && p.Height == initial.Height))
         {
             fitting.Add(TargetSizePreset.Custom(initial.Width, initial.Height));
         }
@@ -203,9 +203,29 @@ public partial class BoothViewModel : ObservableObject
 
         // Respect the window's own size at acquire time (fixed-size dialogs in particular): the booth
         // is laid out 4:3 around it, and only fit mode or the size picker change things afterwards.
+        // Exception: a target too big for any booth on this display (e.g. maximized) would cover
+        // the toolbar and make the booth unusable, so it is shrunk into the largest preset instead.
         var display = DisplayService.GetSelectedDisplay(_settings);
         var bounds = _controller.CenterTarget(display);
-        var area = _controller.LayoutBoothWindowAroundTarget(bounds, display);
+        var max = _controller.GetMaxAreaSize(display);
+        var min = _controller.GetMinAreaForTarget();
+        var autoFitted = false;
+        System.Drawing.Size area;
+        if (min is { } needed && (needed.Width > max.Width || needed.Height > max.Height))
+        {
+            var largest = TargetSizePreset.BuiltIn
+                .Where(p => p.Width <= max.Width && p.Height <= max.Height)
+                .OrderByDescending(p => p.Width * p.Height)
+                .FirstOrDefault();
+            var target = largest is null ? max : new System.Drawing.Size(largest.Width, largest.Height);
+            area = _controller.LayoutBoothWithAreaSize(target.Width, target.Height, display, recordLayoutSize: true);
+            var fitted = _controller.FitTargetToLayoutArea();
+            autoFitted = fitted.Size != bounds.Size;
+        }
+        else
+        {
+            area = _controller.LayoutBoothWindowAroundTarget(bounds, display);
+        }
         _controller.SetTargetTopMost(true);
         IsTargetPinned = true;
 
@@ -215,6 +235,11 @@ public partial class BoothViewModel : ObservableObject
 
         PreviewImage = null;
         IsPreviewShown = false;
+
+        if (autoFitted)
+        {
+            ShowNotice(InfoBarSeverity.Informational, R.Get("NoticeAutoFitTitle"), R.Get("NoticeAutoFitMessage"));
+        }
     }
 
     /// <summary>Called when the booth window is hidden to the tray: the target must not stay always-on-top.</summary>
@@ -273,8 +298,9 @@ public partial class BoothViewModel : ObservableObject
         {
             if (_controller.HasTarget && IsTargetPinned)
             {
-                var display = DisplayService.GetSelectedDisplay(_settings);
-                _controller.LayoutBoothWindowAroundTarget(_controller.GetTargetExtendedFrameBounds(), display);
+                // Same area size as before, just with the real chrome - never the 4:3 auto layout,
+                // which would throw away an auto-fitted preset size.
+                _controller.RelayoutWithLastArea(DisplayService.GetSelectedDisplay(_settings));
             }
             return;
         }

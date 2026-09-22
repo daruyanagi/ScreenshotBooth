@@ -55,6 +55,8 @@
   <data name="PresetComboBox.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>❗ の付いたサイズは対象ウィンドウ＋影の余白より小さく、対象がブースからはみ出します。フィットをオンにすると対象が追従します。</value></data>
   <data name="ChipLabel.Text" xml:space="preserve"><value>撮影対象として固定中</value></data>
   <data name="ChipReleaseButton.Content" xml:space="preserve"><value>解除</value></data>
+  <data name="NoticeAutoFitTitle" xml:space="preserve"><value>対象ウィンドウをリサイズしました</value></data>
+  <data name="NoticeAutoFitMessage" xml:space="preserve"><value>このディスプレイのブースに収まらない大きさだったため、操作性確保のために自動で縮小しました。</value></data>
   <data name="PresetCustom" xml:space="preserve"><value>カスタム</value></data>
   <data name="NoticeCancelledTitle" xml:space="preserve"><value>キャンセルしました</value></data>
 </root>
