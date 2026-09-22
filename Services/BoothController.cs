@@ -113,6 +113,29 @@ public sealed class BoothController
         return bounds;
     }
 
+    /// <summary>
+    /// The largest target size (physical px) the 4:3 booth can host on <paramref name="display"/>:
+    /// the booth is clamped to the work area, so anything bigger would overflow it.
+    /// </summary>
+    public Size GetMaxTargetSize(DisplayArea display)
+    {
+        var scale = DpiScale;
+        var marginPx = (int)(MarginDip * scale);
+        var toolbarPx = (int)(ToolbarHeightDip * scale);
+        var work = display.WorkArea;
+
+        const double ratio = 4.0 / 3.0;
+        double clientH = work.Height - toolbarPx;
+        double clientW = clientH * ratio;
+        if (clientW > work.Width)
+        {
+            clientW = work.Width;
+            clientH = clientW / ratio;
+        }
+
+        return new Size(Math.Max(0, (int)clientW - marginPx * 2), Math.Max(0, (int)clientH - marginPx * 2));
+    }
+
     /// <summary>Sets or clears WS_EX_TOPMOST on the target window.</summary>
     public void SetTargetTopMost(bool topMost)
     {

@@ -24,7 +24,8 @@ public partial class BoothViewModel : ObservableObject
     private byte[]? _lastCapturePngBytes;
     private bool _isApplyingPresetProgrammatically;
 
-    public ObservableCollection<TargetSizePreset> Presets { get; } = new(TargetSizePreset.BuiltIn);
+    /// <summary>Built-in presets that fit the 4:3 booth on the selected display, plus "Custom". See <see cref="RefreshPresets"/>.</summary>
+    public ObservableCollection<TargetSizePreset> Presets { get; } = new();
 
     // TODO (follow-up): wire this to a real countdown overlay. For this pass it's UI-only.
     public ObservableCollection<string> CountdownOptions { get; } = new(["Off", "3s", "5s", "10s", "Custom"]);
@@ -70,6 +71,7 @@ public partial class BoothViewModel : ObservableObject
         // despite the non-nullable annotation) until the SelectedPreset assignment itself runs.
         _isApplyingPresetProgrammatically = true;
 
+        RefreshPresets();
         var matchingPreset = Presets.FirstOrDefault(p =>
             !p.IsCustom && p.Width == settings.DefaultTargetWidth && p.Height == settings.DefaultTargetHeight);
         SelectedPreset = matchingPreset ?? Presets[^1]; // last entry is always "Custom"
@@ -82,6 +84,12 @@ public partial class BoothViewModel : ObservableObject
 
     partial void OnSelectedPresetChanged(TargetSizePreset value)
     {
+        // The ComboBox pushes null through the two-way binding while Presets is being rebuilt.
+        if (value is null)
+        {
+            return;
+        }
+
         IsCustomSizeVisible = value.IsCustom;
 
         if (!value.IsCustom)
@@ -122,6 +130,19 @@ public partial class BoothViewModel : ObservableObject
         var width = (int)Math.Round(CustomWidth);
         var height = (int)Math.Round(CustomHeight);
 
+        var display = DisplayService.GetSelectedDisplay(_settings);
+        var max = _controller.GetMaxTargetSize(display);
+        if (width > max.Width || height > max.Height)
+        {
+            width = Math.Min(width, max.Width);
+            height = Math.Min(height, max.Height);
+            _isApplyingPresetProgrammatically = true;
+            CustomWidth = width;
+            CustomHeight = height;
+            _isApplyingPresetProgrammatically = false;
+            StatusMessage = $"Clamped to {width}x{height} - the largest size that fits this display.";
+        }
+
         _settings.DefaultTargetWidth = width;
         _settings.DefaultTargetHeight = height;
         SettingsService.Save(_settings);
@@ -131,9 +152,44 @@ public partial class BoothViewModel : ObservableObject
             return;
         }
 
-        var display = DisplayService.GetSelectedDisplay(_settings);
         var actualBounds = _controller.ResizeAndCenterTarget(width, height, display);
         _controller.LayoutBoothWindowAroundTarget(actualBounds, display);
+    }
+
+    /// <summary>
+    /// Rebuilds <see cref="Presets"/> to only the built-in sizes the booth can host on the selected
+    /// display (the 4:3 booth is clamped to the work area, so bigger targets would overflow it).
+    /// Keeps the current selection when it still fits, otherwise falls back to the largest that does.
+    /// </summary>
+    private void RefreshPresets()
+    {
+        var display = DisplayService.GetSelectedDisplay(_settings);
+        var max = _controller.GetMaxTargetSize(display);
+        var fitting = TargetSizePreset.BuiltIn
+            .Where(p => p.IsCustom || (p.Width <= max.Width && p.Height <= max.Height))
+            .ToList();
+
+        if (Presets.SequenceEqual(fitting))
+        {
+            return;
+        }
+
+        var previous = SelectedPreset;
+        var wasProgrammatic = _isApplyingPresetProgrammatically;
+        _isApplyingPresetProgrammatically = true;
+        Presets.Clear();
+        foreach (var preset in fitting)
+        {
+            Presets.Add(preset);
+        }
+        _isApplyingPresetProgrammatically = wasProgrammatic;
+
+        if (previous is not null)
+        {
+            SelectedPreset = Presets.FirstOrDefault(p => p == previous)
+                ?? Presets.LastOrDefault(p => !p.IsCustom)
+                ?? Presets[^1];
+        }
     }
 
     /// <summary>Called by MainWindow when the global hotkey fires: grabs the foreground window as the new target.</summary>
@@ -142,8 +198,11 @@ public partial class BoothViewModel : ObservableObject
         if (!_controller.TryAcquireForegroundAsTarget())
         {
             StatusMessage = "No suitable foreground window found.";
+            AppLog.Write("Acquire: no suitable foreground window");
             return;
         }
+
+        RefreshPresets();
 
         var display = DisplayService.GetSelectedDisplay(_settings);
         var bounds = _controller.ResizeAndCenterTarget((int)Math.Round(CustomWidth), (int)Math.Round(CustomHeight), display);

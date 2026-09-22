@@ -58,16 +58,30 @@ public sealed partial class MainWindow : Window
 
     private void OnHotkeyPressed(object? sender, EventArgs e)
     {
-        DispatcherQueue.TryEnqueue(() =>
+        AppLog.Write("Hotkey: pressed");
+        var queued = DispatcherQueue.TryEnqueue(() =>
         {
-            // Acquire the foreground window BEFORE showing ourselves, otherwise the booth would
-            // become the foreground window and capture itself.
-            ViewModel.AcquireTargetFromForeground();
-            if (!AppWindow.IsVisible)
+            try
             {
-                AppWindow.Show(activateWindow: false);
+                // Acquire the foreground window BEFORE showing ourselves, otherwise the booth would
+                // become the foreground window and capture itself.
+                ViewModel.AcquireTargetFromForeground();
+                AppLog.Write($"Hotkey: acquired; status=\"{ViewModel.StatusMessage}\" visible={AppWindow.IsVisible}");
+                if (!AppWindow.IsVisible)
+                {
+                    AppWindow.Show(activateWindow: false);
+                    AppLog.Write($"Hotkey: shown; visible={AppWindow.IsVisible}");
+                }
+            }
+            catch (Exception ex)
+            {
+                AppLog.Write($"Hotkey: handler failed {ex}");
             }
         });
+        if (!queued)
+        {
+            AppLog.Write("Hotkey: TryEnqueue returned false");
+        }
     }
 
     private void ShowBooth()
