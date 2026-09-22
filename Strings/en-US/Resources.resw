@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="TrayOpen.Text" xml:space="preserve"><value>Open booth</value></data>
+  <data name="TrayExit.Text" xml:space="preserve"><value>Exit</value></data>
+  <data name="PresetComboBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Target window size</value></data>
+  <data name="CustomWidthNumberBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Custom target width</value></data>
+  <data name="CustomHeightNumberBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Custom target height</value></data>
+  <data name="FitToBoothButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Fit target to booth</value></data>
+  <data name="FitToBoothButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>Grow the target to fill the booth</value></data>
+  <data name="PinnedLabel.Text" xml:space="preserve"><value>Target on top</value></data>
+  <data name="ReleaseButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Release target</value></data>
+  <data name="ReleaseButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>Release the target (stop keeping it on top)</value></data>
+  <data name="ReleaseLabel.Text" xml:space="preserve"><value>Release</value></data>
+  <data name="CountdownComboBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Countdown delay</value></data>
+  <data name="CountdownComboBox.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>Countdown delay (not implemented yet)</value></data>
+  <data name="WindowPickerButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Pick window</value></data>
+  <data name="WindowPickerButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>Window picker (not implemented yet)</value></data>
+  <data name="ShutterButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Capture screenshot</value></data>
+  <data name="ShutterButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>Capture (copies to the clipboard)</value></data>
+  <data name="RetakeButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Retake</value></data>
+  <data name="RetakeButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>Retake</value></data>
+  <data name="SaveButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Save screenshot</value></data>
+  <data name="SaveButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>Save as PNG</value></data>
+  <data name="ShareButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Share screenshot</value></data>
+  <data name="ShareButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>Share</value></data>
+  <data name="PresetCustom" xml:space="preserve"><value>Custom</value></data>
+  <data name="CountdownOff" xml:space="preserve"><value>Off</value></data>
+  <data name="CountdownSeconds" xml:space="preserve"><value>{0}s</value></data>
+  <data name="CountdownCustom" xml:space="preserve"><value>Custom</value></data>
+  <data name="StatusIdle" xml:space="preserve"><value>Press Win+Shift+B over a window to begin.</value></data>
+  <data name="StatusHotkeyFailed" xml:space="preserve"><value>Couldn't register the global hotkey (it may be in use by another app).</value></data>
+  <data name="StatusNoForeground" xml:space="preserve"><value>No suitable foreground window found.</value></data>
+  <data name="StatusLive" xml:space="preserve"><value>Live - press the shutter to capture.</value></data>
+  <data name="StatusClamped" xml:space="preserve"><value>Clamped to {0}x{1} - the largest size that fits this display.</value></data>
+  <data name="StatusResized" xml:space="preserve"><value>Target resized to {0}x{1}.</value></data>
+  <data name="StatusNoTargetYet" xml:space="preserve"><value>No target window - press Win+Shift+B first.</value></data>
+  <data name="StatusCapturing" xml:space="preserve"><value>Capturing...</value></data>
+  <data name="StatusCaptured" xml:space="preserve"><value>Captured - copied to the clipboard.</value></data>
+  <data name="StatusSaved" xml:space="preserve"><value>Saved to {0}</value></data>
+  <data name="StatusShareNotImplemented" xml:space="preserve"><value>Share isn't implemented yet.</value></data>
+  <data name="StatusReleased" xml:space="preserve"><value>Released - the target is no longer on top.</value></data>
+  <data name="StatusMovedReleased" xml:space="preserve"><value>Booth moved - the target was released.</value></data>
+  <data name="NoticeCancelledTitle" xml:space="preserve"><value>Cancelled</value></data>
+  <data name="NoticeReleasedMessage" xml:space="preserve"><value>The target window is no longer kept on top. Press Win+Shift+B to start again.</value></data>
+  <data name="NoticeMovedMessage" xml:space="preserve"><value>The booth was moved, so the target window was released.</value></data>
+</root>

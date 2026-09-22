@@ -42,6 +42,13 @@ public partial class App : Application
     /// </summary>
     public App()
     {
+        // Apply the UI language override before any resource is resolved.
+        var language = SettingsService.Load().Language;
+        if (!string.IsNullOrEmpty(language))
+        {
+            Windows.Globalization.ApplicationLanguages.PrimaryLanguageOverride = language;
+        }
+
         InitializeComponent();
     }
 

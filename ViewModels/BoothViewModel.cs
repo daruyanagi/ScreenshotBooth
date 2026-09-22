@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media.Imaging;
 using Windows.Storage;
@@ -28,7 +29,14 @@ public partial class BoothViewModel : ObservableObject
     public ObservableCollection<TargetSizePreset> Presets { get; } = new();
 
     // TODO (follow-up): wire this to a real countdown overlay. For this pass it's UI-only.
-    public ObservableCollection<string> CountdownOptions { get; } = new(["Off", "3s", "5s", "10s", "Custom"]);
+    public ObservableCollection<string> CountdownOptions { get; } = new(
+    [
+        R.Get("CountdownOff"),
+        R.F("CountdownSeconds", 3),
+        R.F("CountdownSeconds", 5),
+        R.F("CountdownSeconds", 10),
+        R.Get("CountdownCustom"),
+    ]);
 
     [ObservableProperty]
     public partial TargetSizePreset SelectedPreset { get; set; }
@@ -44,7 +52,7 @@ public partial class BoothViewModel : ObservableObject
     public partial bool IsCustomSizeVisible { get; set; }
 
     [ObservableProperty]
-    public partial string SelectedCountdown { get; set; } = "Off";
+    public partial string SelectedCountdown { get; set; } = R.Get("CountdownOff");
 
     [ObservableProperty]
     public partial BitmapImage? PreviewImage { get; set; }
@@ -57,7 +65,18 @@ public partial class BoothViewModel : ObservableObject
     public partial bool IsTargetPinned { get; set; }
 
     [ObservableProperty]
-    public partial string StatusMessage { get; set; } = "Press Win+Shift+B over a window to begin.";
+    public partial string StatusMessage { get; set; } = R.Get("StatusIdle");
+
+    [ObservableProperty]
+    public partial bool IsNoticeOpen { get; set; }
+
+    [ObservableProperty]
+    public partial string NoticeTitle { get; set; } = "";
+
+    [ObservableProperty]
+    public partial string NoticeMessage { get; set; } = "";
+
+    private readonly DispatcherQueueTimer _noticeTimer;
 
     /// <summary>
     /// The XAML element for the white booth backdrop. The view sets this after Loaded so
@@ -69,6 +88,11 @@ public partial class BoothViewModel : ObservableObject
     {
         _controller = controller;
         _settings = settings;
+
+        _noticeTimer = DispatcherQueue.GetForCurrentThread().CreateTimer();
+        _noticeTimer.Interval = TimeSpan.FromSeconds(6);
+        _noticeTimer.IsRepeating = false;
+        _noticeTimer.Tick += (_, _) => IsNoticeOpen = false;
 
         // Guarded: the [ObservableProperty] setters below fire OnXxxChanged synchronously, and
         // those partials read SelectedPreset - which would otherwise still be null (its default,
@@ -150,7 +174,7 @@ public partial class BoothViewModel : ObservableObject
             CustomWidth = width;
             CustomHeight = height;
             _isApplyingPresetProgrammatically = false;
-            StatusMessage = $"Clamped to {width}x{height} - the largest size that fits this display.";
+            StatusMessage = R.F("StatusClamped", width, height);
         }
 
         _settings.DefaultTargetWidth = width;
@@ -219,7 +243,7 @@ public partial class BoothViewModel : ObservableObject
     {
         if (!_controller.TryAcquireForegroundAsTarget())
         {
-            StatusMessage = "No suitable foreground window found.";
+            StatusMessage = R.Get("StatusNoForeground");
             AppLog.Write("Acquire: no suitable foreground window");
             return;
         }
@@ -237,7 +261,7 @@ public partial class BoothViewModel : ObservableObject
 
         PreviewImage = null;
         IsPreviewShown = false;
-        StatusMessage = "Live - press the shutter to capture.";
+        StatusMessage = R.Get("StatusLive");
     }
 
     /// <summary>Called when the booth window is hidden to the tray: the target must not stay always-on-top.</summary>
@@ -264,7 +288,27 @@ public partial class BoothViewModel : ObservableObject
         var bounds = _controller.ResizeAndCenterTarget(size.Width, size.Height, display);
         _controller.LayoutBoothWindowAroundTarget(bounds, display);
         SyncSizeControlsToTarget(bounds);
-        StatusMessage = $"Target resized to {bounds.Width}x{bounds.Height}.";
+        StatusMessage = R.F("StatusResized", bounds.Width, bounds.Height);
+    }
+
+    /// <summary>
+    /// Called by MainWindow whenever the booth area is (re)laid out. The first real layout tells us
+    /// how much window chrome sits above/below the area, so the target can be centered in it exactly.
+    /// </summary>
+    public void OnBoothAreaLayoutUpdated()
+    {
+        if (BoothAreaElement is null || !_controller.MeasureChrome(BoothAreaElement))
+        {
+            return;
+        }
+
+        if (!_controller.HasTarget || !IsTargetPinned)
+        {
+            return;
+        }
+
+        var display = DisplayService.GetSelectedDisplay(_settings);
+        _controller.LayoutBoothWindowAroundTarget(_controller.GetTargetExtendedFrameBounds(), display);
     }
 
     /// <summary>Called by MainWindow when the booth's position changes; a user drag counts as cancelling the session.</summary>
@@ -277,7 +321,17 @@ public partial class BoothViewModel : ObservableObject
 
         _controller.SetTargetTopMost(false);
         IsTargetPinned = false;
-        StatusMessage = "Booth moved - the target was released.";
+        StatusMessage = R.Get("StatusMovedReleased");
+        ShowNotice(R.Get("NoticeCancelledTitle"), R.Get("NoticeMovedMessage"));
+    }
+
+    private void ShowNotice(string title, string message)
+    {
+        NoticeTitle = title;
+        NoticeMessage = message;
+        IsNoticeOpen = true;
+        _noticeTimer.Stop();
+        _noticeTimer.Start();
     }
 
     /// <summary>Lets the target go without capturing: the escape hatch for a hotkey pressed by mistake.</summary>
@@ -286,7 +340,8 @@ public partial class BoothViewModel : ObservableObject
     {
         _controller.SetTargetTopMost(false);
         IsTargetPinned = false;
-        StatusMessage = "Released - the target is no longer on top.";
+        StatusMessage = R.Get("StatusReleased");
+        ShowNotice(R.Get("NoticeCancelledTitle"), R.Get("NoticeReleasedMessage"));
     }
 
     [RelayCommand]
@@ -294,11 +349,12 @@ public partial class BoothViewModel : ObservableObject
     {
         if (!_controller.HasTarget || BoothAreaElement is null)
         {
-            StatusMessage = "No target window - use Win+Shift+B first.";
+            StatusMessage = R.Get("StatusNoTargetYet");
             return;
         }
 
-        StatusMessage = "Capturing...";
+        IsNoticeOpen = false;
+        StatusMessage = R.Get("StatusCapturing");
 
         // Restore the target's active/focused visual state before grabbing pixels: clicking our
         // own shutter button steals focus and would otherwise capture a dimmed/inactive window.
@@ -312,7 +368,7 @@ public partial class BoothViewModel : ObservableObject
         _lastCapturePngBytes = result.PngBytes;
         PreviewImage = result.Preview;
         IsPreviewShown = true;
-        StatusMessage = "Captured - copied to clipboard.";
+        StatusMessage = R.Get("StatusCaptured");
     }
 
     [RelayCommand]
@@ -323,8 +379,8 @@ public partial class BoothViewModel : ObservableObject
         _controller.ReturnToLiveState();
         IsTargetPinned = _controller.HasTarget;
         StatusMessage = _controller.HasTarget
-            ? "Live - press the shutter to capture."
-            : "Press Win+Shift+B over a window to begin.";
+            ? R.Get("StatusLive")
+            : R.Get("StatusIdle");
     }
 
     [RelayCommand]
@@ -347,13 +403,13 @@ public partial class BoothViewModel : ObservableObject
         }
 
         await FileIO.WriteBytesAsync(file, _lastCapturePngBytes);
-        StatusMessage = $"Saved to {file.Path}";
+        StatusMessage = R.F("StatusSaved", file.Path);
     }
 
     [RelayCommand]
     private void Share()
     {
         // TODO (follow-up): DataTransferManager share flow. Stub for this pass.
-        StatusMessage = "Share isn't implemented yet.";
+        StatusMessage = R.Get("StatusShareNotImplemented");
     }
 }

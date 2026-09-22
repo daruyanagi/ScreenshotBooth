@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="TrayOpen.Text" xml:space="preserve"><value>ブースを開く</value></data>
+  <data name="TrayExit.Text" xml:space="preserve"><value>終了</value></data>
+  <data name="PresetComboBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>対象ウィンドウのサイズ</value></data>
+  <data name="CustomWidthNumberBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>対象ウィンドウの幅</value></data>
+  <data name="CustomHeightNumberBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>対象ウィンドウの高さ</value></data>
+  <data name="FitToBoothButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>対象をブースに合わせる</value></data>
+  <data name="FitToBoothButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>対象ウィンドウをブースいっぱいに広げます</value></data>
+  <data name="PinnedLabel.Text" xml:space="preserve"><value>対象を最前面に固定中</value></data>
+  <data name="ReleaseButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>対象を解放</value></data>
+  <data name="ReleaseButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>対象ウィンドウの最前面固定を解除します</value></data>
+  <data name="ReleaseLabel.Text" xml:space="preserve"><value>解除</value></data>
+  <data name="CountdownComboBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>カウントダウン</value></data>
+  <data name="CountdownComboBox.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>カウントダウン（未実装）</value></data>
+  <data name="WindowPickerButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>ウィンドウを選択</value></data>
+  <data name="WindowPickerButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>ウィンドウ選択（未実装）</value></data>
+  <data name="ShutterButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>撮影</value></data>
+  <data name="ShutterButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>撮影（クリップボードへコピー）</value></data>
+  <data name="RetakeButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>撮り直し</value></data>
+  <data name="RetakeButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>撮り直し</value></data>
+  <data name="SaveButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>保存</value></data>
+  <data name="SaveButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>PNG として保存</value></data>
+  <data name="ShareButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>共有</value></data>
+  <data name="ShareButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>共有</value></data>
+  <data name="PresetCustom" xml:space="preserve"><value>カスタム</value></data>
+  <data name="CountdownOff" xml:space="preserve"><value>なし</value></data>
+  <data name="CountdownSeconds" xml:space="preserve"><value>{0} 秒</value></data>
+  <data name="CountdownCustom" xml:space="preserve"><value>カスタム</value></data>
+  <data name="StatusIdle" xml:space="preserve"><value>撮りたいウィンドウをアクティブにして Win+Shift+B を押してください。</value></data>
+  <data name="StatusHotkeyFailed" xml:space="preserve"><value>グローバルホットキーを登録できませんでした（他のアプリが使用中かもしれません）。</value></data>
+  <data name="StatusNoForeground" xml:space="preserve"><value>対象にできるウィンドウが見つかりませんでした。</value></data>
+  <data name="StatusLive" xml:space="preserve"><value>準備完了。シャッターを押すと撮影します。</value></data>
+  <data name="StatusClamped" xml:space="preserve"><value>このディスプレイに収まる最大サイズ {0}x{1} に丸めました。</value></data>
+  <data name="StatusResized" xml:space="preserve"><value>対象を {0}x{1} にリサイズしました。</value></data>
+  <data name="StatusNoTargetYet" xml:space="preserve"><value>対象ウィンドウがありません。先に Win+Shift+B を押してください。</value></data>
+  <data name="StatusCapturing" xml:space="preserve"><value>撮影中...</value></data>
+  <data name="StatusCaptured" xml:space="preserve"><value>撮影しました。クリップボードにコピー済みです。</value></data>
+  <data name="StatusSaved" xml:space="preserve"><value>{0} に保存しました</value></data>
+  <data name="StatusShareNotImplemented" xml:space="preserve"><value>共有はまだ実装されていません。</value></data>
+  <data name="StatusReleased" xml:space="preserve"><value>解除しました。対象は最前面ではなくなりました。</value></data>
+  <data name="StatusMovedReleased" xml:space="preserve"><value>ブースが移動されたため、対象を解除しました。</value></data>
+  <data name="NoticeCancelledTitle" xml:space="preserve"><value>キャンセルしました</value></data>
+  <data name="NoticeReleasedMessage" xml:space="preserve"><value>対象ウィンドウの最前面固定を解除しました。もう一度撮るには Win+Shift+B を押してください。</value></data>
+  <data name="NoticeMovedMessage" xml:space="preserve"><value>ブースが移動されたので、対象ウィンドウを解除しました。</value></data>
+</root>

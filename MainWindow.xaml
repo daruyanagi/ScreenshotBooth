@@ -11,18 +11,16 @@
     Title="ScreenshotBooth"
     mc:Ignorable="d">
 
-    <!-- No Window.SystemBackdrop (Mica/Acrylic) here by design: the booth window's content is a
-         plain white 4:3 area anyway, so a translucent backdrop wouldn't be visible around it in
-         practice, and on this dev VM's software (WARP) rendering path MicaBackdrop reliably made
-         the process exit silently within ~10s of Window.Activate() (confirmed by bisection - the
-         app is stable with it removed). If you have real GPU/DWM composition available and want
-         the chrome polish back, `<Window.SystemBackdrop><MicaBackdrop /></Window.SystemBackdrop>`
-         is safe to re-add. -->
+    <!-- No Window.SystemBackdrop (Mica/Acrylic) here by design: the booth content is a plain
+         white 4:3 area anyway, so a translucent backdrop would not be visible around it, and on
+         the dev VM's software (WARP) rendering path MicaBackdrop made the process exit silently
+         within ~10s of Window.Activate(). On real GPU/DWM composition it is safe to re-add
+         Window.SystemBackdrop with a MicaBackdrop. -->
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
         <tb:TaskbarIcon
@@ -33,13 +31,13 @@
             NoLeftClickDelay="True">
             <tb:TaskbarIcon.ContextFlyout>
                 <MenuFlyout AreOpenCloseAnimationsEnabled="False">
-                    <MenuFlyoutItem Text="Open booth" Click="OnTrayOpenClick">
+                    <MenuFlyoutItem x:Uid="TrayOpen" Click="OnTrayOpenClick">
                         <MenuFlyoutItem.Icon>
                             <FontIcon Glyph="&#xE8A7;" />
                         </MenuFlyoutItem.Icon>
                     </MenuFlyoutItem>
                     <MenuFlyoutSeparator />
-                    <MenuFlyoutItem Text="Exit" Click="OnTrayExitClick">
+                    <MenuFlyoutItem x:Uid="TrayExit" Click="OnTrayExitClick">
                         <MenuFlyoutItem.Icon>
                             <FontIcon Glyph="&#xE7E8;" />
                         </MenuFlyoutItem.Icon>
@@ -54,18 +52,8 @@
             </TitleBar.IconSource>
         </TitleBar>
 
-        <!-- Booth client area: plain white 4:3 backdrop. The live target window is positioned by
-             MainWindow.xaml.cs to sit on top of this, centered on the same display. After a
-             capture, PreviewImage replaces the white backdrop with the captured screenshot. -->
-        <Border x:Name="BoothArea" Grid.Row="1" Background="White">
-            <Image
-                Source="{x:Bind ViewModel.PreviewImage, Mode=OneWay}"
-                Visibility="{x:Bind local:MainWindow.BoolToVisibility(ViewModel.IsPreviewShown), Mode=OneWay}"
-                Stretch="UniformToFill" />
-        </Border>
-
-        <!-- Toolbar -->
-        <Grid Grid.Row="2" Padding="16,12" ColumnSpacing="24" BorderThickness="0,1,0,0" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}">
+        <!-- Toolbar (on top, so drop-downs open over the booth instead of off the bottom edge) -->
+        <Grid Grid.Row="1" Padding="16,8,16,12" ColumnSpacing="24" BorderThickness="0,0,0,1" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
@@ -76,15 +64,15 @@
             <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
                 <ComboBox
                     x:Name="PresetComboBox"
+                    x:Uid="PresetComboBox"
                     AutomationProperties.AutomationId="PresetComboBox"
-                    AutomationProperties.Name="Target window size"
                     ItemsSource="{x:Bind ViewModel.Presets}"
                     SelectedItem="{x:Bind ViewModel.SelectedPreset, Mode=TwoWay}"
                     Width="160" />
                 <NumberBox
                     x:Name="CustomWidthNumberBox"
+                    x:Uid="CustomWidthNumberBox"
                     AutomationProperties.AutomationId="CustomWidthNumberBox"
-                    AutomationProperties.Name="Custom target width"
                     Value="{x:Bind ViewModel.CustomWidth, Mode=TwoWay}"
                     Visibility="{x:Bind local:MainWindow.BoolToVisibility(ViewModel.IsCustomSizeVisible), Mode=OneWay}"
                     SpinButtonPlacementMode="Compact"
@@ -98,8 +86,8 @@
                     Visibility="{x:Bind local:MainWindow.BoolToVisibility(ViewModel.IsCustomSizeVisible), Mode=OneWay}" />
                 <NumberBox
                     x:Name="CustomHeightNumberBox"
+                    x:Uid="CustomHeightNumberBox"
                     AutomationProperties.AutomationId="CustomHeightNumberBox"
-                    AutomationProperties.Name="Custom target height"
                     Value="{x:Bind ViewModel.CustomHeight, Mode=TwoWay}"
                     Visibility="{x:Bind local:MainWindow.BoolToVisibility(ViewModel.IsCustomSizeVisible), Mode=OneWay}"
                     SpinButtonPlacementMode="Compact"
@@ -109,11 +97,10 @@
                     PlaceholderText="H" />
                 <Button
                     x:Name="FitToBoothButton"
+                    x:Uid="FitToBoothButton"
                     AutomationProperties.AutomationId="FitToBoothButton"
-                    AutomationProperties.Name="Fit target to booth"
                     Command="{x:Bind ViewModel.FitToBoothCommand}"
-                    IsEnabled="{x:Bind ViewModel.IsTargetPinned, Mode=OneWay}"
-                    ToolTipService.ToolTip="Grow the target to fill the booth">
+                    IsEnabled="{x:Bind ViewModel.IsTargetPinned, Mode=OneWay}">
                     <FontIcon Glyph="&#xE740;" FontSize="16" />
                 </Button>
             </StackPanel>
@@ -129,22 +116,21 @@
                     <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
                         <FontIcon Glyph="&#xE718;" FontSize="12" Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}" />
                         <TextBlock
-                            Text="Target on top"
+                            x:Uid="PinnedLabel"
                             Style="{StaticResource CaptionTextBlockStyle}"
                             Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
                             VerticalAlignment="Center" />
                         <Button
                             x:Name="ReleaseButton"
+                            x:Uid="ReleaseButton"
                             AutomationProperties.AutomationId="ReleaseButton"
-                            AutomationProperties.Name="Release target"
                             Command="{x:Bind ViewModel.ReleaseCommand}"
-                            ToolTipService.ToolTip="Release the target (stop keeping it on top)"
                             Padding="6,2"
                             MinHeight="0"
                             CornerRadius="12">
                             <StackPanel Orientation="Horizontal" Spacing="4">
                                 <FontIcon Glyph="&#xE77A;" FontSize="12" />
-                                <TextBlock Text="Release" Style="{StaticResource CaptionTextBlockStyle}" />
+                                <TextBlock x:Uid="ReleaseLabel" Style="{StaticResource CaptionTextBlockStyle}" />
                             </StackPanel>
                         </Button>
                     </StackPanel>
@@ -161,53 +147,72 @@
             <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
                 <ComboBox
                     x:Name="CountdownComboBox"
+                    x:Uid="CountdownComboBox"
                     AutomationProperties.AutomationId="CountdownComboBox"
-                    AutomationProperties.Name="Countdown delay"
                     ItemsSource="{x:Bind ViewModel.CountdownOptions}"
                     SelectedItem="{x:Bind ViewModel.SelectedCountdown, Mode=TwoWay}"
-                    ToolTipService.ToolTip="Countdown delay (TODO: overlay not implemented yet)"
                     Width="90" />
                 <Button
                     x:Name="WindowPickerButton"
+                    x:Uid="WindowPickerButton"
                     AutomationProperties.AutomationId="WindowPickerButton"
-                    AutomationProperties.Name="Pick window"
-                    IsEnabled="False"
-                    ToolTipService.ToolTip="Window picker - not implemented yet (TODO: hover-to-highlight via WindowFromPoint)">
+                    IsEnabled="False">
                     <FontIcon Glyph="&#xE7C4;" FontSize="16" />
                 </Button>
                 <Button
                     x:Name="ShutterButton"
+                    x:Uid="ShutterButton"
                     AutomationProperties.AutomationId="ShutterButton"
-                    AutomationProperties.Name="Capture screenshot"
                     Command="{x:Bind ViewModel.CaptureCommand}"
                     Style="{StaticResource AccentButtonStyle}">
                     <FontIcon Glyph="&#xE722;" FontSize="18" />
                 </Button>
                 <Button
                     x:Name="RetakeButton"
+                    x:Uid="RetakeButton"
                     AutomationProperties.AutomationId="RetakeButton"
-                    AutomationProperties.Name="Retake"
                     Command="{x:Bind ViewModel.RetakeCommand}"
                     IsEnabled="{x:Bind ViewModel.IsPreviewShown, Mode=OneWay}">
                     <FontIcon Glyph="&#xE7A7;" FontSize="16" />
                 </Button>
                 <Button
                     x:Name="SaveButton"
+                    x:Uid="SaveButton"
                     AutomationProperties.AutomationId="SaveButton"
-                    AutomationProperties.Name="Save screenshot"
                     Command="{x:Bind ViewModel.SaveCommand}"
                     IsEnabled="{x:Bind ViewModel.IsPreviewShown, Mode=OneWay}">
                     <FontIcon Glyph="&#xE74E;" FontSize="16" />
                 </Button>
                 <Button
                     x:Name="ShareButton"
+                    x:Uid="ShareButton"
                     AutomationProperties.AutomationId="ShareButton"
-                    AutomationProperties.Name="Share screenshot"
                     Command="{x:Bind ViewModel.ShareCommand}"
                     IsEnabled="{x:Bind ViewModel.IsPreviewShown, Mode=OneWay}">
                     <FontIcon Glyph="&#xE72D;" FontSize="16" />
                 </Button>
             </StackPanel>
         </Grid>
+
+        <!-- Booth client area: plain white 4:3 backdrop. The live target window is positioned by
+             BoothController to sit on top of this, centered in it. After a capture, PreviewImage
+             replaces the white backdrop with the captured screenshot. -->
+        <Border x:Name="BoothArea" Grid.Row="2" Background="White">
+            <Grid>
+                <Image
+                    Source="{x:Bind ViewModel.PreviewImage, Mode=OneWay}"
+                    Visibility="{x:Bind local:MainWindow.BoolToVisibility(ViewModel.IsPreviewShown), Mode=OneWay}"
+                    Stretch="UniformToFill" />
+                <!-- Overlaid (not a grid row) so opening it never changes the booth area's size. -->
+                <InfoBar
+                    x:Name="NoticeBar"
+                    IsOpen="{x:Bind ViewModel.IsNoticeOpen, Mode=TwoWay}"
+                    Title="{x:Bind ViewModel.NoticeTitle, Mode=OneWay}"
+                    Message="{x:Bind ViewModel.NoticeMessage, Mode=OneWay}"
+                    Severity="Informational"
+                    VerticalAlignment="Top"
+                    Margin="12,8" />
+            </Grid>
+        </Border>
     </Grid>
 </Window>

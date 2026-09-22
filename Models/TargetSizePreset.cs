@@ -13,6 +13,6 @@ public sealed record TargetSizePreset(string Name, int Width, int Height, bool I
         new("1024x768", 1024, 768),
         new("1280x720", 1280, 720),
         new("1920x1080", 1920, 1080),
-        new("Custom", 0, 0, IsCustom: true),
+        new(R.Get("PresetCustom"), 0, 0, IsCustom: true),
     ];
 }

@@ -26,8 +26,13 @@ public sealed class BoothController
     // DWM-composited rounded corners and drop shadow are fully visible against the white backdrop.
     private const int MarginDip = 64;
 
-    // Height reserved for the toolbar row, in DIPs.
-    private const int ToolbarHeightDip = 72;
+    // Window chrome above/below the booth area (title bar + toolbar on top), in DIPs. These are
+    // estimates for the very first layout; MeasureChrome replaces them once the area has been laid out.
+    private const double DefaultChromeTopDip = 32 + 72;
+    private const double DefaultChromeBottomDip = 0;
+
+    private double _chromeTopDip = DefaultChromeTopDip;
+    private double _chromeBottomDip = DefaultChromeBottomDip;
 
     private readonly HWND _boothHwnd;
     private readonly AppWindow _boothAppWindow;
@@ -128,11 +133,11 @@ public sealed class BoothController
     {
         var scale = DpiScale;
         var marginPx = (int)(MarginDip * scale);
-        var toolbarPx = (int)(ToolbarHeightDip * scale);
+        var chromePx = (int)((_chromeTopDip + _chromeBottomDip) * scale);
         var work = display.WorkArea;
 
         const double ratio = 4.0 / 3.0;
-        double clientH = work.Height - toolbarPx;
+        double clientH = work.Height - chromePx;
         double clientW = clientH * ratio;
         if (clientW > work.Width)
         {
@@ -180,7 +185,8 @@ public sealed class BoothController
     {
         var scale = DpiScale;
         var marginPx = (int)(MarginDip * scale);
-        var toolbarPx = (int)(ToolbarHeightDip * scale);
+        var chromeTopPx = (int)(_chromeTopDip * scale);
+        var chromeBottomPx = (int)(_chromeBottomDip * scale);
 
         double rawW = targetBounds.Width + marginPx * 2;
         double rawH = targetBounds.Height + marginPx * 2;
@@ -200,8 +206,8 @@ public sealed class BoothController
 
         var work = display.WorkArea;
 
-        // Clamp to the display's work area (minus toolbar) while preserving the 4:3 ratio.
-        var maxClientH = work.Height - toolbarPx;
+        // Clamp to the work area (minus chrome) while preserving the 4:3 ratio.
+        var maxClientH = work.Height - chromeTopPx - chromeBottomPx;
         if (clientH > maxClientH)
         {
             clientH = maxClientH;
@@ -214,13 +220,56 @@ public sealed class BoothController
         }
 
         var totalW = (int)clientW;
-        var totalH = (int)clientH + toolbarPx;
+        var totalH = (int)clientH + chromeTopPx + chromeBottomPx;
 
         var x = work.X + (work.Width - totalW) / 2;
         var y = work.Y + (work.Height - totalH) / 2;
 
         LastLayoutPosition = new Windows.Graphics.PointInt32(x, y);
         _boothAppWindow.MoveAndResize(new Windows.Graphics.RectInt32(x, y, totalW, totalH));
+
+        // Center the target in the booth AREA (not the window), so the margins are even.
+        CenterTargetAt(x + totalW / 2, y + chromeTopPx + (int)clientH / 2);
+    }
+
+    /// <summary>
+    /// Records how much window chrome sits above/below the booth area, from its actual layout.
+    /// Returns true when the values changed enough that the current layout should be redone.
+    /// </summary>
+    public bool MeasureChrome(FrameworkElement boothArea)
+    {
+        if (boothArea.ActualHeight <= 0)
+        {
+            return false;
+        }
+
+        var bounds = boothArea.TransformToVisual(null)
+            .TransformBounds(new Windows.Foundation.Rect(0, 0, boothArea.ActualWidth, boothArea.ActualHeight));
+        var clientHeightDip = _boothAppWindow.ClientSize.Height / DpiScale;
+        var top = bounds.Y;
+        var bottom = Math.Max(0, clientHeightDip - (bounds.Y + bounds.Height));
+
+        var changed = Math.Abs(top - _chromeTopDip) > 1 || Math.Abs(bottom - _chromeBottomDip) > 1;
+        _chromeTopDip = top;
+        _chromeBottomDip = bottom;
+        return changed;
+    }
+
+    private void CenterTargetAt(int centerX, int centerY)
+    {
+        if (!HasTarget)
+        {
+            return;
+        }
+
+        var actual = GetTargetExtendedFrameBounds();
+        var x = centerX - actual.Width / 2;
+        var y = centerY - actual.Height / 2;
+        if (x != actual.X || y != actual.Y)
+        {
+            SetWindowPos(_targetHwnd, HWND.NULL, x, y, 0, 0,
+                SetWindowPosFlags.SWP_NOSIZE | SetWindowPosFlags.SWP_NOZORDER | SetWindowPosFlags.SWP_NOACTIVATE);
+        }
     }
 
     /// <summary>

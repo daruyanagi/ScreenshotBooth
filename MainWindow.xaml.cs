@@ -39,12 +39,13 @@ public sealed partial class MainWindow : Window
         AppWindow.SetIcon(Path.Combine(AppContext.BaseDirectory, "Assets", "AppIcon.ico"));
 
         BoothArea.Loaded += (_, _) => ViewModel.BoothAreaElement = BoothArea;
+        BoothArea.SizeChanged += (_, _) => ViewModel.OnBoothAreaLayoutUpdated();
 
         _hotkeyService = new HotkeyService();
         _hotkeyService.HotkeyPressed += OnHotkeyPressed;
         if (!_hotkeyService.Register(_settings.HotkeyModifiers, _settings.HotkeyVirtualKey))
         {
-            ViewModel.StatusMessage = "Couldn't register the global hotkey (it may be in use by another app).";
+            ViewModel.StatusMessage = R.Get("StatusHotkeyFailed");
         }
 
         // The tray menu (SecondWindow mode) runs on its own thread, so every window operation

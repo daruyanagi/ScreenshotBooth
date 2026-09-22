@@ -24,6 +24,9 @@ public sealed class AppSettings
 
     /// <summary>Index into DisplayArea.FindAll() of the display to use. -1 = primary.</summary>
     public int SelectedDisplayIndex { get; set; } = -1;
+
+    /// <summary>UI language override (BCP-47, e.g. "ja", "en-US"). Empty follows the system.</summary>
+    public string Language { get; set; } = "";
 }
 
 /// <summary>Shared default hotkey constants (used by AppSettings and HotkeyService).</summary>
