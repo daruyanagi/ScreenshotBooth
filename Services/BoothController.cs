@@ -40,6 +40,10 @@ public sealed class BoothController
     private HWND _targetHwnd;
     private bool _isPinned;
 
+    // Whether the target was already always-on-top before we held it; releasing must not take
+    // that away from a window that had it on its own.
+    private bool _targetWasTopMost;
+
     // Only one window is ever held topmost by this app. Process-level exit handlers reach the
     // live controller through this so the window is restored even on abnormal shutdown paths.
     private static BoothController? _current;
@@ -110,6 +114,7 @@ public sealed class BoothController
         }
 
         _targetHwnd = fg;
+        _targetWasTopMost = (GetWindowLongPtr((IntPtr)fg, GWL_EXSTYLE).ToInt64() & WS_EX_TOPMOST) != 0;
         var title = new System.Text.StringBuilder(256);
         GetWindowText(fg, title, title.Capacity);
         AppLog.Write($"Acquire: target=0x{(nint)fg:X} \"{title}\" bounds={GetTargetExtendedFrameBounds()}");
@@ -202,9 +207,12 @@ public sealed class BoothController
             return;
         }
 
-        SetWindowPos(_targetHwnd, topMost ? HWND.HWND_TOPMOST : HWND.HWND_NOTOPMOST,
-            0, 0, 0, 0,
-            SetWindowPosFlags.SWP_NOMOVE | SetWindowPosFlags.SWP_NOSIZE | SetWindowPosFlags.SWP_NOACTIVATE);
+        if (topMost || !_targetWasTopMost)
+        {
+            SetWindowPos(_targetHwnd, topMost ? HWND.HWND_TOPMOST : HWND.HWND_NOTOPMOST,
+                0, 0, 0, 0,
+                SetWindowPosFlags.SWP_NOMOVE | SetWindowPosFlags.SWP_NOSIZE | SetWindowPosFlags.SWP_NOACTIVATE);
+        }
 
         if (topMost)
         {
@@ -299,6 +307,12 @@ public sealed class BoothController
         _lastAreaCenter = new Point(origin.X + client.Width / 2, origin.Y + chromeTopPx + areaH / 2);
         CenterTargetAt(_lastAreaCenter.Value.X, _lastAreaCenter.Value.Y);
     }
+
+    private const int GWL_EXSTYLE = -20;
+    private const long WS_EX_TOPMOST = 0x00000008;
+
+    [System.Runtime.InteropServices.DllImport("user32.dll", EntryPoint = "GetWindowLongPtrW")]
+    private static extern IntPtr GetWindowLongPtr(IntPtr hWnd, int nIndex);
 
     private delegate void WinEventDelegate(IntPtr hWinEventHook, uint eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime);
 

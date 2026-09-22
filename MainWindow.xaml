@@ -16,7 +16,9 @@
          the dev VM's software (WARP) rendering path MicaBackdrop made the process exit silently
          within ~10s of Window.Activate(). On real GPU/DWM composition it is safe to re-add
          Window.SystemBackdrop with a MicaBackdrop. -->
-    <Grid>
+    <!-- Classic Binding is used where x:Bind cannot convert types (bool -> bool?): a Window is not a
+         FrameworkElement, so x:Bind cannot resolve a StaticResource converter here either. -->
+    <Grid x:Name="Root">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -96,8 +98,7 @@
                         x:Name="FitToBoothToggle"
                         x:Uid="FitToBoothToggle"
                         AutomationProperties.AutomationId="FitToBoothToggle"
-                        Checked="OnFitToggleChecked"
-                        Unchecked="OnFitToggleUnchecked"
+                        IsChecked="{Binding IsFitToBoothEnabled, Mode=TwoWay}"
                         ToolTipService.ToolTip="{x:Bind ViewModel.FitToBoothToolTip, Mode=OneWay}">
                         <AppBarToggleButton.Icon>
                             <FontIcon Glyph="&#xE740;" />
