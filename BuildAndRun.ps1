@@ -1,14 +1,15 @@
 <#
 .SYNOPSIS
-Builds and optionally runs a WinUI 3 / .NET project.
+Builds and optionally runs ScreenshotBooth (unpackaged, self-contained WinUI 3 app).
 
 .DESCRIPTION
-One command to build and run:  .\BuildAndRun.ps1 MyApp.csproj
+One command to build and run:  .\BuildAndRun.ps1
 
-- Checks Developer Mode is enabled (required for packaged WinUI apps)
 - Auto-detects platform (x64/ARM64), defaults to Debug, auto-restores
 - Finds MSBuild via vswhere, falls back to dotnet build
-- After successful build, finds the output folder and runs with winapp run
+- After a successful build, launches ScreenshotBooth.exe straight from the build output folder
+  (the app is unpackaged: no MSIX deployment, no `winapp run`, no Developer Mode required)
+- Without -Detach the script stays attached until the app exits and reports its exit code
 - Pass -SkipRun to build without launching
 
 .EXAMPLE
@@ -36,23 +37,6 @@ if ($ExtraArgs -contains '--detach') {
 
 # Extra args are MSBuild-style flags like /p:Platform=x64
 $extraArgs = $ExtraArgs
-
-# -- 0. Check Developer Mode --
-$devMode = $false
-try {
-    $regPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock"
-    if (Test-Path $regPath) {
-        $val = Get-ItemProperty $regPath -Name AllowDevelopmentWithoutDevLicense -ErrorAction SilentlyContinue
-        if ($val.AllowDevelopmentWithoutDevLicense -eq 1) { $devMode = $true }
-    }
-} catch {}
-
-if (-not $devMode) {
-    Write-Host "ERROR: Developer Mode is not enabled." -ForegroundColor Red
-    Write-Host "WinUI 3 packaged apps require Developer Mode to deploy and run." -ForegroundColor Red
-    Write-Host "Enable it: Settings > System > For developers > Developer Mode" -ForegroundColor Yellow
-    exit 1
-}
 
 # -- 1. Find the .csproj if not specified --
 if (-not $Project) {
@@ -188,25 +172,24 @@ if ($buildExit -ne 0) {
 Write-Host ""
 Write-Host "BUILD SUCCEEDED" -ForegroundColor Green
 
-# -- 5. Run with winapp --
+# -- 5. Run the unpackaged exe from the build output --
 if ($SkipRun) {
     Write-Host "--> Skipping run (-SkipRun)" -ForegroundColor DarkGray
     exit 0
 }
 
-# Find the build output directory
+# Output folder pattern: bin\<Platform>\<Config>\<tfm>\win-<rid>\
 $rid = $detectedPlatform.ToLower()
 $projectDir = Split-Path (Resolve-Path $Project) -Parent
 if (-not $projectDir) { $projectDir = "." }
+$projectName = [System.IO.Path]::GetFileNameWithoutExtension($Project)
 
-# Search for the output folder pattern: bin\<Platform>\<Config>\<tfm>\win-<rid>\
 $binDir = Join-Path $projectDir "bin\$detectedPlatform\$detectedConfig"
 if (-not (Test-Path $binDir)) {
     Write-Host "WARNING: Build output not found at $binDir -- skipping run" -ForegroundColor Yellow
     exit 0
 }
 
-# Find the TFM folder (e.g., net10.0-windows10.0.26100.0)
 $tfmDirs = Get-ChildItem $binDir -Directory | Where-Object { $_.Name -match "^net\d" }
 if (-not $tfmDirs) {
     Write-Host "WARNING: No TFM folder found in $binDir -- skipping run" -ForegroundColor Yellow
@@ -220,22 +203,23 @@ if (-not (Test-Path $outputDir)) {
     $outputDir = $tfmDir.FullName
 }
 
-# Check winapp is available
-$winapp = Get-Command winapp -ErrorAction SilentlyContinue
-if (-not $winapp) {
-    Write-Host "WARNING: winapp CLI not found in PATH -- skipping run" -ForegroundColor Yellow
-    Write-Host "Build output at: $outputDir"
+$exePath = Join-Path $outputDir "$projectName.exe"
+if (-not (Test-Path $exePath)) {
+    Write-Host "WARNING: $exePath not found -- skipping run" -ForegroundColor Yellow
     exit 0
 }
 
+# Working directory = the exe folder, mirroring a user double-clicking the exe in an extracted zip.
 Write-Host ""
+Write-Host "--> Launching: $exePath" -ForegroundColor Cyan
+$proc = Start-Process -FilePath $exePath -WorkingDirectory $outputDir -PassThru
+$null = $proc.Handle  # cache the handle so ExitCode is readable after the process exits
+Write-Host "$projectName launched (PID: $($proc.Id))" -ForegroundColor Green
+
 if ($Detach) {
-    Write-Host "--> Launching app in background..." -ForegroundColor Cyan
-    & winapp run $outputDir --detach --json
-} else {
-    Write-Host "--> Launching app: winapp run $outputDir --debug-output" -ForegroundColor Cyan
-    Write-Host "    The script will stay running while the app is open." -ForegroundColor DarkGray
-    Write-Host "    Debug output and exceptions will appear below." -ForegroundColor DarkGray
-    Write-Host ""
-    & winapp run $outputDir --debug-output
+    exit 0
 }
+
+Write-Host "    The script stays attached while the app is open (Ctrl+C leaves the app running)." -ForegroundColor DarkGray
+Wait-Process -Id $proc.Id
+Write-Host "$projectName exited (code: $($proc.ExitCode))" -ForegroundColor DarkGray

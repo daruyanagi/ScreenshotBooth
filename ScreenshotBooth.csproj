@@ -5,14 +5,35 @@
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
     <RootNamespace>ScreenshotBooth</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <Platforms>x86;x64;ARM64</Platforms>
+    <ApplicationIcon>Assets\AppIcon.ico</ApplicationIcon>
+    <Platforms>x64;ARM64</Platforms>
     <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">win-$([System.Runtime.InteropServices.RuntimeInformation]::ProcessArchitecture.ToString().ToLowerInvariant())</RuntimeIdentifier>
     <PublishProfile Condition="Exists('Properties\PublishProfiles\win-$(Platform).pubxml')">win-$(Platform).pubxml</PublishProfile>
     <UseWinUI>true</UseWinUI>
     <WinUISDKReferences>false</WinUISDKReferences>
-    <EnableMsixTooling>true</EnableMsixTooling>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <!--
+    Deployment model: standalone unpackaged, self-contained (extract-and-run zip from GitHub Releases).
+    - WindowsPackageType=None      -> no MSIX / no package identity; Package.appxmanifest is not built.
+    - WindowsAppSDKSelfContained   -> the Windows App Runtime DLLs ship inside the app folder (Undocked
+                                      RegFree WinRT auto-initializer); users need NO Windows App Runtime install.
+    - SelfContained                -> the .NET runtime ships inside the app folder too; users need NO .NET install.
+    - EnableMsixTooling            -> stays ON even though we are unpackaged: the single-project tooling is
+                                      what lays out the compiled XAML (.xbf), ScreenshotBooth.pri and Assets
+                                      into the build/publish folder. Without it `dotnet publish` omits them and
+                                      the published exe dies at startup (0xC000027B in Microsoft.UI.Xaml.dll).
+                                      With WindowsPackageType=None it does NOT build Package.appxmanifest.
+    To produce a packaged (MSIX / Store / winget) build later, override on the command line:
+      dotnet build -p:Platform=x64 -p:WindowsPackageType=MSIX -p:WindowsAppSDKSelfContained=false
+  -->
+  <PropertyGroup>
+    <WindowsPackageType Condition="'$(WindowsPackageType)' == ''">None</WindowsPackageType>
+    <WindowsAppSDKSelfContained Condition="'$(WindowsAppSDKSelfContained)' == ''">true</WindowsAppSDKSelfContained>
+    <SelfContained Condition="'$(SelfContained)' == ''">true</SelfContained>
+    <EnableMsixTooling>true</EnableMsixTooling>
   </PropertyGroup>
 
   <ItemGroup>
@@ -23,7 +44,8 @@
     <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
     <Content Include="Assets\Square44x44Logo.targetsize-48_altform-lightunplated.png" />
     <Content Include="Assets\StoreLogo.png" />
-    <Content Include="Assets\AppIcon.ico" />
+    <!-- Loose copy needed: AppWindow.SetIcon reads it from disk (publish embeds the other Assets into the .pri). -->
+    <Content Include="Assets\AppIcon.ico" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
   </ItemGroup>
 
@@ -41,12 +63,9 @@
   </ItemGroup>
 
   <!--
-    Microsoft.Windows.SDK.BuildTools.WinApp adds first-class support for
-    `dotnet run` on packaged WinUI apps: it hooks the .NET CLI Run target to
-    register a debug identity via the winapp CLI and launch the app with
-    package identity (AUMID).
-    Set <EnableWinAppRunSupport>false</EnableWinAppRunSupport> in a
-    <PropertyGroup> above to opt out.
+    Microsoft.Windows.SDK.BuildTools.WinApp adds `dotnet run` support for PACKAGED WinUI apps
+    (registers a debug identity via the winapp CLI). It self-disables when WindowsPackageType=None,
+    so it is inert for the default unpackaged build and only kicks in for the packaged variant.
   -->
   <ItemGroup>
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.28000.2705" />
@@ -67,11 +86,15 @@
     <HasPackageAndPublishMenu>true</HasPackageAndPublishMenu>
   </PropertyGroup>
 
-  <!-- Publish Properties -->
+  <!--
+    Publish Properties. Trimming is deliberately OFF: with PublishTrimmed the SDK disables
+    reflection-based System.Text.Json (SettingsService would throw at runtime) and Vanara.PInvoke,
+    WinRT.Runtime and Microsoft.Windows.SDK.NET all report unresolved IL2026/IL2104 trim warnings.
+    Re-enable only after moving AppSettings to a JsonSerializerContext and trim-testing the app.
+  -->
   <PropertyGroup>
-    <PublishReadyToRun Condition="'$(Configuration)' == 'Debug'">False</PublishReadyToRun>
-    <PublishReadyToRun Condition="'$(Configuration)' != 'Debug'">True</PublishReadyToRun>
-    <PublishTrimmed Condition="'$(Configuration)' == 'Debug'">False</PublishTrimmed>
-    <PublishTrimmed Condition="'$(Configuration)' != 'Debug'">True</PublishTrimmed>
+    <PublishReadyToRun Condition="'$(Configuration)' == 'Debug'">false</PublishReadyToRun>
+    <PublishReadyToRun Condition="'$(Configuration)' != 'Debug'">true</PublishReadyToRun>
+    <PublishTrimmed>false</PublishTrimmed>
   </PropertyGroup>
 </Project>

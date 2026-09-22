@@ -40,7 +40,6 @@ BundleArtifacts/
 
 # Publish output
 publish/
-*.pubxml
 PublishScripts/
 
 # Code analysis and tooling
