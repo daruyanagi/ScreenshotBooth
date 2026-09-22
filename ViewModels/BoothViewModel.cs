@@ -256,6 +256,9 @@ public partial class BoothViewModel : ObservableObject
         }
     }
 
+    /// <summary>Re-applies the booth/target/indicator z-order (see BoothController.EnforceZOrder).</summary>
+    public void EnforceZOrder() => _controller.EnforceZOrder();
+
     /// <summary>Called when the booth window is hidden to the tray: the target must not stay always-on-top.</summary>
     public void OnBoothHidden()
     {

@@ -248,8 +248,12 @@ public sealed class BoothController
         }
     }
 
-    /// <summary>Within the topmost band: chip and ring on top, then the target, then the booth directly under it.</summary>
-    private void EnforceZOrder()
+    /// <summary>
+    /// Within the topmost band: chip and ring on top, then the target, then the booth directly under
+    /// it. Must be re-applied after anything that re-inserts a window into the band: activation
+    /// (handled by the foreground hook) and showing/restoring the booth (callers do this explicitly).
+    /// </summary>
+    public void EnforceZOrder()
     {
         if (!_isPinned || !HasTarget)
         {
@@ -448,6 +452,7 @@ public sealed class BoothController
         if (IsIconic(_boothHwnd))
         {
             ShowWindow(_boothHwnd, ShowWindowCommand.SW_SHOWNOACTIVATE);
+            EnforceZOrder();
         }
 
         var scale = DpiScale;

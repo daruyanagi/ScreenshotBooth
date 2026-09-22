@@ -88,6 +88,10 @@ public sealed partial class MainWindow : Window
                     AppWindow.Show(activateWindow: false);
                     AppLog.Write($"Hotkey: shown; visible={AppWindow.IsVisible}");
                 }
+
+                // Showing (or restoring) the booth inserts it at the top of its band - above the
+                // target - so the intended order has to be applied after it.
+                ViewModel.EnforceZOrder();
             }
             catch (Exception ex)
             {
