@@ -20,7 +20,11 @@ public sealed partial class TargetChipWindow : Window
     private const long WS_EX_NOACTIVATE = 0x08000000;
     private const int GWL_EXSTYLE = -20;
     private const int DWMWA_WINDOW_CORNER_PREFERENCE = 33;
-    private const int DWMWCP_ROUNDSMALL = 3;
+    private const int DWMWCP_DONOTROUND = 1;
+
+    // Measure() before the first show slightly under-reports the text width; keep a safety margin
+    // so the Release button is never clipped.
+    private const int WidthSafetyDip = 16;
 
     private readonly HWND _hwnd;
 
@@ -43,18 +47,19 @@ public sealed partial class TargetChipWindow : Window
         var exStyle = GetWindowLongPtr((IntPtr)_hwnd, GWL_EXSTYLE).ToInt64();
         SetWindowLongPtr((IntPtr)_hwnd, GWL_EXSTYLE, (IntPtr)(exStyle | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE));
 
-        var corner = DWMWCP_ROUNDSMALL;
+        // Square corners: the chip hangs off the frame ring like a tab.
+        var corner = DWMWCP_DONOTROUND;
         DwmSetWindowAttribute((IntPtr)_hwnd, DWMWA_WINDOW_CORNER_PREFERENCE, ref corner, sizeof(int));
     }
 
-    /// <summary>Places the chip centered under <paramref name="frame"/> (physical px) and shows it topmost without activating it.</summary>
+    /// <summary>Places the chip centered and attached to the bottom of the ring around <paramref name="frame"/> (physical px), topmost, without activating it.</summary>
     public void ShowBelow(System.Drawing.Rectangle frame, int gapPx)
     {
         var scale = GetDpiForWindow(_hwnd) / 96.0;
 
         Chip.Measure(new Windows.Foundation.Size(double.PositiveInfinity, double.PositiveInfinity));
         var desired = Chip.DesiredSize;
-        var widthDip = desired.Width > 0 ? desired.Width : FallbackWidthDip;
+        var widthDip = (desired.Width > 0 ? desired.Width : FallbackWidthDip) + WidthSafetyDip;
         var heightDip = desired.Height > 0 ? desired.Height : FallbackHeightDip;
         var width = (int)Math.Ceiling(widthDip * scale);
         var height = (int)Math.Ceiling(heightDip * scale);

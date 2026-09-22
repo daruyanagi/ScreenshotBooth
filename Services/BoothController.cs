@@ -46,7 +46,8 @@ public sealed class BoothController
 
     private readonly TargetFrameOverlay _frame;
     private readonly TargetChipWindow _chip;
-    private const int ChipGapPx = 8;
+    // The chip overlaps the ring's bottom edge by 1px so it reads as attached to it.
+    private const int ChipGapPx = TargetFrameOverlay.Thickness - 1;
 
     // Where the booth was last placed (by us, or by a user resize): while a target is held, a
     // plain drag of the booth snaps back here so the booth and target cannot drift apart.

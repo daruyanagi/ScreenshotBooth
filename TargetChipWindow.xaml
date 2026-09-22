@@ -5,8 +5,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Title="">
 
-    <!-- Fills the whole (borderless) window; the rounded corners come from DWM. -->
-    <Border x:Name="Chip" Background="{ThemeResource AccentFillColorDefaultBrush}" Padding="12,4,6,4">
+    <!-- Fills the whole (borderless, square-cornered) window: a tab hanging off the frame ring. -->
+    <Border x:Name="Chip" Background="{ThemeResource AccentFillColorDefaultBrush}" Padding="12,5,8,5">
         <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
             <FontIcon Glyph="&#xE718;" FontSize="12" Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}" VerticalAlignment="Center" />
             <TextBlock

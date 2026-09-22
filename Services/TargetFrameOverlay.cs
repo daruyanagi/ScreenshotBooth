@@ -16,7 +16,7 @@ namespace ScreenshotBooth.Services;
 public sealed class TargetFrameOverlay : IDisposable
 {
     private const string ClassName = "ScreenshotBooth.TargetFrame";
-    private const int Thickness = 3;
+    public const int Thickness = 3;
     private const int WindowCornerRadius = 8;
 
     private const uint WS_POPUP = 0x80000000;
