@@ -32,7 +32,14 @@
             ContextMenuMode="SecondWindow"
             NoLeftClickDelay="True">
             <tb:TaskbarIcon.ContextFlyout>
-                <MenuFlyout AreOpenCloseAnimationsEnabled="False">
+                <!-- ShouldConstrainToRootBounds=False: the tray host window is tiny, and a flyout kept
+                     inside it gets clipped. -->
+                <MenuFlyout AreOpenCloseAnimationsEnabled="False" ShouldConstrainToRootBounds="False">
+                    <MenuFlyoutItem x:Uid="TrayPick" Click="OnTrayPickClick">
+                        <MenuFlyoutItem.Icon>
+                            <FontIcon Glyph="&#x2316;" FontFamily="Segoe UI Symbol" />
+                        </MenuFlyoutItem.Icon>
+                    </MenuFlyoutItem>
                     <MenuFlyoutItem x:Uid="TrayOpen" Click="OnTrayOpenClick">
                         <MenuFlyoutItem.Icon>
                             <FontIcon Glyph="&#xE8A7;" />
@@ -165,6 +172,7 @@
                             </MenuFlyout>
                         </AppBarButton.Flyout>
                     </AppBarButton>
+                    <AppBarSeparator />
                     <AppBarButton
                         x:Name="CopyButton"
                         Width="40"

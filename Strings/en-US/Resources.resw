@@ -71,6 +71,7 @@
   <data name="FitToBoothToggle.Label" xml:space="preserve"><value>Fit</value></data>
   <data name="RetakeButton.Label" xml:space="preserve"><value>Retake</value></data>
   <data name="CountdownButton.Label" xml:space="preserve"><value>Countdown</value></data>
+  <data name="TrayPick.Text" xml:space="preserve"><value>Pick a window to capture</value></data>
   <data name="PresetCustom" xml:space="preserve"><value>Custom</value></data>
   <data name="NoticeCancelledTitle" xml:space="preserve"><value>Cancelled</value></data>
 </root>

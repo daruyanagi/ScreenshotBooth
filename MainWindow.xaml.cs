@@ -191,6 +191,16 @@ public sealed partial class MainWindow : Window
 
     private void OnTrayOpenClick(object sender, RoutedEventArgs e) => ShowBooth();
 
+    private void OnTrayPickClick(object sender, RoutedEventArgs e)
+    {
+        DispatcherQueue.TryEnqueue(() =>
+        {
+            ViewModel.EnsureBoothLaidOut();
+            AppWindow.Show();
+            ViewModel.PickWindowCommand.Execute(null);
+        });
+    }
+
     private void OnTrayExitClick(object sender, RoutedEventArgs e)
     {
         DispatcherQueue.TryEnqueue(() =>
