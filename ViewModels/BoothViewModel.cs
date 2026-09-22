@@ -94,6 +94,9 @@ public partial class BoothViewModel : ObservableObject
             return;
         }
 
+        // Programmatic selection (startup, preset refresh, syncing to the target's real size) must
+        // only update the controls - never resize the target.
+        var userInitiated = !_isApplyingPresetProgrammatically;
         IsCustomSizeVisible = value.IsCustom;
 
         if (!value.IsCustom)
@@ -101,10 +104,13 @@ public partial class BoothViewModel : ObservableObject
             _isApplyingPresetProgrammatically = true;
             CustomWidth = value.Width;
             CustomHeight = value.Height;
-            _isApplyingPresetProgrammatically = false;
+            _isApplyingPresetProgrammatically = !userInitiated;
         }
 
-        ApplyTargetSize();
+        if (userInitiated)
+        {
+            ApplyTargetSize();
+        }
     }
 
     partial void OnCustomWidthChanged(double value)
@@ -186,7 +192,6 @@ public partial class BoothViewModel : ObservableObject
         {
             Presets.Add(preset);
         }
-        _isApplyingPresetProgrammatically = wasProgrammatic;
 
         if (previous is not null)
         {
@@ -194,6 +199,19 @@ public partial class BoothViewModel : ObservableObject
                 ?? Presets.LastOrDefault(p => !p.IsCustom)
                 ?? Presets[^1];
         }
+        _isApplyingPresetProgrammatically = wasProgrammatic;
+    }
+
+    /// <summary>Reflects the target's actual size in the size controls without touching the target.</summary>
+    private void SyncSizeControlsToTarget(System.Drawing.Rectangle bounds)
+    {
+        var wasProgrammatic = _isApplyingPresetProgrammatically;
+        _isApplyingPresetProgrammatically = true;
+        SelectedPreset = Presets.FirstOrDefault(p => !p.IsCustom && p.Width == bounds.Width && p.Height == bounds.Height)
+            ?? Presets[^1];
+        CustomWidth = bounds.Width;
+        CustomHeight = bounds.Height;
+        _isApplyingPresetProgrammatically = wasProgrammatic;
     }
 
     /// <summary>Called by MainWindow when the global hotkey fires: grabs the foreground window as the new target.</summary>
@@ -208,11 +226,14 @@ public partial class BoothViewModel : ObservableObject
 
         RefreshPresets();
 
+        // Respect the window's own size at acquire time (fixed-size dialogs in particular); the
+        // size controls and the fit-to-booth button can enlarge it afterwards.
         var display = DisplayService.GetSelectedDisplay(_settings);
-        var bounds = _controller.ResizeAndCenterTarget((int)Math.Round(CustomWidth), (int)Math.Round(CustomHeight), display);
+        var bounds = _controller.CenterTarget(display);
         _controller.LayoutBoothWindowAroundTarget(bounds, display);
         _controller.SetTargetTopMost(true);
         IsTargetPinned = true;
+        SyncSizeControlsToTarget(bounds);
 
         PreviewImage = null;
         IsPreviewShown = false;
@@ -227,6 +248,36 @@ public partial class BoothViewModel : ObservableObject
             _controller.SetTargetTopMost(false);
         }
         IsTargetPinned = false;
+    }
+
+    /// <summary>Grows the target to fill the booth area as currently shown (minus the shadow margin).</summary>
+    [RelayCommand]
+    private void FitToBooth()
+    {
+        if (!_controller.HasTarget || BoothAreaElement is null)
+        {
+            return;
+        }
+
+        var size = _controller.GetFitToBoothTargetSize(BoothAreaElement);
+        var display = DisplayService.GetSelectedDisplay(_settings);
+        var bounds = _controller.ResizeAndCenterTarget(size.Width, size.Height, display);
+        _controller.LayoutBoothWindowAroundTarget(bounds, display);
+        SyncSizeControlsToTarget(bounds);
+        StatusMessage = $"Target resized to {bounds.Width}x{bounds.Height}.";
+    }
+
+    /// <summary>Called by MainWindow when the booth's position changes; a user drag counts as cancelling the session.</summary>
+    public void OnBoothPositionChanged(Windows.Graphics.PointInt32 position)
+    {
+        if (!IsTargetPinned || position == _controller.LastLayoutPosition)
+        {
+            return;
+        }
+
+        _controller.SetTargetTopMost(false);
+        IsTargetPinned = false;
+        StatusMessage = "Booth moved - the target was released.";
     }
 
     /// <summary>Lets the target go without capturing: the escape hatch for a hotkey pressed by mistake.</summary>

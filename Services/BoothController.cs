@@ -82,6 +82,13 @@ public sealed class BoothController
             SetWindowPosFlags.SWP_NOZORDER | SetWindowPosFlags.SWP_NOACTIVATE);
 
         // Re-measure: the window may have clamped the size (fixed-size dialogs, min/max constraints).
+        return CenterTarget(display);
+    }
+
+    /// <summary>Centers the target on <paramref name="display"/> at its current size and returns its actual bounds.</summary>
+    public Rectangle CenterTarget(DisplayArea display)
+    {
+        var work = display.WorkArea;
         var actual = GetTargetExtendedFrameBounds();
 
         // Recenter using the actual size in case it differs from what we asked for.
@@ -153,6 +160,22 @@ public sealed class BoothController
     /// Sizes and positions the booth window as a white 4:3 client area around the target's bounds
     /// (plus shadow margin) with a fixed-height toolbar row, centered on <paramref name="display"/>.
     /// </summary>
+    /// <summary>Where the booth was last placed programmatically, so user drags can be told apart from layout.</summary>
+    public Windows.Graphics.PointInt32? LastLayoutPosition { get; private set; }
+
+    /// <summary>
+    /// The target size (physical px) that fills the booth area as it is on screen right now, minus
+    /// the shadow margin - used to grow a target that was acquired at its natural size.
+    /// </summary>
+    public Size GetFitToBoothTargetSize(FrameworkElement boothArea)
+    {
+        var scale = DpiScale;
+        var marginPx = (int)(MarginDip * scale);
+        return new Size(
+            Math.Max(0, (int)(boothArea.ActualWidth * scale) - marginPx * 2),
+            Math.Max(0, (int)(boothArea.ActualHeight * scale) - marginPx * 2));
+    }
+
     public void LayoutBoothWindowAroundTarget(Rectangle targetBounds, DisplayArea display)
     {
         var scale = DpiScale;
@@ -196,6 +219,7 @@ public sealed class BoothController
         var x = work.X + (work.Width - totalW) / 2;
         var y = work.Y + (work.Height - totalH) / 2;
 
+        LastLayoutPosition = new Windows.Graphics.PointInt32(x, y);
         _boothAppWindow.MoveAndResize(new Windows.Graphics.RectInt32(x, y, totalW, totalH));
     }
 
