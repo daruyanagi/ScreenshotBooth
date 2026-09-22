@@ -477,7 +477,6 @@ public partial class BoothViewModel : ObservableObject
         IsTargetPinned = false;
         Captured?.Invoke();
         await ClipboardService.CopyPngAsync(result.PngBytes);
-        ShowNotice(InfoBarSeverity.Success, R.Get("NoticeCapturedTitle"), R.Get("NoticeCapturedMessage"));
     }
 
     /// <summary>Counts down on the overlay; false when cancelled.</summary>

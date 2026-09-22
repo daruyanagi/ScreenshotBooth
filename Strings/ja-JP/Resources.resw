@@ -39,8 +39,6 @@
   <data name="SaveButton.Label" xml:space="preserve"><value>保存</value></data>
   <data name="ShareButton.Label" xml:space="preserve"><value>共有</value></data>
   <data name="NoticeReleasedMessage" xml:space="preserve"><value>対象ウィンドウの固定を解除しました。もう一度撮るには Win+Shift+B を押してください。</value></data>
-  <data name="NoticeCapturedTitle" xml:space="preserve"><value>撮影しました</value></data>
-  <data name="NoticeCapturedMessage" xml:space="preserve"><value>スクリーンショットをクリップボードにコピーしました。</value></data>
   <data name="NoticeCopiedMessage" xml:space="preserve"><value>クリップボードにコピーしました。</value></data>
   <data name="NoticeSavedMessage" xml:space="preserve"><value>{0} に保存しました</value></data>
   <data name="NoticeShareNotImplementedMessage" xml:space="preserve"><value>共有はまだ実装されていません。</value></data>

@@ -39,8 +39,6 @@
   <data name="SaveButton.Label" xml:space="preserve"><value>Save</value></data>
   <data name="ShareButton.Label" xml:space="preserve"><value>Share</value></data>
   <data name="NoticeReleasedMessage" xml:space="preserve"><value>The target window is no longer held. Press Win+Shift+B to start again.</value></data>
-  <data name="NoticeCapturedTitle" xml:space="preserve"><value>Captured</value></data>
-  <data name="NoticeCapturedMessage" xml:space="preserve"><value>The screenshot is on the clipboard.</value></data>
   <data name="NoticeCopiedMessage" xml:space="preserve"><value>Copied to the clipboard.</value></data>
   <data name="NoticeSavedMessage" xml:space="preserve"><value>Saved to {0}</value></data>
   <data name="NoticeShareNotImplementedMessage" xml:space="preserve"><value>Share isn't implemented yet.</value></data>
