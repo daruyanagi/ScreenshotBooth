@@ -22,7 +22,6 @@ public sealed class TargetFrameOverlay : IDisposable
 {
     private const string RingClassName = "ScreenshotBooth.TargetFrame";
     private const string ChipClassName = "ScreenshotBooth.TargetChip";
-    private const string CountdownClassName = "ScreenshotBooth.Countdown";
     public const int Thickness = 3;
     private const int WindowCornerRadius = 8;
 
@@ -54,10 +53,8 @@ public sealed class TargetFrameOverlay : IDisposable
     // Rooted for the windows' lifetime.
     private readonly WindowProc _ringWndProc;
     private readonly WindowProc _chipWndProc;
-    private readonly WindowProc _countdownWndProc;
     private HWND _ringHwnd;
     private HWND _chipHwnd;
-    private HWND _countdownHwnd;
 
     // The Release pill, in the chip window's client coordinates (physical px).
     private Rectangle _pillRect;
@@ -85,11 +82,8 @@ public sealed class TargetFrameOverlay : IDisposable
         _ringWndProc = (hwnd, msg, wParam, lParam) => DefWindowProc(hwnd, msg, wParam, lParam);
         _chipWndProc = ChipWndProc;
 
-        _countdownWndProc = (hwnd, msg, wParam, lParam) => DefWindowProc(hwnd, msg, wParam, lParam);
-
         _ringHwnd = CreateLayeredWindow(hInstance, RingClassName, _ringWndProc, WS_EX_TRANSPARENT);
         _chipHwnd = CreateLayeredWindow(hInstance, ChipClassName, _chipWndProc, 0);
-        _countdownHwnd = CreateLayeredWindow(hInstance, CountdownClassName, _countdownWndProc, WS_EX_TRANSPARENT);
     }
 
     private static HWND CreateLayeredWindow(HINSTANCE hInstance, string className, WindowProc wndProc, uint extraExStyle)
@@ -151,40 +145,8 @@ public sealed class TargetFrameOverlay : IDisposable
         ShowWindow(_chipHwnd, ShowWindowCommand.SW_HIDE);
     }
 
-    /// <summary>Shows a big countdown number on a translucent panel centered over <paramref name="frame"/>.</summary>
-    public void ShowCountdown(Rectangle frame, int seconds, double scale)
-    {
-        var size = (int)(160 * scale);
-        using var bitmap = new Bitmap(size, size, PixelFormat.Format32bppArgb);
-        using (var g = Graphics.FromImage(bitmap))
-        {
-            g.Clear(Color.Transparent);
-            g.SmoothingMode = SmoothingMode.AntiAlias;
-            g.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
-            using (var panel = new SolidBrush(Color.FromArgb(180, 24, 24, 24)))
-            using (var shape = RoundedRectangle(new Rectangle(0, 0, size, size), (int)(24 * scale)))
-            {
-                g.FillPath(panel, shape);
-            }
-            using var font = new Font(SystemFonts.MessageBoxFont?.FontFamily ?? System.Drawing.FontFamily.GenericSansSerif, (float)(96 * scale), FontStyle.Bold, GraphicsUnit.Pixel);
-            using var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-            using var white = new SolidBrush(Color.White);
-            g.DrawString(seconds.ToString(), font, white, new RectangleF(0, 0, size, size), format);
-        }
-
-        var location = new Point(frame.X + (frame.Width - size) / 2, frame.Y + (frame.Height - size) / 2);
-        Present(_countdownHwnd, bitmap, location);
-    }
-
-    public void HideCountdown() => ShowWindow(_countdownHwnd, ShowWindowCommand.SW_HIDE);
-
     public void Dispose()
     {
-        if (_countdownHwnd != HWND.NULL)
-        {
-            DestroyWindow(_countdownHwnd);
-            _countdownHwnd = HWND.NULL;
-        }
         if (_ringHwnd != HWND.NULL)
         {
             DestroyWindow(_ringHwnd);

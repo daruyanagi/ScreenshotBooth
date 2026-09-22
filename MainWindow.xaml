@@ -69,8 +69,18 @@
                     AutomationProperties.AutomationId="ShutterButton"
                     Command="{x:Bind ViewModel.CaptureCommand}"
                     Style="{StaticResource AccentButtonStyle}"
-                    VerticalAlignment="Center">
-                    <FontIcon Glyph="{x:Bind local:MainWindow.ShutterGlyph(ViewModel.IsCountingDown), Mode=OneWay}" FontSize="18" />
+                    VerticalAlignment="Center"
+                    MinWidth="44">
+                    <Grid>
+                        <FontIcon Glyph="&#xE722;" FontSize="18"
+                            Visibility="{x:Bind local:MainWindow.InvertedBoolToVisibility(ViewModel.IsCountingDown), Mode=OneWay}" />
+                        <!-- While counting down: the remaining seconds plus a small X (press = cancel). -->
+                        <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center"
+                            Visibility="{x:Bind local:MainWindow.BoolToVisibility(ViewModel.IsCountingDown), Mode=OneWay}">
+                            <TextBlock Text="{x:Bind ViewModel.CountdownRemaining, Mode=OneWay}" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                            <FontIcon Glyph="&#xE711;" FontSize="10" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Grid>
                 </Button>
                 <ComboBox
                     x:Name="PresetComboBox"

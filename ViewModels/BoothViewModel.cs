@@ -49,9 +49,12 @@ public partial class BoothViewModel : ObservableObject
 
     public bool HasCountdown => CountdownSeconds > 0;
 
-    /// <summary>True while the pre-capture countdown is running; the shutter then acts as Cancel.</summary>
+    /// <summary>True while the pre-capture countdown is running; the shutter then shows the remaining seconds and acts as Cancel.</summary>
     [ObservableProperty]
     public partial bool IsCountingDown { get; set; }
+
+    [ObservableProperty]
+    public partial int CountdownRemaining { get; set; }
 
     private CancellationTokenSource? _countdownCts;
 
@@ -425,6 +428,9 @@ public partial class BoothViewModel : ObservableObject
 
         IsNoticeOpen = false;
 
+        // The click that got us here may have re-inserted the booth above the target.
+        _controller.EnforceZOrder();
+
         if (CountdownSeconds > 0 && !await RunCountdownAsync())
         {
             ShowNotice(InfoBarSeverity.Informational, "", R.Get("NoticeCountdownCancelledMessage"));
@@ -468,7 +474,9 @@ public partial class BoothViewModel : ObservableObject
                 {
                     return false;
                 }
-                _controller.ShowCountdown(remaining);
+                CountdownRemaining = remaining;
+                // The target must stay usable (menus, hover effects) and visible during the countdown.
+                _controller.EnforceZOrder();
                 await Task.Delay(1000, _countdownCts.Token);
             }
             return true;
@@ -479,7 +487,6 @@ public partial class BoothViewModel : ObservableObject
         }
         finally
         {
-            _controller.HideCountdown();
             _countdownCts.Dispose();
             _countdownCts = null;
             IsCountingDown = false;
