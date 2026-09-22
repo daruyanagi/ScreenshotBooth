@@ -44,6 +44,21 @@ public sealed class BoothController
     // that away from a window that had it on its own.
     private bool _targetWasTopMost;
 
+    // The target's placement at acquire time, so it can be put back when the booth lets go.
+    private RECT _originalRect;
+    private bool _originalZoomed;
+
+    /// <summary>When true, releasing the target also restores its original position and size.</summary>
+    public bool RestoreTargetLayout { get; set; }
+
+    private WindowPickerOverlay? _picker;
+
+    /// <summary>Raised (UI thread) when the window picker selected a window; the booth should acquire it.</summary>
+    public event Action<nint>? WindowPicked;
+
+    /// <summary>Raised when the window picker was dismissed without a choice.</summary>
+    public event Action? PickerCancelled;
+
     // Only one window is ever held topmost by this app. Process-level exit handlers reach the
     // live controller through this so the window is restored even on abnormal shutdown paths.
     private static BoothController? _current;
@@ -135,9 +150,12 @@ public sealed class BoothController
     /// itself, and the desktop/shell when nothing else is foreground). Returns false if there is
     /// no suitable target.
     /// </summary>
-    public bool TryAcquireForegroundAsTarget()
+    public bool TryAcquireForegroundAsTarget() => TryAcquireTarget((nint)GetForegroundWindow());
+
+    /// <summary>Makes <paramref name="hwnd"/> the target (from the hotkey's foreground window or the picker). Returns false if it is not usable.</summary>
+    public bool TryAcquireTarget(nint hwnd)
     {
-        var fg = GetForegroundWindow();
+        var fg = (HWND)hwnd;
         if (fg.IsNull || fg == _boothHwnd || !IsWindow(fg) || !IsWindowVisible(fg))
         {
             return false;
@@ -156,6 +174,8 @@ public sealed class BoothController
         if (!sameWindow)
         {
             _targetWasTopMost = (GetWindowLongPtr((IntPtr)fg, GWL_EXSTYLE).ToInt64() & WS_EX_TOPMOST) != 0;
+            GetWindowRect(fg, out _originalRect);
+            _originalZoomed = IsZoomed(fg);
         }
         var title = new System.Text.StringBuilder(256);
         GetWindowText(fg, title, title.Capacity);
@@ -281,6 +301,10 @@ public sealed class BoothController
         else if (!topMost)
         {
             HeldTargetRecord.Clear();
+            if (RestoreTargetLayout)
+            {
+                RestoreOriginalLayout();
+            }
         }
 
         if (topMost)
@@ -347,6 +371,40 @@ public sealed class BoothController
         _frame.BringToTop();
         SetWindowPos(_boothHwnd, _targetHwnd, 0, 0, 0, 0, flags);
     }
+
+    /// <summary>Puts the target back to where it was when acquired (position, size, maximized state).</summary>
+    private void RestoreOriginalLayout()
+    {
+        if (!HasTarget || IsIconic(_targetHwnd) || _originalRect.Width <= 0 || _originalRect.Height <= 0)
+        {
+            return;
+        }
+
+        if (_originalZoomed)
+        {
+            ShowWindow(_targetHwnd, ShowWindowCommand.SW_MAXIMIZE);
+            return;
+        }
+
+        SetWindowPos(_targetHwnd, HWND.NULL, _originalRect.left, _originalRect.top, _originalRect.Width, _originalRect.Height,
+            SetWindowPosFlags.SWP_NOZORDER | SetWindowPosFlags.SWP_NOACTIVATE);
+    }
+
+    /// <summary>Shows the window picker; the result arrives through <see cref="WindowPicked"/> or <see cref="PickerCancelled"/>.</summary>
+    public void StartPicker()
+    {
+        if (_picker is null)
+        {
+            _picker = new WindowPickerOverlay();
+            _picker.WindowPicked += hwnd => WindowPicked?.Invoke(hwnd);
+            _picker.Cancelled += () => PickerCancelled?.Invoke();
+        }
+        _picker.Start(new[] { (nint)_boothHwnd });
+    }
+
+    public bool IsPicking => _picker?.IsActive == true;
+
+    public void CancelPicker() => _picker?.Cancel();
 
     /// <summary>Lets go of the held window entirely (un-topmost, indicators hidden, nothing tracked).</summary>
     public void ReleaseHeldTarget()

@@ -35,6 +35,8 @@ public sealed partial class MainWindow : Window
         controller.ReleaseRequested += () => ViewModel.ReleaseCommand.Execute(null);
         controller.TargetLost += reason => ViewModel.OnTargetLost(reason);
         controller.TargetResized += () => ViewModel.OnTargetResized();
+        controller.WindowPicked += hwnd => ViewModel.OnWindowPicked(hwnd);
+        controller.PickerCancelled += () => ViewModel.OnPickerCancelled();
         ViewModel.Captured += () => CaptureEffect.Begin();
 
         // The shutter's countdown face is driven by hand: x:Bind inside that button's content did not apply.
@@ -56,6 +58,7 @@ public sealed partial class MainWindow : Window
         InitializeComponent();
         Root.DataContext = ViewModel;
         FitToBoothToggle.DataContext = ViewModel;   // CommandBar items do not always inherit it
+        RestoreLayoutToggle.DataContext = ViewModel;
         OnFitToggleStateChanged(FitToBoothToggle, new RoutedEventArgs());
         UpdateCountdownBadge();
 
@@ -112,6 +115,11 @@ public sealed partial class MainWindow : Window
         {
             try
             {
+                if (ViewModel.IsPicking)
+                {
+                    ViewModel.OnPickerCancelled();
+                }
+
                 // Acquire the foreground window BEFORE showing ourselves, otherwise the booth would
                 // become the foreground window and capture itself.
                 ViewModel.AcquireTargetFromForeground();

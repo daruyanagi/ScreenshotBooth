@@ -25,6 +25,7 @@ public sealed record TargetSizePreset(string Name, int Width, int Height, bool I
 
     public static IReadOnlyList<TargetSizePreset> BuiltIn { get; } =
     [
+        new("540x405", 540, 405),
         new("640x480", 640, 480),
         new("800x600", 800, 600),
         new("1024x600", 1024, 600),

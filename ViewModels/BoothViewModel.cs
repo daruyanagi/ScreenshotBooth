@@ -92,6 +92,21 @@ public partial class BoothViewModel : ObservableObject
 
     partial void OnIsPreviewShownChanged(bool value) => OnPropertyChanged(nameof(IsIdleHintVisible));
 
+    /// <summary>Put the target back where it was once the booth lets go of it (persisted).</summary>
+    [ObservableProperty]
+    public partial bool IsRestoreLayoutEnabled { get; set; }
+
+    partial void OnIsRestoreLayoutEnabledChanged(bool value)
+    {
+        _controller.RestoreTargetLayout = value;
+        _settings.RestoreTargetLayout = value;
+        SettingsService.Save(_settings);
+    }
+
+    /// <summary>True while the window picker overlay is up.</summary>
+    [ObservableProperty]
+    public partial bool IsPicking { get; set; }
+
     /// <summary>Fit mode: while on, resizing the booth resizes the target to fill it. Per session, off by default.</summary>
     [ObservableProperty]
     public partial bool IsFitToBoothEnabled { get; set; }
@@ -132,6 +147,8 @@ public partial class BoothViewModel : ObservableObject
         RefreshPresets();
         SelectedPreset = Presets.FirstOrDefault(p => p.Width == settings.BoothWidth && p.Height == settings.BoothHeight);
         CountdownSeconds = settings.DefaultCountdownSeconds;
+        IsRestoreLayoutEnabled = settings.RestoreTargetLayout;
+        _controller.RestoreTargetLayout = settings.RestoreTargetLayout;
 
         _isApplyingPresetProgrammatically = false;
     }
@@ -215,7 +232,33 @@ public partial class BoothViewModel : ObservableObject
     }
 
     /// <summary>Called by MainWindow when the global hotkey fires: grabs the foreground window as the new target.</summary>
-    public void AcquireTargetFromForeground()
+    public void AcquireTargetFromForeground() => AcquireTarget(_controller.TryAcquireForegroundAsTarget);
+
+    /// <summary>Called when the window picker chose a window.</summary>
+    public void OnWindowPicked(nint hwnd)
+    {
+        IsPicking = false;
+        AcquireTarget(() => _controller.TryAcquireTarget(hwnd));
+    }
+
+    public void OnPickerCancelled() => IsPicking = false;
+
+    /// <summary>Opens the window picker (or closes it when it is already up).</summary>
+    [RelayCommand]
+    private void PickWindow()
+    {
+        if (IsPicking)
+        {
+            _controller.CancelPicker();
+            return;
+        }
+
+        IsNoticeOpen = false;
+        IsPicking = true;
+        _controller.StartPicker();
+    }
+
+    private void AcquireTarget(Func<bool> acquire)
     {
         // A new session always starts from a clean booth, even if no window could be acquired.
         PreviewImage = null;
@@ -226,9 +269,9 @@ public partial class BoothViewModel : ObservableObject
         // Only the auto-fit of an oversized target (below) turns it on.
         IsFitToBoothEnabled = false;
 
-        if (!_controller.TryAcquireForegroundAsTarget())
+        if (!acquire())
         {
-            AppLog.Write("Acquire: no suitable foreground window");
+            AppLog.Write("Acquire: no suitable window");
             ShowNotice(InfoBarSeverity.Warning, "", R.Get("NoticeNoForegroundMessage"));
             return;
         }
