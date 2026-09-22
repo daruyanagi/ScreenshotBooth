@@ -266,6 +266,19 @@ public partial class BoothViewModel : ObservableObject
         IsTargetPinned = false;
     }
 
+    /// <summary>Gives a never-laid-out booth its remembered size, centered, so it does not appear at WinUI's default size.</summary>
+    public void EnsureBoothLaidOut()
+    {
+        if (_controller.HasLaidOut)
+        {
+            return;
+        }
+
+        var display = DisplayService.GetSelectedDisplay(_settings);
+        var area = _controller.LayoutBoothWithAreaSize(_settings.BoothWidth, _settings.BoothHeight, display, recordLayoutSize: true);
+        SyncSizeControlsToArea(area);
+    }
+
     /// <summary>Called at startup when a window left on top by a crashed previous run was just released.</summary>
     public void NotifyRecoveredStuckTopMost(string title) =>
         ShowNotice(InfoBarSeverity.Warning, R.Get("NoticeRecoveredTitle"), R.F("NoticeRecoveredMessage", title), autoClose: false);

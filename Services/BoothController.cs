@@ -164,6 +164,9 @@ public sealed class BoothController
         return new Size(Math.Max(1, work.Width - extraW), Math.Max(1, work.Height - chromePx - extraH));
     }
 
+    /// <summary>True once the booth has been positioned by us at least once (before that it has WinUI's default size).</summary>
+    public bool HasLaidOut => _lastAreaRect is not null;
+
     /// <summary>Re-applies the last booth area size (e.g. after the chrome was measured for real), keeping the target centered.</summary>
     public void RelayoutWithLastArea(DisplayArea display)
     {

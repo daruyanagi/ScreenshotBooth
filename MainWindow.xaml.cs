@@ -63,7 +63,10 @@ public sealed partial class MainWindow : Window
         {
             DispatcherQueue.TryEnqueue(() =>
             {
-                AppWindow.Show(activateWindow: false);
+                // Exceptional enough to come to the front: the user should see the apology.
+                ViewModel.EnsureBoothLaidOut();
+                AppWindow.Show();
+                Activate();
                 ViewModel.NotifyRecoveredStuckTopMost(recoveredTitle);
             });
         }
@@ -101,6 +104,7 @@ public sealed partial class MainWindow : Window
     {
         DispatcherQueue.TryEnqueue(() =>
         {
+            ViewModel.EnsureBoothLaidOut();
             AppWindow.Show();
             Activate();
         });
