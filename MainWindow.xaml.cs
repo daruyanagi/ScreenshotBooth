@@ -53,7 +53,6 @@ public sealed partial class MainWindow : Window
         TrayIcon.LeftClickCommand = new RelayCommand(ShowBooth);
         TrayIcon.ForceCreate();
 
-        AppWindow.Changed += OnAppWindowChanged;
         AppWindow.Closing += OnAppWindowClosing;
         Closed += OnWindowClosed;
     }
@@ -93,16 +92,6 @@ public sealed partial class MainWindow : Window
             AppWindow.Show();
             Activate();
         });
-    }
-
-    private void OnAppWindowChanged(AppWindow sender, AppWindowChangedEventArgs args)
-    {
-        // A pure move (not a resize, which also reports a position change when dragged from the
-        // top/left edges) is treated as the user cancelling the session.
-        if (args.DidPositionChange && !args.DidSizeChange)
-        {
-            ViewModel.OnBoothPositionChanged(sender.Position);
-        }
     }
 
     private void OnAppWindowClosing(AppWindow sender, AppWindowClosingEventArgs args)

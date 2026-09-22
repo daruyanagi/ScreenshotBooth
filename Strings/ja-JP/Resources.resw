@@ -62,8 +62,6 @@
   <data name="StatusSaved" xml:space="preserve"><value>{0} に保存しました</value></data>
   <data name="StatusShareNotImplemented" xml:space="preserve"><value>共有はまだ実装されていません。</value></data>
   <data name="StatusReleased" xml:space="preserve"><value>解除しました。対象は最前面ではなくなりました。</value></data>
-  <data name="StatusMovedReleased" xml:space="preserve"><value>ブースが移動されたため、対象を解除しました。</value></data>
   <data name="NoticeCancelledTitle" xml:space="preserve"><value>キャンセルしました</value></data>
   <data name="NoticeReleasedMessage" xml:space="preserve"><value>対象ウィンドウの最前面固定を解除しました。もう一度撮るには Win+Shift+B を押してください。</value></data>
-  <data name="NoticeMovedMessage" xml:space="preserve"><value>ブースが移動されたので、対象ウィンドウを解除しました。</value></data>
 </root>

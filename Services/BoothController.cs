@@ -142,9 +142,6 @@ public sealed class BoothController
     /// Sizes and positions the booth window as a white 4:3 client area around the target's bounds
     /// (plus shadow margin) with a fixed-height toolbar row, centered on <paramref name="display"/>.
     /// </summary>
-    /// <summary>Where the booth was last placed programmatically, so user drags can be told apart from layout.</summary>
-    public Windows.Graphics.PointInt32? LastLayoutPosition { get; private set; }
-
     /// <summary>Size the booth was last given programmatically; a different current size means the user resized it.</summary>
     public Windows.Graphics.SizeInt32? LastLayoutSize { get; private set; }
 
@@ -233,7 +230,6 @@ public sealed class BoothController
         var y = work.Y + (work.Height - size.Height) / 2;
         _boothAppWindow.Move(new Windows.Graphics.PointInt32(x, y));
 
-        LastLayoutPosition = new Windows.Graphics.PointInt32(x, y);
         LastLayoutSize = recordLayoutSize ? size : null;
 
         // Center the target in the booth AREA (not the window), so the margins are even.

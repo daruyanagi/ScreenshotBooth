@@ -62,8 +62,6 @@
   <data name="StatusSaved" xml:space="preserve"><value>Saved to {0}</value></data>
   <data name="StatusShareNotImplemented" xml:space="preserve"><value>Share isn't implemented yet.</value></data>
   <data name="StatusReleased" xml:space="preserve"><value>Released - the target is no longer on top.</value></data>
-  <data name="StatusMovedReleased" xml:space="preserve"><value>Booth moved - the target was released.</value></data>
   <data name="NoticeCancelledTitle" xml:space="preserve"><value>Cancelled</value></data>
   <data name="NoticeReleasedMessage" xml:space="preserve"><value>The target window is no longer kept on top. Press Win+Shift+B to start again.</value></data>
-  <data name="NoticeMovedMessage" xml:space="preserve"><value>The booth was moved, so the target window was released.</value></data>
 </root>

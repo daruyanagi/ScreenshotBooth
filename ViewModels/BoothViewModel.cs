@@ -340,20 +340,6 @@ public partial class BoothViewModel : ObservableObject
         }
     }
 
-    /// <summary>Called by MainWindow when the booth's position changes; a user drag counts as cancelling the session.</summary>
-    public void OnBoothPositionChanged(Windows.Graphics.PointInt32 position)
-    {
-        if (!IsTargetPinned || position == _controller.LastLayoutPosition)
-        {
-            return;
-        }
-
-        _controller.SetTargetTopMost(false);
-        IsTargetPinned = false;
-        StatusMessage = R.Get("StatusMovedReleased");
-        ShowNotice(R.Get("NoticeCancelledTitle"), R.Get("NoticeMovedMessage"));
-    }
-
     private void ShowNotice(string title, string message)
     {
         NoticeTitle = title;
