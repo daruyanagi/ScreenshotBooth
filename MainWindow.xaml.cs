@@ -45,7 +45,7 @@ public sealed partial class MainWindow : Window
         _hotkeyService.HotkeyPressed += OnHotkeyPressed;
         if (!_hotkeyService.Register(_settings.HotkeyModifiers, _settings.HotkeyVirtualKey))
         {
-            ViewModel.StatusMessage = R.Get("StatusHotkeyFailed");
+            ViewModel.NotifyHotkeyFailed();
         }
 
         // The tray menu (SecondWindow mode) runs on its own thread, so every window operation
@@ -67,7 +67,7 @@ public sealed partial class MainWindow : Window
                 // Acquire the foreground window BEFORE showing ourselves, otherwise the booth would
                 // become the foreground window and capture itself.
                 ViewModel.AcquireTargetFromForeground();
-                AppLog.Write($"Hotkey: acquired; status=\"{ViewModel.StatusMessage}\" visible={AppWindow.IsVisible}");
+                AppLog.Write($"Hotkey: acquired; pinned={ViewModel.IsTargetPinned} visible={AppWindow.IsVisible}");
                 if (!AppWindow.IsVisible)
                 {
                     AppWindow.Show(activateWindow: false);

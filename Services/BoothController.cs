@@ -38,6 +38,15 @@ public sealed class BoothController
     private readonly AppWindow _boothAppWindow;
 
     private HWND _targetHwnd;
+    private bool _isPinned;
+
+    // Where the target was last centered, so a user drag can be snapped back (the target is
+    // effectively immovable while the booth holds it).
+    private Point? _lastAreaCenter;
+
+    private readonly TargetFrameOverlay _frame;
+    private readonly WinEventDelegate _winEventProc;   // rooted for the hook's lifetime
+    private readonly IntPtr _moveSizeHook;
 
     public BoothController(nint boothWindowHandle)
     {
@@ -48,6 +57,13 @@ public sealed class BoothController
         // (the underlying native window already exists once the Window base constructor returns).
         var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(boothWindowHandle);
         _boothAppWindow = AppWindow.GetFromWindowId(windowId);
+
+        _frame = new TargetFrameOverlay();
+
+        // EVENT_SYSTEM_MOVESIZEEND (0x000B): fires on this (UI) thread when a user move/resize of
+        // any window ends; we only react for the held target.
+        _winEventProc = OnWinEvent;
+        _moveSizeHook = SetWinEventHookNative(0x000B, 0x000B, IntPtr.Zero, _winEventProc, 0, 0, 0);
     }
 
     /// <summary>True while a valid target window is being tracked.</summary>
@@ -125,18 +141,45 @@ public sealed class BoothController
         return new Size((int)Math.Round(boothArea.ActualWidth * scale), (int)Math.Round(boothArea.ActualHeight * scale));
     }
 
-    /// <summary>Sets or clears WS_EX_TOPMOST on the target window.</summary>
+    /// <summary>Sets or clears WS_EX_TOPMOST on the target window, and shows or hides the frame ring around it.</summary>
     public void SetTargetTopMost(bool topMost)
     {
+        _isPinned = topMost && HasTarget;
         if (!HasTarget)
         {
+            _frame.Hide();
             return;
         }
 
         SetWindowPos(_targetHwnd, topMost ? HWND.HWND_TOPMOST : HWND.HWND_NOTOPMOST,
             0, 0, 0, 0,
             SetWindowPosFlags.SWP_NOMOVE | SetWindowPosFlags.SWP_NOSIZE | SetWindowPosFlags.SWP_NOACTIVATE);
+
+        if (topMost)
+        {
+            _frame.Show(GetTargetExtendedFrameBounds());
+        }
+        else
+        {
+            _frame.Hide();
+        }
     }
+
+    /// <summary>Hides the frame ring without releasing the target - called right before a capture so the ring is not in the shot.</summary>
+    public void HideTargetFrame() => _frame.Hide();
+
+    private void OnWinEvent(IntPtr hook, uint eventType, IntPtr hwnd, int idObject, int idChild, uint eventThread, uint eventTime)
+    {
+        if (_isPinned && hwnd == (IntPtr)_targetHwnd && _lastAreaCenter is { } center)
+        {
+            CenterTargetAt(center.X, center.Y);
+        }
+    }
+
+    private delegate void WinEventDelegate(IntPtr hWinEventHook, uint eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime);
+
+    [System.Runtime.InteropServices.DllImport("user32.dll", EntryPoint = "SetWinEventHook")]
+    private static extern IntPtr SetWinEventHookNative(uint eventMin, uint eventMax, IntPtr hmodWinEventProc, WinEventDelegate lpfnWinEventProc, uint idProcess, uint idThread, uint dwFlags);
 
     /// <summary>
     /// Sizes and positions the booth window as a white 4:3 client area around the target's bounds
@@ -166,6 +209,7 @@ public sealed class BoothController
             SetWindowPosFlags.SWP_NOZORDER | SetWindowPosFlags.SWP_NOACTIVATE);
 
         // The window may have refused the size; center whatever it ended up as.
+        _lastAreaCenter = new Point(area.X + area.Width / 2, area.Y + area.Height / 2);
         CenterTargetAt(area.X + area.Width / 2, area.Y + area.Height / 2);
         return GetTargetExtendedFrameBounds();
     }
@@ -235,7 +279,8 @@ public sealed class BoothController
         // Center the target in the booth AREA (not the window), so the margins are even.
         var origin = new POINT(0, 0);
         ClientToScreen(_boothHwnd, ref origin);
-        CenterTargetAt(origin.X + areaW / 2, origin.Y + chromeTopPx + areaH / 2);
+        _lastAreaCenter = new Point(origin.X + areaW / 2, origin.Y + chromeTopPx + areaH / 2);
+        CenterTargetAt(_lastAreaCenter.Value.X, _lastAreaCenter.Value.Y);
 
         return new Size(areaW, areaH);
     }
@@ -290,6 +335,11 @@ public sealed class BoothController
         {
             SetWindowPos(_targetHwnd, HWND.NULL, x, y, 0, 0,
                 SetWindowPosFlags.SWP_NOSIZE | SetWindowPosFlags.SWP_NOZORDER | SetWindowPosFlags.SWP_NOACTIVATE);
+        }
+
+        if (_isPinned)
+        {
+            _frame.Show(GetTargetExtendedFrameBounds());
         }
     }
 

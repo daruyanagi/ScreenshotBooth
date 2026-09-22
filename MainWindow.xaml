@@ -80,9 +80,10 @@
                     VerticalAlignment="Center" />
             </StackPanel>
 
-            <!-- Status + actions. The CommandBar sits in a star column so it is measured with the
-                 real remaining width and moves trailing commands into its overflow menu when the
-                 booth is narrow. -->
+            <!-- Actions. The CommandBar sits in a star column so it is measured with the real remaining
+                 width and moves trailing commands into its overflow menu when the booth is narrow.
+                 Release and the shutter live in its Content, which never overflows - a shutter inside
+                 the overflow menu would put the open menu into the screenshot. -->
             <CommandBar
                 Grid.Column="1"
                 DefaultLabelPosition="Collapsed"
@@ -90,60 +91,34 @@
                 IsDynamicOverflowEnabled="True"
                 Background="Transparent"
                 VerticalAlignment="Center"
+                HorizontalContentAlignment="Right"
                 VerticalContentAlignment="Center">
                 <CommandBar.Content>
-                    <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center" Height="48">
-                        <Border
-                            x:Name="PinnedIndicator"
-                            Visibility="{x:Bind local:MainWindow.BoolToVisibility(ViewModel.IsTargetPinned), Mode=OneWay}"
-                            Background="{ThemeResource AccentFillColorDefaultBrush}"
-                            CornerRadius="14"
-                            Padding="10,2,2,2"
+                    <StackPanel Orientation="Horizontal" Spacing="4" HorizontalAlignment="Right" VerticalAlignment="Center" Height="48">
+                        <Button
+                            x:Name="ReleaseButton"
+                            x:Uid="ReleaseButton"
+                            AutomationProperties.AutomationId="ReleaseButton"
+                            Command="{x:Bind ViewModel.ReleaseCommand}"
+                            IsEnabled="{x:Bind ViewModel.IsTargetPinned, Mode=OneWay}"
                             VerticalAlignment="Center">
-                            <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
-                                <FontIcon Glyph="&#xE718;" FontSize="12" Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}" />
-                                <TextBlock
-                                    x:Uid="PinnedLabel"
-                                    Style="{StaticResource CaptionTextBlockStyle}"
-                                    Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
-                                    VerticalAlignment="Center" />
-                                <Button
-                                    x:Name="ReleaseButton"
-                                    x:Uid="ReleaseButton"
-                                    AutomationProperties.AutomationId="ReleaseButton"
-                                    Command="{x:Bind ViewModel.ReleaseCommand}"
-                                    Padding="6,2"
-                                    MinHeight="0"
-                                    CornerRadius="12">
-                                    <StackPanel Orientation="Horizontal" Spacing="4">
-                                        <FontIcon Glyph="&#xE77A;" FontSize="12" />
-                                        <TextBlock x:Uid="ReleaseLabel" Style="{StaticResource CaptionTextBlockStyle}" />
-                                    </StackPanel>
-                                </Button>
-                            </StackPanel>
-                        </Border>
-                        <TextBlock
-                            Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}"
-                            Style="{StaticResource CaptionTextBlockStyle}"
-                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                            VerticalAlignment="Center"
-                            TextTrimming="CharacterEllipsis" />
-                    </StackPanel>
-                </CommandBar.Content>
-
-                <!-- Overflow moves commands from the end: Share, Save, Copy, Countdown, then Retake. -->
-                <CommandBar.PrimaryCommands>
-                    <AppBarElementContainer VerticalAlignment="Center">
+                            <FontIcon Glyph="&#xE77A;" FontSize="16" />
+                        </Button>
                         <Button
                             x:Name="ShutterButton"
                             x:Uid="ShutterButton"
                             AutomationProperties.AutomationId="ShutterButton"
                             Command="{x:Bind ViewModel.CaptureCommand}"
                             Style="{StaticResource AccentButtonStyle}"
+                            VerticalAlignment="Center"
                             Margin="4,0">
                             <FontIcon Glyph="&#xE722;" FontSize="18" />
                         </Button>
-                    </AppBarElementContainer>
+                    </StackPanel>
+                </CommandBar.Content>
+
+                <!-- Overflow moves commands from the end: Share, Save, Copy, Countdown, then Retake. -->
+                <CommandBar.PrimaryCommands>
                     <AppBarButton
                         x:Name="RetakeButton"
                         x:Uid="RetakeButton"
@@ -224,7 +199,7 @@
                     IsOpen="{x:Bind ViewModel.IsNoticeOpen, Mode=TwoWay}"
                     Title="{x:Bind ViewModel.NoticeTitle, Mode=OneWay}"
                     Message="{x:Bind ViewModel.NoticeMessage, Mode=OneWay}"
-                    Severity="Informational"
+                    Severity="{x:Bind ViewModel.NoticeSeverity, Mode=OneWay}"
                     VerticalAlignment="Top"
                     Margin="12,8" />
             </Grid>

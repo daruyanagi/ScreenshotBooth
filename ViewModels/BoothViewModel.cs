@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Imaging;
 using Windows.Storage;
 using Windows.Storage.Pickers;
@@ -13,8 +14,8 @@ using ScreenshotBooth.Services;
 namespace ScreenshotBooth.ViewModels;
 
 /// <summary>
-/// UI state and commands for the single-window booth: target-size selection, shutter/retake,
-/// and (stubbed) save/share. Actual Win32/DWM/screen-capture work is delegated to
+/// UI state and commands for the single-window booth: booth-size selection, shutter/retake,
+/// copy/save/share and in-app notices. Actual Win32/DWM/screen-capture work is delegated to
 /// <see cref="BoothController"/>, injected by MainWindow, so this class stays UI-focused.
 /// </summary>
 public partial class BoothViewModel : ObservableObject
@@ -25,7 +26,7 @@ public partial class BoothViewModel : ObservableObject
     private byte[]? _lastCapturePngBytes;
     private bool _isApplyingPresetProgrammatically;
 
-    /// <summary>Built-in presets that fit the 4:3 booth on the selected display, plus "Custom". See <see cref="RefreshPresets"/>.</summary>
+    /// <summary>Built-in presets that fit on the selected display, plus "Custom" (the acquire-time size). See <see cref="RefreshPresets"/>.</summary>
     public ObservableCollection<TargetSizePreset> Presets { get; } = new();
 
     /// <summary>The preset matching the booth's current size, or null when it matches none (the ComboBox then shows <see cref="CurrentSizeText"/>).</summary>
@@ -61,16 +62,13 @@ public partial class BoothViewModel : ObservableObject
     [ObservableProperty]
     public partial bool IsPreviewShown { get; set; }
 
-    /// <summary>True while the target window is being held always-on-top by the booth.</summary>
+    /// <summary>True while the target window is being held always-on-top (and framed) by the booth.</summary>
     [ObservableProperty]
     public partial bool IsTargetPinned { get; set; }
 
     /// <summary>Fit mode: while on, resizing the booth resizes the target to fill it.</summary>
     [ObservableProperty]
     public partial bool IsFitToBoothEnabled { get; set; }
-
-    [ObservableProperty]
-    public partial string StatusMessage { get; set; } = R.Get("StatusIdle");
 
     [ObservableProperty]
     public partial bool IsNoticeOpen { get; set; }
@@ -80,6 +78,9 @@ public partial class BoothViewModel : ObservableObject
 
     [ObservableProperty]
     public partial string NoticeMessage { get; set; } = "";
+
+    [ObservableProperty]
+    public partial InfoBarSeverity NoticeSeverity { get; set; } = InfoBarSeverity.Informational;
 
     private readonly DispatcherQueueTimer _noticeTimer;
 
@@ -95,13 +96,11 @@ public partial class BoothViewModel : ObservableObject
         _settings = settings;
 
         _noticeTimer = DispatcherQueue.GetForCurrentThread().CreateTimer();
-        _noticeTimer.Interval = TimeSpan.FromSeconds(6);
+        _noticeTimer.Interval = TimeSpan.FromSeconds(5);
         _noticeTimer.IsRepeating = false;
         _noticeTimer.Tick += (_, _) => IsNoticeOpen = false;
 
-        // Guarded: the [ObservableProperty] setters below fire OnXxxChanged synchronously, and
-        // those partials read SelectedPreset - which would otherwise still be null (its default,
-        // despite the non-nullable annotation) until the SelectedPreset assignment itself runs.
+        // Programmatic: the setters below must only initialize the controls, never resize anything.
         _isApplyingPresetProgrammatically = true;
 
         RefreshPresets();
@@ -138,9 +137,8 @@ public partial class BoothViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Rebuilds <see cref="Presets"/> to only the built-in sizes the booth can host on the selected
-    /// display (the 4:3 booth is clamped to the work area, so bigger targets would overflow it).
-    /// Keeps the current selection when it still fits, otherwise falls back to the largest that does.
+    /// Rebuilds <see cref="Presets"/> to the built-in sizes that fit the selected display plus the
+    /// acquire-time "Custom" size. Keeps the current selection when it is still listed.
     /// </summary>
     private void RefreshPresets()
     {
@@ -187,13 +185,15 @@ public partial class BoothViewModel : ObservableObject
     {
         if (!_controller.TryAcquireForegroundAsTarget())
         {
-            StatusMessage = R.Get("StatusNoForeground");
             AppLog.Write("Acquire: no suitable foreground window");
+            ShowNotice(InfoBarSeverity.Warning, "", R.Get("NoticeNoForegroundMessage"));
             return;
         }
 
+        IsNoticeOpen = false;
+
         // Respect the window's own size at acquire time (fixed-size dialogs in particular): the booth
-        // is laid out 4:3 around it, and only fit mode or the size controls change things afterwards.
+        // is laid out 4:3 around it, and only fit mode or the size picker change things afterwards.
         var display = DisplayService.GetSelectedDisplay(_settings);
         var bounds = _controller.CenterTarget(display);
         var area = _controller.LayoutBoothWindowAroundTarget(bounds, display);
@@ -206,7 +206,6 @@ public partial class BoothViewModel : ObservableObject
 
         PreviewImage = null;
         IsPreviewShown = false;
-        StatusMessage = R.Get("StatusLive");
     }
 
     /// <summary>Called when the booth window is hidden to the tray: the target must not stay always-on-top.</summary>
@@ -218,6 +217,10 @@ public partial class BoothViewModel : ObservableObject
         }
         IsTargetPinned = false;
     }
+
+    /// <summary>Called by MainWindow when the global hotkey could not be registered.</summary>
+    public void NotifyHotkeyFailed() =>
+        ShowNotice(InfoBarSeverity.Error, R.Get("NoticeHotkeyFailedTitle"), R.Get("NoticeHotkeyFailedMessage"), autoClose: false);
 
     /// <summary>Explains the current fit-mode state (shown as the switch's tooltip).</summary>
     public string FitToBoothToolTip => R.Get(IsFitToBoothEnabled ? "FitToBoothTipOn" : "FitToBoothTipOff");
@@ -242,8 +245,7 @@ public partial class BoothViewModel : ObservableObject
             return;
         }
 
-        var bounds = _controller.FitTargetToArea(BoothAreaElement);
-        StatusMessage = R.F("StatusResized", bounds.Width, bounds.Height);
+        _controller.FitTargetToArea(BoothAreaElement);
     }
 
     /// <summary>
@@ -273,7 +275,7 @@ public partial class BoothViewModel : ObservableObject
             return;
         }
 
-        // A user resize or a size-control change: mirror the new size, then let the target follow in fit mode.
+        // A user resize or a size-picker change: mirror the new size, then let the target follow in fit mode.
         SyncSizeControlsToArea(_controller.GetAreaSizePx(BoothAreaElement));
         if (IsFitToBoothEnabled)
         {
@@ -281,13 +283,17 @@ public partial class BoothViewModel : ObservableObject
         }
     }
 
-    private void ShowNotice(string title, string message)
+    private void ShowNotice(InfoBarSeverity severity, string title, string message, bool autoClose = true)
     {
+        NoticeSeverity = severity;
         NoticeTitle = title;
         NoticeMessage = message;
         IsNoticeOpen = true;
         _noticeTimer.Stop();
-        _noticeTimer.Start();
+        if (autoClose)
+        {
+            _noticeTimer.Start();
+        }
     }
 
     /// <summary>Lets the target go without capturing: the escape hatch for a hotkey pressed by mistake.</summary>
@@ -296,8 +302,7 @@ public partial class BoothViewModel : ObservableObject
     {
         _controller.SetTargetTopMost(false);
         IsTargetPinned = false;
-        StatusMessage = R.Get("StatusReleased");
-        ShowNotice(R.Get("NoticeCancelledTitle"), R.Get("NoticeReleasedMessage"));
+        ShowNotice(InfoBarSeverity.Informational, R.Get("NoticeCancelledTitle"), R.Get("NoticeReleasedMessage"));
     }
 
     [RelayCommand]
@@ -305,12 +310,14 @@ public partial class BoothViewModel : ObservableObject
     {
         if (!_controller.HasTarget || BoothAreaElement is null)
         {
-            StatusMessage = R.Get("StatusNoTargetYet");
+            ShowNotice(InfoBarSeverity.Warning, "", R.Get("NoticeNoTargetMessage"));
             return;
         }
 
+        // Nothing of ours may be in the shot: the notice overlays the booth area and the frame
+        // ring sits around the target.
         IsNoticeOpen = false;
-        StatusMessage = R.Get("StatusCapturing");
+        _controller.HideTargetFrame();
 
         // Restore the target's active/focused visual state before grabbing pixels: clicking our
         // own shutter button steals focus and would otherwise capture a dimmed/inactive window.
@@ -324,19 +331,17 @@ public partial class BoothViewModel : ObservableObject
         _lastCapturePngBytes = result.PngBytes;
         PreviewImage = result.Preview;
         IsPreviewShown = true;
-        StatusMessage = R.Get("StatusCaptured");
+        ShowNotice(InfoBarSeverity.Success, R.Get("NoticeCapturedTitle"), R.Get("NoticeCapturedMessage"));
     }
 
     [RelayCommand]
     private void Retake()
     {
+        IsNoticeOpen = false;
         PreviewImage = null;
         IsPreviewShown = false;
         _controller.ReturnToLiveState();
         IsTargetPinned = _controller.HasTarget;
-        StatusMessage = _controller.HasTarget
-            ? R.Get("StatusLive")
-            : R.Get("StatusIdle");
     }
 
     /// <summary>Puts the last capture on the clipboard again (it is copied automatically at capture time).</summary>
@@ -349,7 +354,7 @@ public partial class BoothViewModel : ObservableObject
         }
 
         await ClipboardService.CopyPngAsync(_lastCapturePngBytes);
-        StatusMessage = R.Get("StatusCopied");
+        ShowNotice(InfoBarSeverity.Success, "", R.Get("NoticeCopiedMessage"));
     }
 
     [RelayCommand]
@@ -372,13 +377,13 @@ public partial class BoothViewModel : ObservableObject
         }
 
         await FileIO.WriteBytesAsync(file, _lastCapturePngBytes);
-        StatusMessage = R.F("StatusSaved", file.Path);
+        ShowNotice(InfoBarSeverity.Success, "", R.F("NoticeSavedMessage", file.Path));
     }
 
     [RelayCommand]
     private void Share()
     {
         // TODO (follow-up): DataTransferManager share flow. Stub for this pass.
-        StatusMessage = R.Get("StatusShareNotImplemented");
+        ShowNotice(InfoBarSeverity.Informational, "", R.Get("NoticeShareNotImplementedMessage"));
     }
 }

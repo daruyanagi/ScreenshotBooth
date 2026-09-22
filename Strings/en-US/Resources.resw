@@ -20,10 +20,8 @@
   <data name="FitToBoothSwitch.OffContent" xml:space="preserve"><value>Fit: off</value></data>
   <data name="FitToBoothTipOn" xml:space="preserve"><value>Fit mode is ON: resizing the booth resizes the target window to fill it (minus the shadow margin).</value></data>
   <data name="FitToBoothTipOff" xml:space="preserve"><value>Fit mode is OFF: resizing the booth leaves the target window as it is. Turn it on to make the target follow.</value></data>
-  <data name="PinnedLabel.Text" xml:space="preserve"><value>Target on top</value></data>
   <data name="ReleaseButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Release target</value></data>
   <data name="ReleaseButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>Release the target (stop keeping it on top)</value></data>
-  <data name="ReleaseLabel.Text" xml:space="preserve"><value>Release</value></data>
   <data name="ShutterButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Capture screenshot</value></data>
   <data name="ShutterButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>Capture (copies to the clipboard)</value></data>
   <data name="RetakeButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Retake</value></data>
@@ -46,19 +44,16 @@
   <data name="CopyButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>Copy the screenshot to the clipboard again</value></data>
   <data name="SaveButton.Label" xml:space="preserve"><value>Save</value></data>
   <data name="ShareButton.Label" xml:space="preserve"><value>Share</value></data>
-  <data name="StatusCopied" xml:space="preserve"><value>Copied to the clipboard.</value></data>
+  <data name="NoticeReleasedMessage" xml:space="preserve"><value>The target window is no longer held. Press Win+Shift+B to start again.</value></data>
+  <data name="NoticeCapturedTitle" xml:space="preserve"><value>Captured</value></data>
+  <data name="NoticeCapturedMessage" xml:space="preserve"><value>The screenshot is on the clipboard.</value></data>
+  <data name="NoticeCopiedMessage" xml:space="preserve"><value>Copied to the clipboard.</value></data>
+  <data name="NoticeSavedMessage" xml:space="preserve"><value>Saved to {0}</value></data>
+  <data name="NoticeShareNotImplementedMessage" xml:space="preserve"><value>Share isn't implemented yet.</value></data>
+  <data name="NoticeNoForegroundMessage" xml:space="preserve"><value>No suitable window is in the foreground.</value></data>
+  <data name="NoticeNoTargetMessage" xml:space="preserve"><value>No target window - press Win+Shift+B over a window first.</value></data>
+  <data name="NoticeHotkeyFailedTitle" xml:space="preserve"><value>Hotkey unavailable</value></data>
+  <data name="NoticeHotkeyFailedMessage" xml:space="preserve"><value>Couldn't register Win+Shift+B (another app may be using it).</value></data>
   <data name="PresetCustom" xml:space="preserve"><value>Custom</value></data>
-  <data name="StatusIdle" xml:space="preserve"><value>Press Win+Shift+B over a window to begin.</value></data>
-  <data name="StatusHotkeyFailed" xml:space="preserve"><value>Couldn't register the global hotkey (it may be in use by another app).</value></data>
-  <data name="StatusNoForeground" xml:space="preserve"><value>No suitable foreground window found.</value></data>
-  <data name="StatusLive" xml:space="preserve"><value>Live - press the shutter to capture.</value></data>
-  <data name="StatusResized" xml:space="preserve"><value>Target resized to {0}x{1}.</value></data>
-  <data name="StatusNoTargetYet" xml:space="preserve"><value>No target window - press Win+Shift+B first.</value></data>
-  <data name="StatusCapturing" xml:space="preserve"><value>Capturing...</value></data>
-  <data name="StatusCaptured" xml:space="preserve"><value>Captured - copied to the clipboard.</value></data>
-  <data name="StatusSaved" xml:space="preserve"><value>Saved to {0}</value></data>
-  <data name="StatusShareNotImplemented" xml:space="preserve"><value>Share isn't implemented yet.</value></data>
-  <data name="StatusReleased" xml:space="preserve"><value>Released - the target is no longer on top.</value></data>
   <data name="NoticeCancelledTitle" xml:space="preserve"><value>Cancelled</value></data>
-  <data name="NoticeReleasedMessage" xml:space="preserve"><value>The target window is no longer kept on top. Press Win+Shift+B to start again.</value></data>
 </root>

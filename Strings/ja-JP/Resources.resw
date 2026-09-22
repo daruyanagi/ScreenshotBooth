@@ -20,10 +20,8 @@
   <data name="FitToBoothSwitch.OffContent" xml:space="preserve"><value>フィット: オフ</value></data>
   <data name="FitToBoothTipOn" xml:space="preserve"><value>フィットモード オン: ブースをリサイズすると、対象ウィンドウが（影の余白を残して）ブースいっぱいに追従します。</value></data>
   <data name="FitToBoothTipOff" xml:space="preserve"><value>フィットモード オフ: ブースをリサイズしても対象ウィンドウはそのままです。追従させたいときはオンにしてください。</value></data>
-  <data name="PinnedLabel.Text" xml:space="preserve"><value>対象を最前面に固定中</value></data>
   <data name="ReleaseButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>対象を解放</value></data>
   <data name="ReleaseButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>対象ウィンドウの最前面固定を解除します</value></data>
-  <data name="ReleaseLabel.Text" xml:space="preserve"><value>解除</value></data>
   <data name="ShutterButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>撮影</value></data>
   <data name="ShutterButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>撮影（クリップボードへコピー）</value></data>
   <data name="RetakeButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>撮り直し</value></data>
@@ -46,19 +44,16 @@
   <data name="CopyButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>スクリーンショットをもう一度クリップボードにコピーします</value></data>
   <data name="SaveButton.Label" xml:space="preserve"><value>保存</value></data>
   <data name="ShareButton.Label" xml:space="preserve"><value>共有</value></data>
-  <data name="StatusCopied" xml:space="preserve"><value>クリップボードにコピーしました。</value></data>
+  <data name="NoticeReleasedMessage" xml:space="preserve"><value>対象ウィンドウの固定を解除しました。もう一度撮るには Win+Shift+B を押してください。</value></data>
+  <data name="NoticeCapturedTitle" xml:space="preserve"><value>撮影しました</value></data>
+  <data name="NoticeCapturedMessage" xml:space="preserve"><value>スクリーンショットをクリップボードにコピーしました。</value></data>
+  <data name="NoticeCopiedMessage" xml:space="preserve"><value>クリップボードにコピーしました。</value></data>
+  <data name="NoticeSavedMessage" xml:space="preserve"><value>{0} に保存しました</value></data>
+  <data name="NoticeShareNotImplementedMessage" xml:space="preserve"><value>共有はまだ実装されていません。</value></data>
+  <data name="NoticeNoForegroundMessage" xml:space="preserve"><value>対象にできるウィンドウが前面にありません。</value></data>
+  <data name="NoticeNoTargetMessage" xml:space="preserve"><value>対象ウィンドウがありません。撮りたいウィンドウの上で Win+Shift+B を押してください。</value></data>
+  <data name="NoticeHotkeyFailedTitle" xml:space="preserve"><value>ホットキーを使えません</value></data>
+  <data name="NoticeHotkeyFailedMessage" xml:space="preserve"><value>Win+Shift+B を登録できませんでした（他のアプリが使用中かもしれません）。</value></data>
   <data name="PresetCustom" xml:space="preserve"><value>カスタム</value></data>
-  <data name="StatusIdle" xml:space="preserve"><value>撮りたいウィンドウをアクティブにして Win+Shift+B を押してください。</value></data>
-  <data name="StatusHotkeyFailed" xml:space="preserve"><value>グローバルホットキーを登録できませんでした（他のアプリが使用中かもしれません）。</value></data>
-  <data name="StatusNoForeground" xml:space="preserve"><value>対象にできるウィンドウが見つかりませんでした。</value></data>
-  <data name="StatusLive" xml:space="preserve"><value>準備完了。シャッターを押すと撮影します。</value></data>
-  <data name="StatusResized" xml:space="preserve"><value>対象を {0}x{1} にリサイズしました。</value></data>
-  <data name="StatusNoTargetYet" xml:space="preserve"><value>対象ウィンドウがありません。先に Win+Shift+B を押してください。</value></data>
-  <data name="StatusCapturing" xml:space="preserve"><value>撮影中...</value></data>
-  <data name="StatusCaptured" xml:space="preserve"><value>撮影しました。クリップボードにコピー済みです。</value></data>
-  <data name="StatusSaved" xml:space="preserve"><value>{0} に保存しました</value></data>
-  <data name="StatusShareNotImplemented" xml:space="preserve"><value>共有はまだ実装されていません。</value></data>
-  <data name="StatusReleased" xml:space="preserve"><value>解除しました。対象は最前面ではなくなりました。</value></data>
   <data name="NoticeCancelledTitle" xml:space="preserve"><value>キャンセルしました</value></data>
-  <data name="NoticeReleasedMessage" xml:space="preserve"><value>対象ウィンドウの最前面固定を解除しました。もう一度撮るには Win+Shift+B を押してください。</value></data>
 </root>
