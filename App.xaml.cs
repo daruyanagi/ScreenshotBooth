@@ -60,8 +60,10 @@ public partial class App : Application
             return;
         }
 
-        Window = new MainWindow();
         DispatcherQueue = Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread();
-        Window.Activate();
+
+        // Tray-resident: the booth window is created but not shown. It appears when the global
+        // hotkey fires (or from the tray menu) and hides again on close.
+        Window = new MainWindow();
     }
 }

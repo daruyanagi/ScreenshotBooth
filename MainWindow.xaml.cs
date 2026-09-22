@@ -1,18 +1,17 @@
+using CommunityToolkit.Mvvm.Input;
+using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using ScreenshotBooth.Models;
 using ScreenshotBooth.Services;
 using ScreenshotBooth.ViewModels;
 
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
-
 namespace ScreenshotBooth;
 
 /// <summary>
-/// The application window: booth client area + toolbar, and nothing else. Owns the Win32-level
-/// wiring (global hotkey, target-window interop via <see cref="BoothController"/>) that a pure
-/// ViewModel shouldn't reach into directly; UI state and command logic live in
-/// <see cref="BoothViewModel"/>.
+/// The application window: booth client area + toolbar, and nothing else. Tray-resident: closing
+/// hides the window, the global hotkey (or the tray menu) brings it back, and the process only
+/// exits from the tray menu. Owns the Win32-level wiring (global hotkey, target-window interop via
+/// <see cref="BoothController"/>); UI state and command logic live in <see cref="BoothViewModel"/>.
 /// </summary>
 public sealed partial class MainWindow : Window
 {
@@ -20,6 +19,7 @@ public sealed partial class MainWindow : Window
 
     private readonly AppSettings _settings;
     private readonly HotkeyService _hotkeyService;
+    private bool _exitRequested;
 
     public MainWindow()
     {
@@ -47,14 +47,61 @@ public sealed partial class MainWindow : Window
             ViewModel.StatusMessage = "Couldn't register the global hotkey (it may be in use by another app).";
         }
 
+        // The tray menu (SecondWindow mode) runs on its own thread, so every window operation
+        // triggered from it is marshalled back through DispatcherQueue.
+        TrayIcon.LeftClickCommand = new RelayCommand(ShowBooth);
+        TrayIcon.ForceCreate();
+
+        AppWindow.Closing += OnAppWindowClosing;
         Closed += OnWindowClosed;
     }
 
     private void OnHotkeyPressed(object? sender, EventArgs e)
     {
-        // WM_HOTKEY arrives on this window's own message pump (the UI thread), but marshal via
-        // the dispatcher anyway so this stays correct if the subclassing ever moves off-thread.
-        DispatcherQueue.TryEnqueue(() => ViewModel.AcquireTargetFromForeground());
+        DispatcherQueue.TryEnqueue(() =>
+        {
+            // Acquire the foreground window BEFORE showing ourselves, otherwise the booth would
+            // become the foreground window and capture itself.
+            ViewModel.AcquireTargetFromForeground();
+            if (!AppWindow.IsVisible)
+            {
+                AppWindow.Show(activateWindow: false);
+            }
+        });
+    }
+
+    private void ShowBooth()
+    {
+        DispatcherQueue.TryEnqueue(() =>
+        {
+            AppWindow.Show();
+            Activate();
+        });
+    }
+
+    private void OnAppWindowClosing(AppWindow sender, AppWindowClosingEventArgs args)
+    {
+        if (_exitRequested)
+        {
+            return;
+        }
+
+        args.Cancel = true;
+        ViewModel.OnBoothHidden();
+        AppWindow.Hide();
+    }
+
+    private void OnTrayOpenClick(object sender, RoutedEventArgs e) => ShowBooth();
+
+    private void OnTrayExitClick(object sender, RoutedEventArgs e)
+    {
+        DispatcherQueue.TryEnqueue(() =>
+        {
+            _exitRequested = true;
+            ViewModel.OnBoothHidden();
+            TrayIcon.Dispose();
+            Application.Current.Exit();
+        });
     }
 
     private void OnWindowClosed(object sender, WindowEventArgs args)

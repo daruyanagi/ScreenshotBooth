@@ -155,6 +155,15 @@ public partial class BoothViewModel : ObservableObject
         StatusMessage = "Live - press the shutter to capture.";
     }
 
+    /// <summary>Called when the booth window is hidden to the tray: the target must not stay always-on-top.</summary>
+    public void OnBoothHidden()
+    {
+        if (_controller.HasTarget)
+        {
+            _controller.SetTargetTopMost(false);
+        }
+    }
+
     [RelayCommand]
     private async Task CaptureAsync()
     {
