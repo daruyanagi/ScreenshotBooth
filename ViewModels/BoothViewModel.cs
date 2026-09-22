@@ -152,6 +152,15 @@ public partial class BoothViewModel : ObservableObject
             fitting.Add(TargetSizePreset.Custom(initial.Width, initial.Height));
         }
 
+        // With fit off, a size smaller than the held target (plus margin) would leave it sticking out
+        // of the booth: keep it selectable, but flag it.
+        if (IsTargetPinned && !IsFitToBoothEnabled && _controller.GetMinAreaForTarget() is { } min)
+        {
+            fitting = fitting
+                .Select(p => p with { Overflows = p.Width < min.Width || p.Height < min.Height })
+                .ToList();
+        }
+
         if (Presets.SequenceEqual(fitting))
         {
             return;
@@ -166,7 +175,7 @@ public partial class BoothViewModel : ObservableObject
             Presets.Add(preset);
         }
 
-        SelectedPreset = previous is null ? null : Presets.FirstOrDefault(p => p == previous);
+        SelectedPreset = previous is null ? null : Presets.FirstOrDefault(p => p.SameSizeAs(previous));
         _isApplyingPresetProgrammatically = wasProgrammatic;
     }
 
@@ -235,6 +244,7 @@ public partial class BoothViewModel : ObservableObject
         {
             FitTargetToBooth();
         }
+        RefreshPresets();
     }
 
     /// <summary>Resizes the target to fill the booth area as currently shown (minus the shadow margin).</summary>

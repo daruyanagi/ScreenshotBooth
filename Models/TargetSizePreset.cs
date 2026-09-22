@@ -1,9 +1,12 @@
 namespace ScreenshotBooth.Models;
 
 /// <summary>A selectable booth-area size in the toolbar's size picker.</summary>
-public sealed record TargetSizePreset(string Name, int Width, int Height, bool IsCustom = false)
+public sealed record TargetSizePreset(string Name, int Width, int Height, bool IsCustom = false, bool Overflows = false)
 {
-    public override string ToString() => $"{Name} ({Width}x{Height})";
+    /// <summary>Marked with an exclamation when the held target (plus margin) would not fit this size.</summary>
+    public override string ToString() => (Overflows ? "\u2757 " : "") + $"{Name} ({Width}x{Height})";
+
+    public bool SameSizeAs(TargetSizePreset other) => Width == other.Width && Height == other.Height && IsCustom == other.IsCustom;
 
     public static IReadOnlyList<TargetSizePreset> BuiltIn { get; } =
     [

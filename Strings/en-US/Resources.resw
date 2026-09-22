@@ -54,6 +54,7 @@
   <data name="NoticeNoTargetMessage" xml:space="preserve"><value>No target window - press Win+Shift+B over a window first.</value></data>
   <data name="NoticeHotkeyFailedTitle" xml:space="preserve"><value>Hotkey unavailable</value></data>
   <data name="NoticeHotkeyFailedMessage" xml:space="preserve"><value>Couldn't register Win+Shift+B (another app may be using it).</value></data>
+  <data name="PresetComboBox.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>Sizes marked ❗ are smaller than the target window plus its shadow margin, so the target would stick out of the booth. Turn on Fit to make the target follow instead.</value></data>
   <data name="PresetCustom" xml:space="preserve"><value>Custom</value></data>
   <data name="NoticeCancelledTitle" xml:space="preserve"><value>Cancelled</value></data>
 </root>

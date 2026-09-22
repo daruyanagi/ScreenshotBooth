@@ -54,6 +54,7 @@
   <data name="NoticeNoTargetMessage" xml:space="preserve"><value>対象ウィンドウがありません。撮りたいウィンドウの上で Win+Shift+B を押してください。</value></data>
   <data name="NoticeHotkeyFailedTitle" xml:space="preserve"><value>ホットキーを使えません</value></data>
   <data name="NoticeHotkeyFailedMessage" xml:space="preserve"><value>Win+Shift+B を登録できませんでした（他のアプリが使用中かもしれません）。</value></data>
+  <data name="PresetComboBox.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>❗ の付いたサイズは対象ウィンドウ＋影の余白より小さく、対象がブースからはみ出します。フィットをオンにすると対象が追従します。</value></data>
   <data name="PresetCustom" xml:space="preserve"><value>カスタム</value></data>
   <data name="NoticeCancelledTitle" xml:space="preserve"><value>キャンセルしました</value></data>
 </root>

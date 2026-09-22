@@ -134,6 +134,19 @@ public sealed class BoothController
         return new Size(Math.Max(1, work.Width), Math.Max(1, work.Height - chromePx));
     }
 
+    /// <summary>The smallest booth area (physical px) that shows the held target with its full shadow margin, or null without a target.</summary>
+    public Size? GetMinAreaForTarget()
+    {
+        if (!HasTarget)
+        {
+            return null;
+        }
+
+        var frame = GetTargetExtendedFrameBounds();
+        var marginPx = (int)(MarginDip * DpiScale);
+        return new Size(frame.Width + marginPx * 2, frame.Height + marginPx * 2);
+    }
+
     /// <summary>The booth area's current on-screen size in physical px.</summary>
     public Size GetAreaSizePx(FrameworkElement boothArea)
     {
