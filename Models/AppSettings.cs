@@ -27,9 +27,6 @@ public sealed class AppSettings
 
     /// <summary>UI language override (BCP-47, e.g. "ja", "en-US"). Empty follows the system.</summary>
     public string Language { get; set; } = "";
-
-    /// <summary>When true, resizing the booth resizes the target to fill it (minus the shadow margin).</summary>
-    public bool FitToBooth { get; set; }
 }
 
 /// <summary>Shared default hotkey constants (used by AppSettings and HotkeyService).</summary>

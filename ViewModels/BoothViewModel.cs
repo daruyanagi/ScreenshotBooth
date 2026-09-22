@@ -92,7 +92,7 @@ public partial class BoothViewModel : ObservableObject
 
     partial void OnIsPreviewShownChanged(bool value) => OnPropertyChanged(nameof(IsIdleHintVisible));
 
-    /// <summary>Fit mode: while on, resizing the booth resizes the target to fill it.</summary>
+    /// <summary>Fit mode: while on, resizing the booth resizes the target to fill it. Per session, off by default.</summary>
     [ObservableProperty]
     public partial bool IsFitToBoothEnabled { get; set; }
 
@@ -131,7 +131,6 @@ public partial class BoothViewModel : ObservableObject
 
         RefreshPresets();
         SelectedPreset = Presets.FirstOrDefault(p => p.Width == settings.BoothWidth && p.Height == settings.BoothHeight);
-        IsFitToBoothEnabled = settings.FitToBooth;
         CountdownSeconds = settings.DefaultCountdownSeconds;
 
         _isApplyingPresetProgrammatically = false;
@@ -222,6 +221,10 @@ public partial class BoothViewModel : ObservableObject
         PreviewImage = null;
         IsPreviewShown = false;
         _lastCapturePngBytes = null;
+
+        // Fit mode is per session and off by default: a small window must be captured as it is.
+        // Only the auto-fit of an oversized target (below) turns it on.
+        IsFitToBoothEnabled = false;
 
         if (!_controller.TryAcquireForegroundAsTarget())
         {
@@ -332,8 +335,6 @@ public partial class BoothViewModel : ObservableObject
     partial void OnIsFitToBoothEnabledChanged(bool value)
     {
         OnPropertyChanged(nameof(FitToBoothToolTip));
-        _settings.FitToBooth = value;
-        SettingsService.Save(_settings);
 
         if (value)
         {
