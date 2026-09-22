@@ -62,8 +62,10 @@ public sealed class BoothController
 
     /// <summary>Raised when the Release button on the target chip is clicked.</summary>
     public event Action? ReleaseRequested;
-    private readonly WinEventDelegate _winEventProc;   // rooted for the hook's lifetime
+    private readonly WinEventDelegate _winEventProc;   // rooted for the hooks' lifetime
     private readonly IntPtr _moveSizeHook;
+    private readonly IntPtr _foregroundHook;
+    private readonly Microsoft.UI.Dispatching.DispatcherQueue _dispatcher;
 
     public BoothController(nint boothWindowHandle)
     {
@@ -83,6 +85,11 @@ public sealed class BoothController
         // any window ends; we only react for the held target.
         _winEventProc = OnWinEvent;
         _moveSizeHook = SetWinEventHookNative(0x000B, 0x000B, IntPtr.Zero, _winEventProc, 0, 0, 0);
+
+        // EVENT_SYSTEM_FOREGROUND (0x0003): activation reshuffles the topmost band, so the booth /
+        // target / indicator order is re-applied whenever the foreground window changes.
+        _foregroundHook = SetWinEventHookNative(0x0003, 0x0003, IntPtr.Zero, _winEventProc, 0, 0, 0);
+        _dispatcher = Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread();
     }
 
     /// <summary>True while a valid target window is being tracked.</summary>
@@ -213,6 +220,11 @@ public sealed class BoothController
                 SetWindowPosFlags.SWP_NOMOVE | SetWindowPosFlags.SWP_NOSIZE | SetWindowPosFlags.SWP_NOACTIVATE);
         }
 
+        // While holding, the booth joins the topmost band right under the target so no other window
+        // can slip in between them; it leaves the band again on release.
+        SetWindowPos(_boothHwnd, topMost ? HWND.HWND_TOPMOST : HWND.HWND_NOTOPMOST, 0, 0, 0, 0,
+            SetWindowPosFlags.SWP_NOMOVE | SetWindowPosFlags.SWP_NOSIZE | SetWindowPosFlags.SWP_NOACTIVATE);
+
         // Persist which window we put on top, so a crash can be repaired on the next run.
         if (topMost && !_targetWasTopMost)
         {
@@ -228,11 +240,26 @@ public sealed class BoothController
         if (topMost)
         {
             ShowIndicators();
+            EnforceZOrder();
         }
         else
         {
             HideIndicators();
         }
+    }
+
+    /// <summary>Within the topmost band: chip and ring on top, then the target, then the booth directly under it.</summary>
+    private void EnforceZOrder()
+    {
+        if (!_isPinned || !HasTarget)
+        {
+            return;
+        }
+
+        const SetWindowPosFlags flags = SetWindowPosFlags.SWP_NOMOVE | SetWindowPosFlags.SWP_NOSIZE | SetWindowPosFlags.SWP_NOACTIVATE;
+        SetWindowPos(_targetHwnd, HWND.HWND_TOPMOST, 0, 0, 0, 0, flags);
+        _frame.BringToTop();
+        SetWindowPos(_boothHwnd, _targetHwnd, 0, 0, 0, 0, flags);
     }
 
     /// <summary>Lets go of the held window entirely (un-topmost, indicators hidden, nothing tracked).</summary>
@@ -270,6 +297,14 @@ public sealed class BoothController
     {
         if (!_isPinned)
         {
+            return;
+        }
+
+        if (eventType == 0x0003)
+        {
+            // Foreground changed (target, booth or anything else): put the band back in order,
+            // outside of the hook callback.
+            _dispatcher.TryEnqueue(EnforceZOrder);
             return;
         }
 

@@ -59,6 +59,19 @@ public sealed class TargetFrameOverlay : IDisposable
     // The Release pill, in the chip window's client coordinates (physical px).
     private Rectangle _pillRect;
 
+    /// <summary>Re-asserts both indicator windows at the top of the topmost band (above the target) without showing hidden ones.</summary>
+    public void BringToTop()
+    {
+        foreach (var hwnd in new[] { _ringHwnd, _chipHwnd })
+        {
+            if (hwnd != HWND.NULL && IsWindowVisible(hwnd))
+            {
+                SetWindowPos(hwnd, HWND.HWND_TOPMOST, 0, 0, 0, 0,
+                    SetWindowPosFlags.SWP_NOMOVE | SetWindowPosFlags.SWP_NOSIZE | SetWindowPosFlags.SWP_NOACTIVATE);
+            }
+        }
+    }
+
     /// <summary>Raised (on the UI thread) when the Release pill is clicked.</summary>
     public event Action? ReleaseRequested;
 
