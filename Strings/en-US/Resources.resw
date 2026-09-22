@@ -64,6 +64,7 @@
   <data name="NoticeRecoveredMessage" xml:space="preserve"><value>"{0}" was still kept always-on-top from the previous run (the app did not exit cleanly). It has been released. Sorry about that.</value></data>
   <data name="NoticeTargetMinimizedMessage" xml:space="preserve"><value>The target window was minimized, so it was released.</value></data>
   <data name="NoticeTargetClosedMessage" xml:space="preserve"><value>The target window was closed, so it was released.</value></data>
+  <data name="NoticeTargetMaximizedMessage" xml:space="preserve"><value>The target window was maximized, so it was released.</value></data>
   <data name="PresetCustom" xml:space="preserve"><value>Custom</value></data>
   <data name="NoticeCancelledTitle" xml:space="preserve"><value>Cancelled</value></data>
 </root>

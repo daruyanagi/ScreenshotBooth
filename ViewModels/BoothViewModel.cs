@@ -286,8 +286,13 @@ public partial class BoothViewModel : ObservableObject
     public void OnTargetLost(TargetLostReason reason)
     {
         IsTargetPinned = false;
-        ShowNotice(InfoBarSeverity.Informational, R.Get("NoticeCancelledTitle"),
-            R.Get(reason == TargetLostReason.Minimized ? "NoticeTargetMinimizedMessage" : "NoticeTargetClosedMessage"));
+        var key = reason switch
+        {
+            TargetLostReason.Minimized => "NoticeTargetMinimizedMessage",
+            TargetLostReason.Maximized => "NoticeTargetMaximizedMessage",
+            _ => "NoticeTargetClosedMessage",
+        };
+        ShowNotice(InfoBarSeverity.Informational, R.Get("NoticeCancelledTitle"), R.Get(key));
     }
 
     /// <summary>Called at startup when a window left on top by a crashed previous run was just released.</summary>

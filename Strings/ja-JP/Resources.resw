@@ -64,6 +64,7 @@
   <data name="NoticeRecoveredMessage" xml:space="preserve"><value>前回、正常に終了できなかったため「{0}」が最前面に固定されたままでした。固定を解除しました。ご迷惑をおかけしました。</value></data>
   <data name="NoticeTargetMinimizedMessage" xml:space="preserve"><value>対象ウィンドウが最小化されたため、固定を解除しました。</value></data>
   <data name="NoticeTargetClosedMessage" xml:space="preserve"><value>対象ウィンドウが閉じられたため、固定を解除しました。</value></data>
+  <data name="NoticeTargetMaximizedMessage" xml:space="preserve"><value>対象ウィンドウが最大化されたため、固定を解除しました。</value></data>
   <data name="PresetCustom" xml:space="preserve"><value>カスタム</value></data>
   <data name="NoticeCancelledTitle" xml:space="preserve"><value>キャンセルしました</value></data>
 </root>

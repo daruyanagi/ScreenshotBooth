@@ -70,6 +70,7 @@ public sealed class BoothController
     private readonly IntPtr _foregroundHook;
     private readonly IntPtr _minimizeHook;
     private readonly IntPtr _destroyHook;
+    private readonly IntPtr _locationHook;
     private readonly Microsoft.UI.Dispatching.DispatcherQueue _dispatcher;
 
     public BoothController(nint boothWindowHandle)
@@ -99,6 +100,10 @@ public sealed class BoothController
         // gets minimized or closed would otherwise leave the ring and chip hanging in the air.
         _minimizeHook = SetWinEventHookNative(0x0016, 0x0016, IntPtr.Zero, _winEventProc, 0, 0, 0);
         _destroyHook = SetWinEventHookNative(0x8001, 0x8001, IntPtr.Zero, _winEventProc, 0, 0, 0);
+
+        // EVENT_OBJECT_LOCATIONCHANGE (0x800B): there is no dedicated maximize event, so a held
+        // target that becomes maximized (button or snap) is caught here and released.
+        _locationHook = SetWinEventHookNative(0x800B, 0x800B, IntPtr.Zero, _winEventProc, 0, 0, 0);
         _dispatcher = Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread();
     }
 
@@ -137,6 +142,13 @@ public sealed class BoothController
     /// <summary>Centers the target on <paramref name="display"/> at its current size and returns its actual bounds.</summary>
     public Rectangle CenterTarget(DisplayArea display)
     {
+        // A maximized window cannot be centered and would be released again at once (maximize ends
+        // a session), so bring it back to normal first.
+        if (IsZoomed(_targetHwnd))
+        {
+            ShowWindow(_targetHwnd, ShowWindowCommand.SW_RESTORE);
+        }
+
         var work = display.WorkArea;
         var actual = GetTargetExtendedFrameBounds();
 
@@ -320,6 +332,22 @@ public sealed class BoothController
     {
         if (!_isPinned)
         {
+            return;
+        }
+
+        if (eventType == 0x800B)
+        {
+            if (hwnd == (IntPtr)_targetHwnd && idObject == 0 && IsZoomed(_targetHwnd))
+            {
+                _dispatcher.TryEnqueue(() =>
+                {
+                    if (_isPinned && HasTarget && IsZoomed(_targetHwnd))
+                    {
+                        ReleaseHeldTarget();
+                        TargetLost?.Invoke(TargetLostReason.Maximized);
+                    }
+                });
+            }
             return;
         }
 
@@ -670,5 +698,6 @@ public sealed class BoothController
 public enum TargetLostReason
 {
     Minimized,
+    Maximized,
     Closed,
 }

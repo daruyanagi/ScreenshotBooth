@@ -65,6 +65,7 @@ public sealed partial class MainWindow : Window
             if (e.PropertyName == nameof(BoothViewModel.IsTargetPinned) && AppWindow.Presenter is OverlappedPresenter presenter)
             {
                 presenter.IsMinimizable = !ViewModel.IsTargetPinned;
+                presenter.IsMaximizable = !ViewModel.IsTargetPinned;
             }
         };
 
