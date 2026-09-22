@@ -17,8 +17,11 @@
   <data name="PresetComboBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>対象ウィンドウのサイズ</value></data>
   <data name="CustomWidthNumberBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>対象ウィンドウの幅</value></data>
   <data name="CustomHeightNumberBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>対象ウィンドウの高さ</value></data>
-  <data name="FitToBoothToggle.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>対象をブースに合わせる</value></data>
-  <data name="FitToBoothToggle.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>フィットモード: ブースをリサイズすると対象ウィンドウがブースいっぱいに追従します</value></data>
+  <data name="FitToBoothSwitch.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>フィットモード</value></data>
+  <data name="FitToBoothSwitch.OnContent" xml:space="preserve"><value>フィット: オン</value></data>
+  <data name="FitToBoothSwitch.OffContent" xml:space="preserve"><value>フィット: オフ</value></data>
+  <data name="FitToBoothTipOn" xml:space="preserve"><value>フィットモード オン: ブースをリサイズすると、対象ウィンドウが（影の余白を残して）ブースいっぱいに追従します。</value></data>
+  <data name="FitToBoothTipOff" xml:space="preserve"><value>フィットモード オフ: ブースをリサイズしても対象ウィンドウはそのままです。追従させたいときはオンにしてください。</value></data>
   <data name="PinnedLabel.Text" xml:space="preserve"><value>対象を最前面に固定中</value></data>
   <data name="ReleaseButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>対象を解放</value></data>
   <data name="ReleaseButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>対象ウィンドウの最前面固定を解除します</value></data>

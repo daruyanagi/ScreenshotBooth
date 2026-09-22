@@ -279,8 +279,12 @@ public partial class BoothViewModel : ObservableObject
         IsTargetPinned = false;
     }
 
+    /// <summary>Explains the current fit-mode state (shown as the switch's tooltip).</summary>
+    public string FitToBoothToolTip => R.Get(IsFitToBoothEnabled ? "FitToBoothTipOn" : "FitToBoothTipOff");
+
     partial void OnIsFitToBoothEnabledChanged(bool value)
     {
+        OnPropertyChanged(nameof(FitToBoothToolTip));
         _settings.FitToBooth = value;
         SettingsService.Save(_settings);
 
