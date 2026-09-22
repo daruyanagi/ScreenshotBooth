@@ -54,9 +54,6 @@ public sealed class BoothController
     private Rectangle? _lastAreaRect;
 
     private readonly TargetFrameOverlay _frame;
-    private readonly TargetChipWindow _chip;
-    // The chip overlaps the ring's bottom edge by 1px so it reads as attached to it.
-    private const int ChipGapPx = TargetFrameOverlay.Thickness - 1;
 
     // Where the booth was last placed (by us, or by a user resize): while a target is held, a
     // plain drag of the booth snaps back here so the booth and target cannot drift apart.
@@ -80,8 +77,7 @@ public sealed class BoothController
 
         _current = this;
         _frame = new TargetFrameOverlay();
-        _chip = new TargetChipWindow();
-        _chip.ReleaseRequested += () => ReleaseRequested?.Invoke();
+        _frame.ReleaseRequested += () => ReleaseRequested?.Invoke();
 
         // EVENT_SYSTEM_MOVESIZEEND (0x000B): fires on this (UI) thread when a user move/resize of
         // any window ends; we only react for the held target.
@@ -251,18 +247,9 @@ public sealed class BoothController
     /// <summary>Hides the frame ring and chip without releasing the target - called right before a capture so neither is in the shot.</summary>
     public void HideTargetFrame() => HideIndicators();
 
-    private void ShowIndicators()
-    {
-        var frame = GetTargetExtendedFrameBounds();
-        _frame.Show(frame);
-        _chip.ShowBelow(frame, ChipGapPx);
-    }
+    private void ShowIndicators() => _frame.Show(GetTargetExtendedFrameBounds(), DpiScale);
 
-    private void HideIndicators()
-    {
-        _frame.Hide();
-        _chip.HideChip();
-    }
+    private void HideIndicators() => _frame.Hide();
 
     private void OnWinEvent(IntPtr hook, uint eventType, IntPtr hwnd, int idObject, int idChild, uint eventThread, uint eventTime)
     {
