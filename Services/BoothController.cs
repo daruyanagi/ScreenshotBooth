@@ -129,13 +129,19 @@ public sealed class BoothController
         }
 
         // Switching targets restores the previous one first: never more than one window is held.
-        if (HasTarget && _targetHwnd != fg)
+        var sameWindow = HasTarget && _targetHwnd == fg;
+        if (HasTarget && !sameWindow)
         {
             SetTargetTopMost(false);
         }
 
         _targetHwnd = fg;
-        _targetWasTopMost = (GetWindowLongPtr((IntPtr)fg, GWL_EXSTYLE).ToInt64() & WS_EX_TOPMOST) != 0;
+        // Re-acquiring the window we already hold must keep its ORIGINAL state: sampling it now would
+        // read back the topmost flag we set ourselves and the window would never be released.
+        if (!sameWindow)
+        {
+            _targetWasTopMost = (GetWindowLongPtr((IntPtr)fg, GWL_EXSTYLE).ToInt64() & WS_EX_TOPMOST) != 0;
+        }
         var title = new System.Text.StringBuilder(256);
         GetWindowText(fg, title, title.Capacity);
         AppLog.Write($"Acquire: target=0x{(nint)fg:X} \"{title}\" bounds={GetTargetExtendedFrameBounds()}");
