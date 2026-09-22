@@ -65,7 +65,7 @@
   <data name="PickerButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>ウィンドウを選択</value></data>
   <data name="PickerButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>撮影したいウィンドウをクリックして選びます（Esc または右クリックで中止）</value></data>
   <data name="PickerHint" xml:space="preserve"><value>撮影したいウィンドウをクリック  （Esc または右クリックで中止）</value></data>
-  <data name="RestoreLayoutToggle.Label" xml:space="preserve"><value>元の位置に戻す</value></data>
+  <data name="RestoreLayoutToggle.Label" xml:space="preserve"><value>撮影後に対象ウィンドウのレイアウトを復元する</value></data>
   <data name="RestoreLayoutToggle.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>対象を元の位置に戻す</value></data>
   <data name="RestoreLayoutToggle.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>オン: 解除や撮影でブースが対象を手放したとき、元の位置とサイズに戻します</value></data>
   <data name="PresetCustom" xml:space="preserve"><value>カスタム</value></data>

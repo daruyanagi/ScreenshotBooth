@@ -65,7 +65,7 @@
   <data name="PickerButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Pick a window</value></data>
   <data name="PickerButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>Click the window you want to capture (Esc or right-click to cancel)</value></data>
   <data name="PickerHint" xml:space="preserve"><value>Click the window you want to capture  (Esc or right-click to cancel)</value></data>
-  <data name="RestoreLayoutToggle.Label" xml:space="preserve"><value>Restore position</value></data>
+  <data name="RestoreLayoutToggle.Label" xml:space="preserve"><value>Restore the target window's layout after capture</value></data>
   <data name="RestoreLayoutToggle.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Restore the target's position afterwards</value></data>
   <data name="RestoreLayoutToggle.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>On: when the booth lets go of the target (release or capture), it goes back to where it was, at its original size</value></data>
   <data name="PresetCustom" xml:space="preserve"><value>Custom</value></data>
