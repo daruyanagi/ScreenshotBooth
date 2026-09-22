@@ -581,6 +581,9 @@ public sealed class BoothController
         _lastAreaCenter = new Point(origin.X + areaW / 2, origin.Y + chromeTopPx + areaH / 2);
         CenterTargetAt(_lastAreaCenter.Value.X, _lastAreaCenter.Value.Y);
 
+        // AppWindow.ResizeClient/Move re-insert the booth at the top of its band (above the target).
+        EnforceZOrder();
+
         return new Size(areaW, areaH);
     }
 
