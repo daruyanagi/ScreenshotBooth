@@ -35,6 +35,7 @@ public sealed partial class MainWindow : Window
         controller.ReleaseRequested += () => ViewModel.ReleaseCommand.Execute(null);
         controller.TargetLost += reason => ViewModel.OnTargetLost(reason);
         controller.TargetResized += () => ViewModel.OnTargetResized();
+        ViewModel.Captured += () => CaptureEffect.Begin();
 
         InitializeComponent();
         Root.DataContext = ViewModel;

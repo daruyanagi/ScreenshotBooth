@@ -72,6 +72,9 @@ public partial class BoothViewModel : ObservableObject
         SettingsService.Save(_settings);
     }
 
+    /// <summary>Raised right after a capture is shown, for the view to play its "photo taken" effect.</summary>
+    public event Action? Captured;
+
     [ObservableProperty]
     public partial BitmapImage? PreviewImage { get; set; }
 
@@ -457,6 +460,7 @@ public partial class BoothViewModel : ObservableObject
         PreviewImage = result.Preview;
         IsPreviewShown = true;
         IsTargetPinned = false;
+        Captured?.Invoke();
         await ClipboardService.CopyPngAsync(result.PngBytes);
         ShowNotice(InfoBarSeverity.Success, R.Get("NoticeCapturedTitle"), R.Get("NoticeCapturedMessage"));
     }

@@ -231,10 +231,32 @@
              After a capture, PreviewImage replaces the white backdrop with the captured screenshot. -->
         <Border x:Name="BoothArea" Grid.Row="2" Background="White">
             <Grid>
+                <Grid.Resources>
+                    <!-- "It is a photo now": a flash and a shake when the capture lands, otherwise the
+                         preview is pixel-identical to the live window and the eye cannot tell. -->
+                    <Storyboard x:Name="CaptureEffect">
+                        <DoubleAnimation Storyboard.TargetName="Flash" Storyboard.TargetProperty="Opacity" From="0.9" To="0" Duration="0:0:0.3" />
+                        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="PreviewShake" Storyboard.TargetProperty="TranslateX">
+                            <LinearDoubleKeyFrame KeyTime="0:0:0" Value="0" />
+                            <LinearDoubleKeyFrame KeyTime="0:0:0.05" Value="-8" />
+                            <LinearDoubleKeyFrame KeyTime="0:0:0.1" Value="8" />
+                            <LinearDoubleKeyFrame KeyTime="0:0:0.15" Value="-6" />
+                            <LinearDoubleKeyFrame KeyTime="0:0:0.2" Value="6" />
+                            <LinearDoubleKeyFrame KeyTime="0:0:0.25" Value="-3" />
+                            <LinearDoubleKeyFrame KeyTime="0:0:0.3" Value="3" />
+                            <LinearDoubleKeyFrame KeyTime="0:0:0.35" Value="0" />
+                        </DoubleAnimationUsingKeyFrames>
+                    </Storyboard>
+                </Grid.Resources>
                 <Image
                     Source="{x:Bind ViewModel.PreviewImage, Mode=OneWay}"
                     Visibility="{x:Bind local:MainWindow.BoolToVisibility(ViewModel.IsPreviewShown), Mode=OneWay}"
-                    Stretch="UniformToFill" />
+                    Stretch="UniformToFill">
+                    <Image.RenderTransform>
+                        <CompositeTransform x:Name="PreviewShake" />
+                    </Image.RenderTransform>
+                </Image>
+                <Rectangle x:Name="Flash" Fill="White" Opacity="0" IsHitTestVisible="False" />
                 <TextBlock
                     x:Uid="IdleHint"
                     Visibility="{x:Bind local:MainWindow.BoolToVisibility(ViewModel.IsIdleHintVisible), Mode=OneWay}"

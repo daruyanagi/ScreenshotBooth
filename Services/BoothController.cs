@@ -76,6 +76,10 @@ public sealed class BoothController
     private readonly IntPtr _locationHook;
     private readonly Microsoft.UI.Dispatching.DispatcherQueue _dispatcher;
 
+    // Self-healing z-order: while a target is held, a light watchdog checks that the booth still
+    // sits directly under the target and repairs the order only when something got in between.
+    private readonly Microsoft.UI.Dispatching.DispatcherQueueTimer _orderWatchdog;
+
     public BoothController(nint boothWindowHandle)
     {
         _boothHwnd = (HWND)boothWindowHandle;
@@ -108,6 +112,17 @@ public sealed class BoothController
         // target that becomes maximized (button or snap) is caught here and released.
         _locationHook = SetWinEventHookNative(0x800B, 0x800B, IntPtr.Zero, _winEventProc, 0, 0, 0);
         _dispatcher = Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread();
+        _orderWatchdog = _dispatcher.CreateTimer();
+        _orderWatchdog.Interval = TimeSpan.FromMilliseconds(250);
+        _orderWatchdog.IsRepeating = true;
+        _orderWatchdog.Tick += (_, _) =>
+        {
+            if (_isPinned && HasTarget && !IsZOrderIntact(out var intruder))
+            {
+                AppLog.Write($"ZOrder: repaired (intruder {intruder})");
+                EnforceZOrder();
+            }
+        };
     }
 
     /// <summary>True while a valid target window is being tracked.</summary>
@@ -272,11 +287,47 @@ public sealed class BoothController
         {
             ShowIndicators();
             EnforceZOrder();
+            _orderWatchdog.Start();
         }
         else
         {
+            _orderWatchdog.Stop();
             HideIndicators();
         }
+    }
+
+    /// <summary>
+    /// True when, walking down the z-order from the target, the first visible window that is not
+    /// one of ours is the booth. <paramref name="intruder"/> describes what was found instead.
+    /// </summary>
+    private bool IsZOrderIntact(out string intruder)
+    {
+        intruder = "";
+        GetWindowThreadProcessId(_boothHwnd, out var ourPid);
+        var next = GetWindow(_targetHwnd, GetWindowCmd.GW_HWNDNEXT);
+        while (next != HWND.NULL)
+        {
+            if (IsWindowVisible(next))
+            {
+                if (next == _boothHwnd)
+                {
+                    return true;
+                }
+
+                GetWindowThreadProcessId(next, out var pid);
+                if (pid != ourPid)
+                {
+                    var title = new System.Text.StringBuilder(128);
+                    GetWindowText(next, title, title.Capacity);
+                    intruder = $"0x{(nint)next:X} \"{title}\" pid={pid}";
+                    return false;
+                }
+            }
+            next = GetWindow(next, GetWindowCmd.GW_HWNDNEXT);
+        }
+
+        intruder = "booth not found below the target";
+        return false;
     }
 
     /// <summary>
