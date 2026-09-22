@@ -37,6 +37,7 @@ public sealed partial class MainWindow : Window
 
         InitializeComponent();
         Root.DataContext = ViewModel;
+        FitToBoothToggle.DataContext = ViewModel;   // CommandBar items do not always inherit it
 
         ExtendsContentIntoTitleBar = true;
         SetTitleBar(AppTitleBar);
@@ -167,6 +168,9 @@ public sealed partial class MainWindow : Window
 
     /// <summary>x:Bind helper for RadioMenuFlyoutItem.IsChecked.</summary>
     public static bool IntEquals(int a, int b) => a == b;
+
+    /// <summary>x:Bind helper: false -&gt; Visible (for "off" badges).</summary>
+    public static Visibility InvertedBoolToVisibility(bool value) => value ? Visibility.Collapsed : Visibility.Visible;
 
     /// <summary>x:Bind helper: bool -&gt; Visibility (WinUI 3 has no built-in bool/Visibility converter).</summary>
     public static Visibility BoolToVisibility(bool value) => value ? Visibility.Visible : Visibility.Collapsed;

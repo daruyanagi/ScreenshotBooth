@@ -94,16 +94,34 @@
                 VerticalContentAlignment="Center">
                 <!-- Overflow moves commands from the end: Share, Save, Copy, Countdown, Retake, then Fit. -->
                 <CommandBar.PrimaryCommands>
-                    <AppBarToggleButton
-                        x:Name="FitToBoothToggle"
-                        x:Uid="FitToBoothToggle"
-                        AutomationProperties.AutomationId="FitToBoothToggle"
-                        IsChecked="{Binding IsFitToBoothEnabled, Mode=TwoWay}"
-                        ToolTipService.ToolTip="{x:Bind ViewModel.FitToBoothToolTip, Mode=OneWay}">
-                        <AppBarToggleButton.Icon>
-                            <FontIcon Glyph="&#xE740;" />
-                        </AppBarToggleButton.Icon>
-                    </AppBarToggleButton>
+                    <!-- A plain ToggleButton (not AppBarToggleButton) so the icon can carry a small
+                         "blocked" badge while fit mode is off; the checked state itself shows "on". -->
+                    <AppBarElementContainer VerticalAlignment="Center">
+                        <ToggleButton
+                            x:Name="FitToBoothToggle"
+                            x:Uid="FitToBoothToggle"
+                            AutomationProperties.AutomationId="FitToBoothToggle"
+                            IsChecked="{Binding IsFitToBoothEnabled, Mode=TwoWay}"
+                            ToolTipService.ToolTip="{x:Bind ViewModel.FitToBoothToolTip, Mode=OneWay}"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Width="40"
+                            Height="36"
+                            Padding="0"
+                            Margin="4,0">
+                            <Grid Width="20" Height="20">
+                                <FontIcon Glyph="&#xE740;" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                <FontIcon
+                                    x:Name="FitOffBadge"
+                                    Glyph="&#xE733;"
+                                    FontSize="9"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Bottom"
+                                    Margin="0,0,-3,-3"
+                                    Visibility="{x:Bind local:MainWindow.InvertedBoolToVisibility(ViewModel.IsFitToBoothEnabled), Mode=OneWay}" />
+                            </Grid>
+                        </ToggleButton>
+                    </AppBarElementContainer>
                     <AppBarButton
                         x:Name="RetakeButton"
                         x:Uid="RetakeButton"
