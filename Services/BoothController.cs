@@ -278,8 +278,18 @@ public sealed class BoothController
         areaW = Math.Clamp(areaW, 1, max.Width);
         areaH = Math.Clamp(areaH, 1, max.Height);
 
-        _boothAppWindow.ResizeClient(new Windows.Graphics.SizeInt32(areaW, areaH + chromeTopPx + chromeBottomPx));
-        AppLog.Write($"Layout: area={areaW}x{areaH} chrome={chromeTopPx}+{chromeBottomPx} -> client={_boothAppWindow.ClientSize.Width}x{_boothAppWindow.ClientSize.Height} size={_boothAppWindow.Size.Width}x{_boothAppWindow.Size.Height}");
+        var wantedClient = new Windows.Graphics.SizeInt32(areaW, areaH + chromeTopPx + chromeBottomPx);
+        _boothAppWindow.ResizeClient(wantedClient);
+
+        // ResizeClient adds the caption height even though the content extends into the title bar
+        // (+31px here), so read back what we actually got and compensate once.
+        var got = _boothAppWindow.ClientSize;
+        if (got.Width != wantedClient.Width || got.Height != wantedClient.Height)
+        {
+            _boothAppWindow.ResizeClient(new Windows.Graphics.SizeInt32(
+                wantedClient.Width * 2 - got.Width, wantedClient.Height * 2 - got.Height));
+        }
+        AppLog.Write($"Layout: area={areaW}x{areaH} chrome={chromeTopPx}+{chromeBottomPx} wanted={wantedClient.Width}x{wantedClient.Height} first={got.Width}x{got.Height} -> client={_boothAppWindow.ClientSize.Width}x{_boothAppWindow.ClientSize.Height}");
 
         var work = display.WorkArea;
         var size = _boothAppWindow.Size;
