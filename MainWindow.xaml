@@ -215,6 +215,8 @@
                     </AppBarElementContainer>
                     <AppBarButton
                         x:Name="CopyButton"
+                        Width="40"
+                        MinWidth="0"
                         x:Uid="CopyButton"
                         AutomationProperties.AutomationId="CopyButton"
                         Command="{x:Bind ViewModel.CopyCommand}"
@@ -225,6 +227,8 @@
                     </AppBarButton>
                     <AppBarButton
                         x:Name="SaveButton"
+                        Width="40"
+                        MinWidth="0"
                         x:Uid="SaveButton"
                         AutomationProperties.AutomationId="SaveButton"
                         Command="{x:Bind ViewModel.SaveCommand}"
@@ -235,6 +239,8 @@
                     </AppBarButton>
                     <AppBarButton
                         x:Name="ShareButton"
+                        Width="40"
+                        MinWidth="0"
                         x:Uid="ShareButton"
                         AutomationProperties.AutomationId="ShareButton"
                         Command="{x:Bind ViewModel.ShareCommand}"
