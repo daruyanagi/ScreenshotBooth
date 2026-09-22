@@ -282,6 +282,14 @@ public partial class BoothViewModel : ObservableObject
         SyncSizeControlsToArea(area);
     }
 
+    /// <summary>Called when the held target was minimized or closed: the controller has already let go of it.</summary>
+    public void OnTargetLost(TargetLostReason reason)
+    {
+        IsTargetPinned = false;
+        ShowNotice(InfoBarSeverity.Informational, R.Get("NoticeCancelledTitle"),
+            R.Get(reason == TargetLostReason.Minimized ? "NoticeTargetMinimizedMessage" : "NoticeTargetClosedMessage"));
+    }
+
     /// <summary>Called at startup when a window left on top by a crashed previous run was just released.</summary>
     public void NotifyRecoveredStuckTopMost(string title) =>
         ShowNotice(InfoBarSeverity.Warning, R.Get("NoticeRecoveredTitle"), R.F("NoticeRecoveredMessage", title), autoClose: false);

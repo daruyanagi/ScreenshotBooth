@@ -32,6 +32,7 @@ public sealed partial class MainWindow : Window
         var controller = new BoothController(hwnd);
         ViewModel = new BoothViewModel(controller, _settings);
         controller.ReleaseRequested += () => ViewModel.ReleaseCommand.Execute(null);
+        controller.TargetLost += reason => ViewModel.OnTargetLost(reason);
 
         InitializeComponent();
         Root.DataContext = ViewModel;
@@ -57,6 +58,15 @@ public sealed partial class MainWindow : Window
 
         AppWindow.Closing += OnAppWindowClosing;
         Closed += OnWindowClosed;
+
+        // Minimizing the booth while a target is held would leave the target pinned with the booth gone.
+        ViewModel.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(BoothViewModel.IsTargetPinned) && AppWindow.Presenter is OverlappedPresenter presenter)
+            {
+                presenter.IsMinimizable = !ViewModel.IsTargetPinned;
+            }
+        };
 
         // A previous run may have died while holding a window on top; repair it and own up to it.
         if (HeldTargetRecord.TryRecover() is { } recoveredTitle)

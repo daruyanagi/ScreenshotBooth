@@ -62,9 +62,14 @@ public sealed class BoothController
 
     /// <summary>Raised when the Release button on the target chip is clicked.</summary>
     public event Action? ReleaseRequested;
+
+    /// <summary>Raised when the held target is minimized or closed by the user, so the session should end.</summary>
+    public event Action<TargetLostReason>? TargetLost;
     private readonly WinEventDelegate _winEventProc;   // rooted for the hooks' lifetime
     private readonly IntPtr _moveSizeHook;
     private readonly IntPtr _foregroundHook;
+    private readonly IntPtr _minimizeHook;
+    private readonly IntPtr _destroyHook;
     private readonly Microsoft.UI.Dispatching.DispatcherQueue _dispatcher;
 
     public BoothController(nint boothWindowHandle)
@@ -89,6 +94,11 @@ public sealed class BoothController
         // EVENT_SYSTEM_FOREGROUND (0x0003): activation reshuffles the topmost band, so the booth /
         // target / indicator order is re-applied whenever the foreground window changes.
         _foregroundHook = SetWinEventHookNative(0x0003, 0x0003, IntPtr.Zero, _winEventProc, 0, 0, 0);
+
+        // EVENT_SYSTEM_MINIMIZESTART (0x0016) and EVENT_OBJECT_DESTROY (0x8001): a held target that
+        // gets minimized or closed would otherwise leave the ring and chip hanging in the air.
+        _minimizeHook = SetWinEventHookNative(0x0016, 0x0016, IntPtr.Zero, _winEventProc, 0, 0, 0);
+        _destroyHook = SetWinEventHookNative(0x8001, 0x8001, IntPtr.Zero, _winEventProc, 0, 0, 0);
         _dispatcher = Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread();
     }
 
@@ -273,6 +283,15 @@ public sealed class BoothController
         {
             SetTargetTopMost(false);
         }
+        else
+        {
+            // The window is already gone: just drop our side of it.
+            _isPinned = false;
+            HideIndicators();
+            SetWindowPos(_boothHwnd, HWND.HWND_NOTOPMOST, 0, 0, 0, 0,
+                SetWindowPosFlags.SWP_NOMOVE | SetWindowPosFlags.SWP_NOSIZE | SetWindowPosFlags.SWP_NOACTIVATE);
+            HeldTargetRecord.Clear();
+        }
         _targetHwnd = HWND.NULL;
         _isPinned = false;
     }
@@ -301,6 +320,20 @@ public sealed class BoothController
     {
         if (!_isPinned)
         {
+            return;
+        }
+
+        if (hwnd == (IntPtr)_targetHwnd && (eventType == 0x0016 || (eventType == 0x8001 && idObject == 0)))
+        {
+            var reason = eventType == 0x0016 ? TargetLostReason.Minimized : TargetLostReason.Closed;
+            _dispatcher.TryEnqueue(() =>
+            {
+                if (_isPinned)
+                {
+                    ReleaseHeldTarget();
+                    TargetLost?.Invoke(reason);
+                }
+            });
             return;
         }
 
@@ -632,4 +665,10 @@ public sealed class BoothController
 
         SetTargetTopMost(true);
     }
+}
+
+public enum TargetLostReason
+{
+    Minimized,
+    Closed,
 }
