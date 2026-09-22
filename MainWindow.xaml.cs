@@ -33,6 +33,7 @@ public sealed partial class MainWindow : Window
         ViewModel = new BoothViewModel(controller, _settings);
         controller.ReleaseRequested += () => ViewModel.ReleaseCommand.Execute(null);
         controller.TargetLost += reason => ViewModel.OnTargetLost(reason);
+        controller.TargetResized += () => ViewModel.OnTargetResized();
 
         InitializeComponent();
         Root.DataContext = ViewModel;

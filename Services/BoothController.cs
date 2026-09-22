@@ -63,6 +63,9 @@ public sealed class BoothController
     /// <summary>Raised when the Release button on the target chip is clicked.</summary>
     public event Action? ReleaseRequested;
 
+    /// <summary>Raised after the user finished resizing the held target (already clamped and re-centered).</summary>
+    public event Action? TargetResized;
+
     /// <summary>Raised when the held target is minimized or closed by the user, so the session should end.</summary>
     public event Action<TargetLostReason>? TargetLost;
     private readonly WinEventDelegate _winEventProc;   // rooted for the hooks' lifetime
@@ -378,6 +381,7 @@ public sealed class BoothController
             // A user move snaps back; a user resize is clamped so the target never outgrows the area.
             ClampTargetToArea();
             CenterTargetAt(center.X, center.Y);
+            TargetResized?.Invoke();
         }
         else if (hwnd == (IntPtr)_boothHwnd)
         {

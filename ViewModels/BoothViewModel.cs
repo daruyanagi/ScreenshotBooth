@@ -282,6 +282,9 @@ public partial class BoothViewModel : ObservableObject
         SyncSizeControlsToArea(area);
     }
 
+    /// <summary>Called after the user resized the held target: the overflow marks on the presets depend on its size.</summary>
+    public void OnTargetResized() => RefreshPresets();
+
     /// <summary>Called when the held target was minimized or closed: the controller has already let go of it.</summary>
     public void OnTargetLost(TargetLostReason reason)
     {
