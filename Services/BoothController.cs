@@ -375,6 +375,8 @@ public sealed class BoothController
 
         if (hwnd == (IntPtr)_targetHwnd && _lastAreaCenter is { } center)
         {
+            // A user move snaps back; a user resize is clamped so the target never outgrows the area.
+            ClampTargetToArea();
             CenterTargetAt(center.X, center.Y);
         }
         else if (hwnd == (IntPtr)_boothHwnd)
@@ -394,6 +396,32 @@ public sealed class BoothController
             _lockedBoothSize = size;
             RecenterTargetInArea();
         }
+    }
+
+    /// <summary>Shrinks the target to the booth area minus the shadow margin if a user resize made it bigger than that.</summary>
+    private void ClampTargetToArea()
+    {
+        if (!HasTarget || _lastAreaRect is not { } area)
+        {
+            return;
+        }
+
+        var marginPx = (int)(MarginDip * DpiScale);
+        var maxWidth = Math.Max(1, area.Width - marginPx * 2);
+        var maxHeight = Math.Max(1, area.Height - marginPx * 2);
+        var frame = GetTargetExtendedFrameBounds();
+        if (frame.Width <= maxWidth && frame.Height <= maxHeight)
+        {
+            return;
+        }
+
+        var width = Math.Min(frame.Width, maxWidth);
+        var height = Math.Min(frame.Height, maxHeight);
+        var insets = GetTargetFrameInsets();
+        GetWindowRect(_targetHwnd, out RECT rect);
+        SetWindowPos(_targetHwnd, HWND.NULL, rect.left, rect.top,
+            width + insets.Left + insets.Right, height + insets.Top + insets.Bottom,
+            SetWindowPosFlags.SWP_NOZORDER | SetWindowPosFlags.SWP_NOACTIVATE);
     }
 
     /// <summary>Centers the target in the booth area as it currently is on screen.</summary>
