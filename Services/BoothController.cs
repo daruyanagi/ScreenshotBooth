@@ -69,25 +69,10 @@ public sealed class BoothController
         }
 
         _targetHwnd = fg;
+        var title = new System.Text.StringBuilder(256);
+        GetWindowText(fg, title, title.Capacity);
+        AppLog.Write($"Acquire: target=0x{(nint)fg:X} \"{title}\" bounds={GetTargetExtendedFrameBounds()}");
         return true;
-    }
-
-    /// <summary>
-    /// Resizes and centers the target window on <paramref name="display"/>. If the target refuses
-    /// the requested size (e.g. a fixed-size dialog clamps it via WM_GETMINMAXINFO), we re-measure
-    /// its actual post-move bounds and center using that instead of forcing the issue.
-    /// </summary>
-    public Rectangle ResizeAndCenterTarget(int width, int height, DisplayArea display)
-    {
-        var work = display.WorkArea;
-        var x = work.X + (work.Width - width) / 2;
-        var y = work.Y + (work.Height - height) / 2;
-
-        SetWindowPos(_targetHwnd, HWND.NULL, x, y, width, height,
-            SetWindowPosFlags.SWP_NOZORDER | SetWindowPosFlags.SWP_NOACTIVATE);
-
-        // Re-measure: the window may have clamped the size (fixed-size dialogs, min/max constraints).
-        return CenterTarget(display);
     }
 
     /// <summary>Centers the target on <paramref name="display"/> at its current size and returns its actual bounds.</summary>
@@ -125,27 +110,19 @@ public sealed class BoothController
         return bounds;
     }
 
-    /// <summary>
-    /// The largest target size (physical px) the 4:3 booth can host on <paramref name="display"/>:
-    /// the booth is clamped to the work area, so anything bigger would overflow it.
-    /// </summary>
-    public Size GetMaxTargetSize(DisplayArea display)
+    /// <summary>The largest booth area (physical px) that fits the work area of <paramref name="display"/> with the chrome.</summary>
+    public Size GetMaxAreaSize(DisplayArea display)
+    {
+        var chromePx = (int)((_chromeTopDip + _chromeBottomDip) * DpiScale);
+        var work = display.WorkArea;
+        return new Size(Math.Max(1, work.Width), Math.Max(1, work.Height - chromePx));
+    }
+
+    /// <summary>The booth area's current on-screen size in physical px.</summary>
+    public Size GetAreaSizePx(FrameworkElement boothArea)
     {
         var scale = DpiScale;
-        var marginPx = (int)(MarginDip * scale);
-        var chromePx = (int)((_chromeTopDip + _chromeBottomDip) * scale);
-        var work = display.WorkArea;
-
-        const double ratio = 4.0 / 3.0;
-        double clientH = work.Height - chromePx;
-        double clientW = clientH * ratio;
-        if (clientW > work.Width)
-        {
-            clientW = work.Width;
-            clientH = clientW / ratio;
-        }
-
-        return new Size(Math.Max(0, (int)clientW - marginPx * 2), Math.Max(0, (int)clientH - marginPx * 2));
+        return new Size((int)Math.Round(boothArea.ActualWidth * scale), (int)Math.Round(boothArea.ActualHeight * scale));
     }
 
     /// <summary>Sets or clears WS_EX_TOPMOST on the target window.</summary>
@@ -184,8 +161,11 @@ public sealed class BoothController
         var width = Math.Max(1, area.Width - marginPx * 2);
         var height = Math.Max(1, area.Height - marginPx * 2);
 
+        // Size the visible frame, not the window rect (which includes invisible borders).
+        var insets = GetTargetFrameInsets();
         SetWindowPos(_targetHwnd, HWND.NULL,
-            area.X + (area.Width - width) / 2, area.Y + (area.Height - height) / 2, width, height,
+            area.X + (area.Width - width) / 2 - insets.Left, area.Y + (area.Height - height) / 2 - insets.Top,
+            width + insets.Left + insets.Right, height + insets.Top + insets.Bottom,
             SetWindowPosFlags.SWP_NOZORDER | SetWindowPosFlags.SWP_NOACTIVATE);
 
         // The window may have refused the size; center whatever it ended up as.
@@ -193,56 +173,75 @@ public sealed class BoothController
         return GetTargetExtendedFrameBounds();
     }
 
-    public void LayoutBoothWindowAroundTarget(Rectangle targetBounds, DisplayArea display)
+    public Size LayoutBoothWindowAroundTarget(Rectangle targetBounds, DisplayArea display)
     {
-        var scale = DpiScale;
-        var marginPx = (int)(MarginDip * scale);
-        var chromeTopPx = (int)(_chromeTopDip * scale);
-        var chromeBottomPx = (int)(_chromeBottomDip * scale);
+        var marginPx = (int)(MarginDip * DpiScale);
+        var max = GetMaxAreaSize(display);
 
         double rawW = targetBounds.Width + marginPx * 2;
         double rawH = targetBounds.Height + marginPx * 2;
 
         const double ratio = 4.0 / 3.0;
-        double clientW, clientH;
+        double areaW, areaH;
         if (rawW / rawH > ratio)
         {
-            clientW = rawW;
-            clientH = rawW / ratio;
+            areaW = rawW;
+            areaH = rawW / ratio;
         }
         else
         {
-            clientH = rawH;
-            clientW = rawH * ratio;
+            areaH = rawH;
+            areaW = rawH * ratio;
         }
+
+        // Clamp to the work area while preserving the 4:3 ratio.
+        if (areaH > max.Height)
+        {
+            areaH = max.Height;
+            areaW = areaH * ratio;
+        }
+        if (areaW > max.Width)
+        {
+            areaW = max.Width;
+            areaH = areaW / ratio;
+        }
+
+        return LayoutBoothWithAreaSize((int)areaW, (int)areaH, display, recordLayoutSize: true);
+    }
+
+    /// <summary>
+    /// Gives the booth area an exact size (physical px; this is the captured image size), centered
+    /// on <paramref name="display"/>, and re-centers the target in it. When
+    /// <paramref name="recordLayoutSize"/> is false the resulting size is not remembered as "ours",
+    /// so the booth-area layout handler treats it like a user resize (fit mode applies).
+    /// </summary>
+    public Size LayoutBoothWithAreaSize(int areaW, int areaH, DisplayArea display, bool recordLayoutSize)
+    {
+        var scale = DpiScale;
+        var chromeTopPx = (int)(_chromeTopDip * scale);
+        var chromeBottomPx = (int)(_chromeBottomDip * scale);
+        var max = GetMaxAreaSize(display);
+        areaW = Math.Clamp(areaW, 1, max.Width);
+        areaH = Math.Clamp(areaH, 1, max.Height);
+
+        _boothAppWindow.ResizeClient(new Windows.Graphics.SizeInt32(areaW, areaH + chromeTopPx + chromeBottomPx));
+        AppLog.Write($"Layout: area={areaW}x{areaH} chrome={chromeTopPx}+{chromeBottomPx} -> client={_boothAppWindow.ClientSize.Width}x{_boothAppWindow.ClientSize.Height} size={_boothAppWindow.Size.Width}x{_boothAppWindow.Size.Height}");
 
         var work = display.WorkArea;
-
-        // Clamp to the work area (minus chrome) while preserving the 4:3 ratio.
-        var maxClientH = work.Height - chromeTopPx - chromeBottomPx;
-        if (clientH > maxClientH)
-        {
-            clientH = maxClientH;
-            clientW = clientH * ratio;
-        }
-        if (clientW > work.Width)
-        {
-            clientW = work.Width;
-            clientH = clientW / ratio;
-        }
-
-        var totalW = (int)clientW;
-        var totalH = (int)clientH + chromeTopPx + chromeBottomPx;
-
-        var x = work.X + (work.Width - totalW) / 2;
-        var y = work.Y + (work.Height - totalH) / 2;
+        var size = _boothAppWindow.Size;
+        var x = work.X + (work.Width - size.Width) / 2;
+        var y = work.Y + (work.Height - size.Height) / 2;
+        _boothAppWindow.Move(new Windows.Graphics.PointInt32(x, y));
 
         LastLayoutPosition = new Windows.Graphics.PointInt32(x, y);
-        LastLayoutSize = new Windows.Graphics.SizeInt32(totalW, totalH);
-        _boothAppWindow.MoveAndResize(new Windows.Graphics.RectInt32(x, y, totalW, totalH));
+        LastLayoutSize = recordLayoutSize ? size : null;
 
         // Center the target in the booth AREA (not the window), so the margins are even.
-        CenterTargetAt(x + totalW / 2, y + chromeTopPx + (int)clientH / 2);
+        var origin = new POINT(0, 0);
+        ClientToScreen(_boothHwnd, ref origin);
+        CenterTargetAt(origin.X + areaW / 2, origin.Y + chromeTopPx + areaH / 2);
+
+        return new Size(areaW, areaH);
     }
 
     /// <summary>
@@ -268,6 +267,17 @@ public sealed class BoothController
         return changed;
     }
 
+    /// <summary>
+    /// How far the window rect (what SetWindowPos positions and sizes) extends beyond the visible
+    /// frame on each side - the invisible resize borders on modern Windows, typically 7-8px.
+    /// </summary>
+    private (int Left, int Top, int Right, int Bottom) GetTargetFrameInsets()
+    {
+        GetWindowRect(_targetHwnd, out RECT rect);
+        var frame = GetTargetExtendedFrameBounds();
+        return (frame.X - rect.left, frame.Y - rect.top, rect.right - frame.Right, rect.bottom - frame.Bottom);
+    }
+
     private void CenterTargetAt(int centerX, int centerY)
     {
         if (!HasTarget)
@@ -275,10 +285,12 @@ public sealed class BoothController
             return;
         }
 
-        var actual = GetTargetExtendedFrameBounds();
-        var x = centerX - actual.Width / 2;
-        var y = centerY - actual.Height / 2;
-        if (x != actual.X || y != actual.Y)
+        var frame = GetTargetExtendedFrameBounds();
+        var insets = GetTargetFrameInsets();
+        var x = centerX - frame.Width / 2 - insets.Left;
+        var y = centerY - frame.Height / 2 - insets.Top;
+        GetWindowRect(_targetHwnd, out RECT rect);
+        if (x != rect.left || y != rect.top)
         {
             SetWindowPos(_targetHwnd, HWND.NULL, x, y, 0, 0,
                 SetWindowPosFlags.SWP_NOSIZE | SetWindowPosFlags.SWP_NOZORDER | SetWindowPosFlags.SWP_NOACTIVATE);

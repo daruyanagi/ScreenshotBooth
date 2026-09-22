@@ -105,10 +105,10 @@ public partial class BoothViewModel : ObservableObject
 
         RefreshPresets();
         var matchingPreset = Presets.FirstOrDefault(p =>
-            !p.IsCustom && p.Width == settings.DefaultTargetWidth && p.Height == settings.DefaultTargetHeight);
+            !p.IsCustom && p.Width == settings.BoothWidth && p.Height == settings.BoothHeight);
         SelectedPreset = matchingPreset ?? Presets[^1]; // last entry is always "Custom"
-        CustomWidth = settings.DefaultTargetWidth;
-        CustomHeight = settings.DefaultTargetHeight;
+        CustomWidth = settings.BoothWidth;
+        CustomHeight = settings.BoothHeight;
         IsCustomSizeVisible = SelectedPreset.IsCustom;
         IsFitToBoothEnabled = settings.FitToBooth;
 
@@ -138,7 +138,7 @@ public partial class BoothViewModel : ObservableObject
 
         if (userInitiated)
         {
-            ApplyTargetSize();
+            ApplyBoothSize();
         }
     }
 
@@ -146,7 +146,7 @@ public partial class BoothViewModel : ObservableObject
     {
         if (!_isApplyingPresetProgrammatically && SelectedPreset.IsCustom)
         {
-            ApplyTargetSize();
+            ApplyBoothSize();
         }
     }
 
@@ -154,12 +154,12 @@ public partial class BoothViewModel : ObservableObject
     {
         if (!_isApplyingPresetProgrammatically && SelectedPreset.IsCustom)
         {
-            ApplyTargetSize();
+            ApplyBoothSize();
         }
     }
 
-    /// <summary>Resizes/recenters the live target window (graceful no-op if there is none yet) and persists the chosen size.</summary>
-    private void ApplyTargetSize()
+    /// <summary>Applies the chosen booth-area size (clamped to the display) and persists it. The target only follows in fit mode.</summary>
+    private void ApplyBoothSize()
     {
         if (double.IsNaN(CustomWidth) || double.IsNaN(CustomHeight) || CustomWidth <= 0 || CustomHeight <= 0)
         {
@@ -170,7 +170,7 @@ public partial class BoothViewModel : ObservableObject
         var height = (int)Math.Round(CustomHeight);
 
         var display = DisplayService.GetSelectedDisplay(_settings);
-        var max = _controller.GetMaxTargetSize(display);
+        var max = _controller.GetMaxAreaSize(display);
         if (width > max.Width || height > max.Height)
         {
             width = Math.Min(width, max.Width);
@@ -182,17 +182,12 @@ public partial class BoothViewModel : ObservableObject
             StatusMessage = R.F("StatusClamped", width, height);
         }
 
-        _settings.DefaultTargetWidth = width;
-        _settings.DefaultTargetHeight = height;
+        _settings.BoothWidth = width;
+        _settings.BoothHeight = height;
         SettingsService.Save(_settings);
 
-        if (!_controller.HasTarget)
-        {
-            return;
-        }
-
-        var actualBounds = _controller.ResizeAndCenterTarget(width, height, display);
-        _controller.LayoutBoothWindowAroundTarget(actualBounds, display);
+        // Not "our" layout: the booth-area layout handler then syncs the controls and applies fit mode.
+        _controller.LayoutBoothWithAreaSize(width, height, display, recordLayoutSize: false);
     }
 
     /// <summary>
@@ -203,7 +198,7 @@ public partial class BoothViewModel : ObservableObject
     private void RefreshPresets()
     {
         var display = DisplayService.GetSelectedDisplay(_settings);
-        var max = _controller.GetMaxTargetSize(display);
+        var max = _controller.GetMaxAreaSize(display);
         var fitting = TargetSizePreset.BuiltIn
             .Where(p => p.IsCustom || (p.Width <= max.Width && p.Height <= max.Height))
             .ToList();
@@ -231,15 +226,15 @@ public partial class BoothViewModel : ObservableObject
         _isApplyingPresetProgrammatically = wasProgrammatic;
     }
 
-    /// <summary>Reflects the target's actual size in the size controls without touching the target.</summary>
-    private void SyncSizeControlsToTarget(System.Drawing.Rectangle bounds)
+    /// <summary>Reflects the booth area's actual size in the size controls without changing anything.</summary>
+    private void SyncSizeControlsToArea(System.Drawing.Size area)
     {
         var wasProgrammatic = _isApplyingPresetProgrammatically;
         _isApplyingPresetProgrammatically = true;
-        SelectedPreset = Presets.FirstOrDefault(p => !p.IsCustom && p.Width == bounds.Width && p.Height == bounds.Height)
+        SelectedPreset = Presets.FirstOrDefault(p => !p.IsCustom && p.Width == area.Width && p.Height == area.Height)
             ?? Presets[^1];
-        CustomWidth = bounds.Width;
-        CustomHeight = bounds.Height;
+        CustomWidth = area.Width;
+        CustomHeight = area.Height;
         _isApplyingPresetProgrammatically = wasProgrammatic;
     }
 
@@ -255,14 +250,14 @@ public partial class BoothViewModel : ObservableObject
 
         RefreshPresets();
 
-        // Respect the window's own size at acquire time (fixed-size dialogs in particular); the
-        // size controls and the fit-to-booth button can enlarge it afterwards.
+        // Respect the window's own size at acquire time (fixed-size dialogs in particular): the booth
+        // is laid out 4:3 around it, and only fit mode or the size controls change things afterwards.
         var display = DisplayService.GetSelectedDisplay(_settings);
         var bounds = _controller.CenterTarget(display);
-        _controller.LayoutBoothWindowAroundTarget(bounds, display);
+        var area = _controller.LayoutBoothWindowAroundTarget(bounds, display);
         _controller.SetTargetTopMost(true);
         IsTargetPinned = true;
-        SyncSizeControlsToTarget(bounds);
+        SyncSizeControlsToArea(area);
 
         PreviewImage = null;
         IsPreviewShown = false;
@@ -303,7 +298,6 @@ public partial class BoothViewModel : ObservableObject
         }
 
         var bounds = _controller.FitTargetToArea(BoothAreaElement);
-        SyncSizeControlsToTarget(bounds);
         StatusMessage = R.F("StatusResized", bounds.Width, bounds.Height);
     }
 
@@ -328,8 +322,15 @@ public partial class BoothViewModel : ObservableObject
             return;
         }
 
-        // Only a user resize (not our own layout) makes the target follow the booth.
-        if (IsFitToBoothEnabled && !_controller.IsBoothAtLayoutSize)
+        // Our own acquire-time layout already synced the controls and must not trigger fit mode.
+        if (_controller.IsBoothAtLayoutSize)
+        {
+            return;
+        }
+
+        // A user resize or a size-control change: mirror the new size, then let the target follow in fit mode.
+        SyncSizeControlsToArea(_controller.GetAreaSizePx(BoothAreaElement));
+        if (IsFitToBoothEnabled)
         {
             FitTargetToBooth();
         }

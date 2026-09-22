@@ -14,9 +14,9 @@
   </resheader>
   <data name="TrayOpen.Text" xml:space="preserve"><value>Open booth</value></data>
   <data name="TrayExit.Text" xml:space="preserve"><value>Exit</value></data>
-  <data name="PresetComboBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Target window size</value></data>
-  <data name="CustomWidthNumberBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Custom target width</value></data>
-  <data name="CustomHeightNumberBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Custom target height</value></data>
+  <data name="PresetComboBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Booth size (the captured image size)</value></data>
+  <data name="CustomWidthNumberBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Booth width</value></data>
+  <data name="CustomHeightNumberBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Booth height</value></data>
   <data name="FitToBoothSwitch.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Fit mode</value></data>
   <data name="FitToBoothSwitch.OnContent" xml:space="preserve"><value>Fit: on</value></data>
   <data name="FitToBoothSwitch.OffContent" xml:space="preserve"><value>Fit: off</value></data>

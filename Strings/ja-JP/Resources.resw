@@ -14,9 +14,9 @@
   </resheader>
   <data name="TrayOpen.Text" xml:space="preserve"><value>ブースを開く</value></data>
   <data name="TrayExit.Text" xml:space="preserve"><value>終了</value></data>
-  <data name="PresetComboBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>対象ウィンドウのサイズ</value></data>
-  <data name="CustomWidthNumberBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>対象ウィンドウの幅</value></data>
-  <data name="CustomHeightNumberBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>対象ウィンドウの高さ</value></data>
+  <data name="PresetComboBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>ブースのサイズ（撮影される画像のサイズ）</value></data>
+  <data name="CustomWidthNumberBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>ブースの幅</value></data>
+  <data name="CustomHeightNumberBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>ブースの高さ</value></data>
   <data name="FitToBoothSwitch.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>フィットモード</value></data>
   <data name="FitToBoothSwitch.OnContent" xml:space="preserve"><value>フィット: オン</value></data>
   <data name="FitToBoothSwitch.OffContent" xml:space="preserve"><value>フィット: オフ</value></data>

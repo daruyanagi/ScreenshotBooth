@@ -13,11 +13,11 @@ public sealed class AppSettings
     /// <summary>Virtual-key code for the hotkey (default: 'B').</summary>
     public uint HotkeyVirtualKey { get; set; } = HotkeyDefaults.VirtualKey;
 
-    /// <summary>Default target-window width in pixels.</summary>
-    public int DefaultTargetWidth { get; set; } = 1024;
+    /// <summary>Booth area (captured image) width in physical pixels.</summary>
+    public int BoothWidth { get; set; } = 1024;
 
-    /// <summary>Default target-window height in pixels.</summary>
-    public int DefaultTargetHeight { get; set; } = 600;
+    /// <summary>Booth area (captured image) height in physical pixels.</summary>
+    public int BoothHeight { get; set; } = 768;
 
     /// <summary>Countdown delay in seconds before a capture fires. 0 = off.</summary>
     public int DefaultCountdownSeconds { get; set; } = 0;
