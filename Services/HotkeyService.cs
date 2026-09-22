@@ -15,11 +15,22 @@ namespace ScreenshotBooth.Services;
 /// crashes the app (confirmed while building this - Microsoft.UI.Xaml.dll faulted with
 /// STATUS_INVALID_CRUNTIME_PARAMETER as soon as the hotkey fired). A fully separate message-only
 /// window sidesteps the framework's window entirely.
+///
+/// RegisterHotKey/UnregisterHotKey must be called on the thread that owns the window (otherwise
+/// ERROR_WINDOW_OF_OTHER_THREAD), so callers on the UI thread hand the request to the pump thread
+/// with SendMessage, which runs the WndProc there synchronously and returns the result.
 /// </summary>
 public sealed class HotkeyService : IDisposable
 {
     private const int HotkeyId = 0xB007;
     private const string WindowClassName = "ScreenshotBooth.HotkeyMessageWindow";
+
+    private const uint WM_APP = 0x8000;
+    private const uint RegisterMsg = WM_APP + 1;
+    private const uint UnregisterMsg = WM_APP + 2;
+    private const uint WM_HOTKEY = 0x0312;
+    private const uint WM_CLOSE = 0x0010;
+    private const uint WM_DESTROY = 0x0002;
 
     private readonly Thread _pumpThread;
     private readonly ManualResetEventSlim _windowReady = new(initialState: false);
@@ -47,13 +58,22 @@ public sealed class HotkeyService : IDisposable
             return false;
         }
 
-        UnregisterHotKey(_messageHwnd, HotkeyId);
-        return RegisterHotKey(_messageHwnd, HotkeyId, (HotKeyModifiers)modifiers, virtualKey);
+        return SendMessage(_messageHwnd, RegisterMsg, (IntPtr)modifiers, (IntPtr)virtualKey) != IntPtr.Zero;
+    }
+
+    public void Unregister()
+    {
+        if (_messageHwnd != HWND.NULL)
+        {
+            SendMessage(_messageHwnd, UnregisterMsg, IntPtr.Zero, IntPtr.Zero);
+        }
     }
 
     private void RunMessageLoop()
     {
-        var hInstance = (HINSTANCE)Marshal.GetHINSTANCE(typeof(HotkeyService).Module);
+        // GetModuleHandle(null) is the process image base; Marshal.GetHINSTANCE on a managed
+        // module is not a usable HINSTANCE on .NET Core.
+        var hInstance = (HINSTANCE)(IntPtr)Kernel32.GetModuleHandle(null);
         _wndProc = WndProc;
 
         var wndClass = new WNDCLASSEX
@@ -63,10 +83,18 @@ public sealed class HotkeyService : IDisposable
             hInstance = hInstance,
             lpszClassName = WindowClassName,
         };
-        RegisterClassEx(wndClass);
+        var atom = RegisterClassEx(wndClass);
+        if (atom.IsInvalid)
+        {
+            AppLog.Write($"Hotkey: RegisterClassEx failed error={Marshal.GetLastWin32Error()}");
+        }
 
         _messageHwnd = CreateWindowEx(0, WindowClassName, "", 0, 0, 0, 0, 0,
             HWND.HWND_MESSAGE, HMENU.NULL, hInstance, IntPtr.Zero);
+        if (_messageHwnd == HWND.NULL)
+        {
+            AppLog.Write($"Hotkey: CreateWindowEx failed error={Marshal.GetLastWin32Error()}");
+        }
 
         _windowReady.Set();
 
@@ -79,30 +107,38 @@ public sealed class HotkeyService : IDisposable
 
     private IntPtr WndProc(HWND hwnd, uint msg, IntPtr wParam, IntPtr lParam)
     {
-        switch ((WindowMessage)msg)
+        switch (msg)
         {
-            case WindowMessage.WM_HOTKEY when (int)wParam == HotkeyId:
+            case RegisterMsg:
+            {
+                var modifiers = (uint)(long)wParam;
+                var virtualKey = (uint)(long)lParam;
+                UnregisterHotKey(hwnd, HotkeyId);
+                var ok = RegisterHotKey(hwnd, HotkeyId, (HotKeyModifiers)modifiers, virtualKey);
+                AppLog.Write(ok
+                    ? $"Hotkey: registered modifiers=0x{modifiers:X} vk=0x{virtualKey:X}"
+                    : $"Hotkey: RegisterHotKey failed modifiers=0x{modifiers:X} vk=0x{virtualKey:X} error={Marshal.GetLastWin32Error()}");
+                return ok ? (IntPtr)1 : IntPtr.Zero;
+            }
+
+            case UnregisterMsg:
+                UnregisterHotKey(hwnd, HotkeyId);
+                return IntPtr.Zero;
+
+            case WM_HOTKEY when (int)(long)wParam == HotkeyId:
                 HotkeyPressed?.Invoke(this, EventArgs.Empty);
                 return IntPtr.Zero;
 
-            case WindowMessage.WM_CLOSE:
+            case WM_CLOSE:
                 DestroyWindow(hwnd);
                 return IntPtr.Zero;
 
-            case WindowMessage.WM_DESTROY:
+            case WM_DESTROY:
                 PostQuitMessage(0);
                 return IntPtr.Zero;
 
             default:
                 return DefWindowProc(hwnd, msg, wParam, lParam);
-        }
-    }
-
-    public void Unregister()
-    {
-        if (_messageHwnd != HWND.NULL)
-        {
-            UnregisterHotKey(_messageHwnd, HotkeyId);
         }
     }
 
@@ -112,7 +148,7 @@ public sealed class HotkeyService : IDisposable
 
         if (_messageHwnd != HWND.NULL)
         {
-            PostMessage(_messageHwnd, (uint)WindowMessage.WM_CLOSE, IntPtr.Zero, IntPtr.Zero);
+            PostMessage(_messageHwnd, WM_CLOSE, IntPtr.Zero, IntPtr.Zero);
         }
     }
 }
