@@ -253,7 +253,13 @@ public sealed partial class MainWindow : Window
     {
         foreach (var command in Toolbar.PrimaryCommands)
         {
-            if (command is FrameworkElement element)
+            if (command is AppBarSeparator separator)
+            {
+                // WinUI appends an overflowed separator at the very end of the menu (below the
+                // secondary commands), which reads as a stray line; only show it in the bar.
+                separator.Visibility = command.IsInOverflow ? Visibility.Collapsed : Visibility.Visible;
+            }
+            else if (command is FrameworkElement element)
             {
                 element.Width = command.IsInOverflow ? double.NaN : 40;
             }
