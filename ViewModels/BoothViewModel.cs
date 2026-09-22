@@ -66,6 +66,13 @@ public partial class BoothViewModel : ObservableObject
     [ObservableProperty]
     public partial bool IsTargetPinned { get; set; }
 
+    /// <summary>The booth is empty: no target held and no capture shown, so tell the user how to start.</summary>
+    public bool IsIdleHintVisible => !IsPreviewShown && !IsTargetPinned;
+
+    partial void OnIsTargetPinnedChanged(bool value) => OnPropertyChanged(nameof(IsIdleHintVisible));
+
+    partial void OnIsPreviewShownChanged(bool value) => OnPropertyChanged(nameof(IsIdleHintVisible));
+
     /// <summary>Fit mode: while on, resizing the booth resizes the target to fill it.</summary>
     [ObservableProperty]
     public partial bool IsFitToBoothEnabled { get; set; }
@@ -192,6 +199,11 @@ public partial class BoothViewModel : ObservableObject
     /// <summary>Called by MainWindow when the global hotkey fires: grabs the foreground window as the new target.</summary>
     public void AcquireTargetFromForeground()
     {
+        // A new session always starts from a clean booth, even if no window could be acquired.
+        PreviewImage = null;
+        IsPreviewShown = false;
+        _lastCapturePngBytes = null;
+
         if (!_controller.TryAcquireForegroundAsTarget())
         {
             AppLog.Write("Acquire: no suitable foreground window");
@@ -361,12 +373,11 @@ public partial class BoothViewModel : ObservableObject
 
         var result = await _controller.CaptureAsync(BoothAreaElement);
         _controller.SetTargetTopMost(false);
-        IsTargetPinned = false;
-        await ClipboardService.CopyPngAsync(result.PngBytes);
-
         _lastCapturePngBytes = result.PngBytes;
         PreviewImage = result.Preview;
         IsPreviewShown = true;
+        IsTargetPinned = false;
+        await ClipboardService.CopyPngAsync(result.PngBytes);
         ShowNotice(InfoBarSeverity.Success, R.Get("NoticeCapturedTitle"), R.Get("NoticeCapturedMessage"));
     }
 

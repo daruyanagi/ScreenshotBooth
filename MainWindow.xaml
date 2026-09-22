@@ -184,6 +184,16 @@
                     Source="{x:Bind ViewModel.PreviewImage, Mode=OneWay}"
                     Visibility="{x:Bind local:MainWindow.BoolToVisibility(ViewModel.IsPreviewShown), Mode=OneWay}"
                     Stretch="UniformToFill" />
+                <TextBlock
+                    x:Uid="IdleHint"
+                    Visibility="{x:Bind local:MainWindow.BoolToVisibility(ViewModel.IsIdleHintVisible), Mode=OneWay}"
+                    Style="{StaticResource BodyTextBlockStyle}"
+                    Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                    TextWrapping="Wrap"
+                    TextAlignment="Center"
+                    MaxWidth="480"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center" />
                 <!-- Overlaid (not a grid row) so opening it never changes the booth area's size. -->
                 <InfoBar
                     x:Name="NoticeBar"

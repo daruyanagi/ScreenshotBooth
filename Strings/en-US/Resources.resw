@@ -57,6 +57,7 @@
   <data name="ChipReleaseButton.Content" xml:space="preserve"><value>Release</value></data>
   <data name="NoticeAutoFitTitle" xml:space="preserve"><value>Target resized</value></data>
   <data name="NoticeAutoFitMessage" xml:space="preserve"><value>The window was too large for the booth on this display, so it was shrunk to fit and keep the booth usable.</value></data>
+  <data name="IdleHint.Text" xml:space="preserve"><value>Activate the window you want to capture, then press Win+Shift+B.</value></data>
   <data name="PresetCustom" xml:space="preserve"><value>Custom</value></data>
   <data name="NoticeCancelledTitle" xml:space="preserve"><value>Cancelled</value></data>
 </root>
