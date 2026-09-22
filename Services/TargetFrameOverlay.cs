@@ -27,12 +27,14 @@ public sealed class TargetFrameOverlay : IDisposable
 
     // Chip metrics in DIPs (scaled by the display's DPI when drawn).
     private const float ChipFontDip = 12f;
-    private const int ChipPaddingXDip = 12;
-    private const int ChipPaddingYDip = 6;
-    private const int ChipGapDip = 10;
-    private const int PillPaddingXDip = 10;
-    private const int PillPaddingYDip = 2;
-    private const int PillRadiusDip = 6;
+    private const int ChipPaddingXDip = 16;
+    private const int ChipPaddingYDip = 8;
+    private const int ChipGapDip = 12;
+    private const int PillPaddingXDip = 12;
+    private const int PillPaddingYDip = 3;
+    private const int PillRadiusDip = 8;
+    // Bottom corners only: the top edge sits flush against the ring, and the radius matches Windows 11 windows.
+    private const int ChipCornerRadiusDip = 8;
 
     private const uint WS_POPUP = 0x80000000;
     private const uint WS_EX_TOPMOST = 0x00000008;
@@ -184,8 +186,9 @@ public sealed class TargetFrameOverlay : IDisposable
         g.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
 
         using (var background = new SolidBrush(accent))
+        using (var shape = BottomRoundedRectangle(new Rectangle(0, 0, width, height), (int)(ChipCornerRadiusDip * scale)))
         {
-            g.FillRectangle(background, 0, 0, width, height);
+            g.FillPath(background, shape);
         }
 
         var x = paddingX;
@@ -310,6 +313,17 @@ public sealed class TargetFrameOverlay : IDisposable
             }
         }
         return System.Drawing.FontFamily.GenericSansSerif;
+    }
+
+    private static GraphicsPath BottomRoundedRectangle(Rectangle bounds, int radius)
+    {
+        var diameter = Math.Max(1, radius * 2);
+        var path = new GraphicsPath();
+        path.AddLine(bounds.Left, bounds.Top, bounds.Right, bounds.Top);
+        path.AddArc(bounds.Right - diameter, bounds.Bottom - diameter, diameter, diameter, 0, 90);
+        path.AddArc(bounds.Left, bounds.Bottom - diameter, diameter, diameter, 90, 90);
+        path.CloseFigure();
+        return path;
     }
 
     private static GraphicsPath RoundedRectangle(Rectangle bounds, int radius)
