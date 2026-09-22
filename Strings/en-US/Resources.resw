@@ -17,8 +17,8 @@
   <data name="PresetComboBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Target window size</value></data>
   <data name="CustomWidthNumberBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Custom target width</value></data>
   <data name="CustomHeightNumberBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Custom target height</value></data>
-  <data name="FitToBoothButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Fit target to booth</value></data>
-  <data name="FitToBoothButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>Grow the target to fill the booth</value></data>
+  <data name="FitToBoothToggle.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Fit target to booth</value></data>
+  <data name="FitToBoothToggle.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>Fit mode: resizing the booth resizes the target to fill it</value></data>
   <data name="PinnedLabel.Text" xml:space="preserve"><value>Target on top</value></data>
   <data name="ReleaseButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Release target</value></data>
   <data name="ReleaseButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>Release the target (stop keeping it on top)</value></data>

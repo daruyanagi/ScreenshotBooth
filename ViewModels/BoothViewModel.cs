@@ -64,6 +64,10 @@ public partial class BoothViewModel : ObservableObject
     [ObservableProperty]
     public partial bool IsTargetPinned { get; set; }
 
+    /// <summary>Fit mode: while on, resizing the booth resizes the target to fill it.</summary>
+    [ObservableProperty]
+    public partial bool IsFitToBoothEnabled { get; set; }
+
     [ObservableProperty]
     public partial string StatusMessage { get; set; } = R.Get("StatusIdle");
 
@@ -106,6 +110,7 @@ public partial class BoothViewModel : ObservableObject
         CustomWidth = settings.DefaultTargetWidth;
         CustomHeight = settings.DefaultTargetHeight;
         IsCustomSizeVisible = SelectedPreset.IsCustom;
+        IsFitToBoothEnabled = settings.FitToBooth;
 
         _isApplyingPresetProgrammatically = false;
     }
@@ -274,19 +279,26 @@ public partial class BoothViewModel : ObservableObject
         IsTargetPinned = false;
     }
 
-    /// <summary>Grows the target to fill the booth area as currently shown (minus the shadow margin).</summary>
-    [RelayCommand]
-    private void FitToBooth()
+    partial void OnIsFitToBoothEnabledChanged(bool value)
     {
-        if (!_controller.HasTarget || BoothAreaElement is null)
+        _settings.FitToBooth = value;
+        SettingsService.Save(_settings);
+
+        if (value)
+        {
+            FitTargetToBooth();
+        }
+    }
+
+    /// <summary>Resizes the target to fill the booth area as currently shown (minus the shadow margin).</summary>
+    private void FitTargetToBooth()
+    {
+        if (!_controller.HasTarget || !IsTargetPinned || BoothAreaElement is null || BoothAreaElement.ActualHeight <= 0)
         {
             return;
         }
 
-        var size = _controller.GetFitToBoothTargetSize(BoothAreaElement);
-        var display = DisplayService.GetSelectedDisplay(_settings);
-        var bounds = _controller.ResizeAndCenterTarget(size.Width, size.Height, display);
-        _controller.LayoutBoothWindowAroundTarget(bounds, display);
+        var bounds = _controller.FitTargetToArea(BoothAreaElement);
         SyncSizeControlsToTarget(bounds);
         StatusMessage = R.F("StatusResized", bounds.Width, bounds.Height);
     }
@@ -297,18 +309,26 @@ public partial class BoothViewModel : ObservableObject
     /// </summary>
     public void OnBoothAreaLayoutUpdated()
     {
-        if (BoothAreaElement is null || !_controller.MeasureChrome(BoothAreaElement))
+        if (BoothAreaElement is null)
         {
             return;
         }
 
-        if (!_controller.HasTarget || !IsTargetPinned)
+        if (_controller.MeasureChrome(BoothAreaElement))
         {
+            if (_controller.HasTarget && IsTargetPinned)
+            {
+                var display = DisplayService.GetSelectedDisplay(_settings);
+                _controller.LayoutBoothWindowAroundTarget(_controller.GetTargetExtendedFrameBounds(), display);
+            }
             return;
         }
 
-        var display = DisplayService.GetSelectedDisplay(_settings);
-        _controller.LayoutBoothWindowAroundTarget(_controller.GetTargetExtendedFrameBounds(), display);
+        // Only a user resize (not our own layout) makes the target follow the booth.
+        if (IsFitToBoothEnabled && !_controller.IsBoothAtLayoutSize)
+        {
+            FitTargetToBooth();
+        }
     }
 
     /// <summary>Called by MainWindow when the booth's position changes; a user drag counts as cancelling the session.</summary>

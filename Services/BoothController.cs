@@ -168,17 +168,29 @@ public sealed class BoothController
     /// <summary>Where the booth was last placed programmatically, so user drags can be told apart from layout.</summary>
     public Windows.Graphics.PointInt32? LastLayoutPosition { get; private set; }
 
+    /// <summary>Size the booth was last given programmatically; a different current size means the user resized it.</summary>
+    public Windows.Graphics.SizeInt32? LastLayoutSize { get; private set; }
+
+    public bool IsBoothAtLayoutSize => LastLayoutSize is { } s && _boothAppWindow.Size == s;
+
     /// <summary>
-    /// The target size (physical px) that fills the booth area as it is on screen right now, minus
-    /// the shadow margin - used to grow a target that was acquired at its natural size.
+    /// Resizes the target to fill the booth area as it is on screen right now (minus the shadow
+    /// margin) and centers it there, without moving the booth. Returns the target's actual bounds.
     /// </summary>
-    public Size GetFitToBoothTargetSize(FrameworkElement boothArea)
+    public Rectangle FitTargetToArea(FrameworkElement boothArea)
     {
-        var scale = DpiScale;
-        var marginPx = (int)(MarginDip * scale);
-        return new Size(
-            Math.Max(0, (int)(boothArea.ActualWidth * scale) - marginPx * 2),
-            Math.Max(0, (int)(boothArea.ActualHeight * scale) - marginPx * 2));
+        var area = GetScreenRectOfElement(boothArea);
+        var marginPx = (int)(MarginDip * DpiScale);
+        var width = Math.Max(1, area.Width - marginPx * 2);
+        var height = Math.Max(1, area.Height - marginPx * 2);
+
+        SetWindowPos(_targetHwnd, HWND.NULL,
+            area.X + (area.Width - width) / 2, area.Y + (area.Height - height) / 2, width, height,
+            SetWindowPosFlags.SWP_NOZORDER | SetWindowPosFlags.SWP_NOACTIVATE);
+
+        // The window may have refused the size; center whatever it ended up as.
+        CenterTargetAt(area.X + area.Width / 2, area.Y + area.Height / 2);
+        return GetTargetExtendedFrameBounds();
     }
 
     public void LayoutBoothWindowAroundTarget(Rectangle targetBounds, DisplayArea display)
@@ -226,6 +238,7 @@ public sealed class BoothController
         var y = work.Y + (work.Height - totalH) / 2;
 
         LastLayoutPosition = new Windows.Graphics.PointInt32(x, y);
+        LastLayoutSize = new Windows.Graphics.SizeInt32(totalW, totalH);
         _boothAppWindow.MoveAndResize(new Windows.Graphics.RectInt32(x, y, totalW, totalH));
 
         // Center the target in the booth AREA (not the window), so the margins are even.

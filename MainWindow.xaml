@@ -95,14 +95,13 @@
                     Maximum="4320"
                     Width="90"
                     PlaceholderText="H" />
-                <Button
-                    x:Name="FitToBoothButton"
-                    x:Uid="FitToBoothButton"
-                    AutomationProperties.AutomationId="FitToBoothButton"
-                    Command="{x:Bind ViewModel.FitToBoothCommand}"
-                    IsEnabled="{x:Bind ViewModel.IsTargetPinned, Mode=OneWay}">
+                <ToggleButton
+                    x:Name="FitToBoothToggle"
+                    x:Uid="FitToBoothToggle"
+                    AutomationProperties.AutomationId="FitToBoothToggle"
+                    IsChecked="{x:Bind ViewModel.IsFitToBoothEnabled, Mode=TwoWay}">
                     <FontIcon Glyph="&#xE740;" FontSize="16" />
-                </Button>
+                </ToggleButton>
             </StackPanel>
 
             <!-- Pinned indicator + status text -->
