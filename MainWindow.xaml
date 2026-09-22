@@ -67,33 +67,8 @@
                     AutomationProperties.AutomationId="PresetComboBox"
                     ItemsSource="{x:Bind ViewModel.Presets}"
                     SelectedItem="{x:Bind ViewModel.SelectedPreset, Mode=TwoWay}"
-                    Width="160" />
-                <NumberBox
-                    x:Name="CustomWidthNumberBox"
-                    x:Uid="CustomWidthNumberBox"
-                    AutomationProperties.AutomationId="CustomWidthNumberBox"
-                    Value="{x:Bind ViewModel.CustomWidth, Mode=TwoWay}"
-                    Visibility="{x:Bind local:MainWindow.BoolToVisibility(ViewModel.IsCustomSizeVisible), Mode=OneWay}"
-                    SpinButtonPlacementMode="Hidden"
-                    Minimum="100"
-                    Maximum="7680"
-                    Width="90"
-                    PlaceholderText="W" />
-                <TextBlock
-                    Text="&#xD7;"
-                    VerticalAlignment="Center"
-                    Visibility="{x:Bind local:MainWindow.BoolToVisibility(ViewModel.IsCustomSizeVisible), Mode=OneWay}" />
-                <NumberBox
-                    x:Name="CustomHeightNumberBox"
-                    x:Uid="CustomHeightNumberBox"
-                    AutomationProperties.AutomationId="CustomHeightNumberBox"
-                    Value="{x:Bind ViewModel.CustomHeight, Mode=TwoWay}"
-                    Visibility="{x:Bind local:MainWindow.BoolToVisibility(ViewModel.IsCustomSizeVisible), Mode=OneWay}"
-                    SpinButtonPlacementMode="Hidden"
-                    Minimum="100"
-                    Maximum="4320"
-                    Width="90"
-                    PlaceholderText="H" />
+                    PlaceholderText="{x:Bind ViewModel.CurrentSizeText, Mode=OneWay}"
+                    Width="180" />
                 <ToggleSwitch
                     x:Name="FitToBoothSwitch"
                     x:Uid="FitToBoothSwitch"

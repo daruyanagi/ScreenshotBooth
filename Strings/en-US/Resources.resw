@@ -15,8 +15,6 @@
   <data name="TrayOpen.Text" xml:space="preserve"><value>Open booth</value></data>
   <data name="TrayExit.Text" xml:space="preserve"><value>Exit</value></data>
   <data name="PresetComboBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Booth size (the captured image size)</value></data>
-  <data name="CustomWidthNumberBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Booth width</value></data>
-  <data name="CustomHeightNumberBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Booth height</value></data>
   <data name="FitToBoothSwitch.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Fit mode</value></data>
   <data name="FitToBoothSwitch.OnContent" xml:space="preserve"><value>Fit: on</value></data>
   <data name="FitToBoothSwitch.OffContent" xml:space="preserve"><value>Fit: off</value></data>
@@ -54,7 +52,6 @@
   <data name="StatusHotkeyFailed" xml:space="preserve"><value>Couldn't register the global hotkey (it may be in use by another app).</value></data>
   <data name="StatusNoForeground" xml:space="preserve"><value>No suitable foreground window found.</value></data>
   <data name="StatusLive" xml:space="preserve"><value>Live - press the shutter to capture.</value></data>
-  <data name="StatusClamped" xml:space="preserve"><value>Clamped to {0}x{1} - the largest size that fits this display.</value></data>
   <data name="StatusResized" xml:space="preserve"><value>Target resized to {0}x{1}.</value></data>
   <data name="StatusNoTargetYet" xml:space="preserve"><value>No target window - press Win+Shift+B first.</value></data>
   <data name="StatusCapturing" xml:space="preserve"><value>Capturing...</value></data>

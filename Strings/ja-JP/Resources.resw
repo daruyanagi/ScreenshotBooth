@@ -15,8 +15,6 @@
   <data name="TrayOpen.Text" xml:space="preserve"><value>ブースを開く</value></data>
   <data name="TrayExit.Text" xml:space="preserve"><value>終了</value></data>
   <data name="PresetComboBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>ブースのサイズ（撮影される画像のサイズ）</value></data>
-  <data name="CustomWidthNumberBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>ブースの幅</value></data>
-  <data name="CustomHeightNumberBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>ブースの高さ</value></data>
   <data name="FitToBoothSwitch.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>フィットモード</value></data>
   <data name="FitToBoothSwitch.OnContent" xml:space="preserve"><value>フィット: オン</value></data>
   <data name="FitToBoothSwitch.OffContent" xml:space="preserve"><value>フィット: オフ</value></data>
@@ -54,7 +52,6 @@
   <data name="StatusHotkeyFailed" xml:space="preserve"><value>グローバルホットキーを登録できませんでした（他のアプリが使用中かもしれません）。</value></data>
   <data name="StatusNoForeground" xml:space="preserve"><value>対象にできるウィンドウが見つかりませんでした。</value></data>
   <data name="StatusLive" xml:space="preserve"><value>準備完了。シャッターを押すと撮影します。</value></data>
-  <data name="StatusClamped" xml:space="preserve"><value>このディスプレイに収まる最大サイズ {0}x{1} に丸めました。</value></data>
   <data name="StatusResized" xml:space="preserve"><value>対象を {0}x{1} にリサイズしました。</value></data>
   <data name="StatusNoTargetYet" xml:space="preserve"><value>対象ウィンドウがありません。先に Win+Shift+B を押してください。</value></data>
   <data name="StatusCapturing" xml:space="preserve"><value>撮影中...</value></data>

@@ -28,18 +28,16 @@ public partial class BoothViewModel : ObservableObject
     /// <summary>Built-in presets that fit the 4:3 booth on the selected display, plus "Custom". See <see cref="RefreshPresets"/>.</summary>
     public ObservableCollection<TargetSizePreset> Presets { get; } = new();
 
+    /// <summary>The preset matching the booth's current size, or null when it matches none (the ComboBox then shows <see cref="CurrentSizeText"/>).</summary>
     [ObservableProperty]
-    public partial TargetSizePreset SelectedPreset { get; set; }
+    public partial TargetSizePreset? SelectedPreset { get; set; }
 
-    // double to match NumberBox.Value's type for a direct TwoWay x:Bind (no converter needed).
+    /// <summary>The booth area's current size as "WxH", shown as the size picker's placeholder.</summary>
     [ObservableProperty]
-    public partial double CustomWidth { get; set; }
+    public partial string CurrentSizeText { get; set; } = "";
 
-    [ObservableProperty]
-    public partial double CustomHeight { get; set; }
-
-    [ObservableProperty]
-    public partial bool IsCustomSizeVisible { get; set; }
+    // The 4:3 size the booth was given when the target was acquired; offered as the "Custom" preset.
+    private System.Drawing.Size? _initialArea;
 
     /// <summary>Seconds to count down before capturing; 0 captures immediately. TODO: countdown overlay not implemented yet.</summary>
     [ObservableProperty]
@@ -107,90 +105,35 @@ public partial class BoothViewModel : ObservableObject
         _isApplyingPresetProgrammatically = true;
 
         RefreshPresets();
-        var matchingPreset = Presets.FirstOrDefault(p =>
-            !p.IsCustom && p.Width == settings.BoothWidth && p.Height == settings.BoothHeight);
-        SelectedPreset = matchingPreset ?? Presets[^1]; // last entry is always "Custom"
-        CustomWidth = settings.BoothWidth;
-        CustomHeight = settings.BoothHeight;
-        IsCustomSizeVisible = SelectedPreset.IsCustom;
+        SelectedPreset = Presets.FirstOrDefault(p => p.Width == settings.BoothWidth && p.Height == settings.BoothHeight);
         IsFitToBoothEnabled = settings.FitToBooth;
         CountdownSeconds = settings.DefaultCountdownSeconds;
 
         _isApplyingPresetProgrammatically = false;
     }
 
-    partial void OnSelectedPresetChanged(TargetSizePreset value)
+    partial void OnSelectedPresetChanged(TargetSizePreset? value)
     {
-        // The ComboBox pushes null through the two-way binding while Presets is being rebuilt.
-        if (value is null)
+        // Null: the ComboBox clearing itself while Presets is rebuilt, or a size matching no preset.
+        // Programmatic selection (startup, preset refresh, syncing to the real size) must only update
+        // the control - never resize the booth.
+        if (value is null || _isApplyingPresetProgrammatically)
         {
             return;
         }
 
-        // Programmatic selection (startup, preset refresh, syncing to the target's real size) must
-        // only update the controls - never resize the target.
-        var userInitiated = !_isApplyingPresetProgrammatically;
-        IsCustomSizeVisible = value.IsCustom;
-
-        if (!value.IsCustom)
-        {
-            _isApplyingPresetProgrammatically = true;
-            CustomWidth = value.Width;
-            CustomHeight = value.Height;
-            _isApplyingPresetProgrammatically = !userInitiated;
-        }
-
-        if (userInitiated)
-        {
-            ApplyBoothSize();
-        }
+        ApplyBoothSize(value.Width, value.Height);
     }
 
-    partial void OnCustomWidthChanged(double value)
+    /// <summary>Applies a booth-area size and persists it. The target only follows in fit mode.</summary>
+    private void ApplyBoothSize(int width, int height)
     {
-        if (!_isApplyingPresetProgrammatically && SelectedPreset.IsCustom)
-        {
-            ApplyBoothSize();
-        }
-    }
-
-    partial void OnCustomHeightChanged(double value)
-    {
-        if (!_isApplyingPresetProgrammatically && SelectedPreset.IsCustom)
-        {
-            ApplyBoothSize();
-        }
-    }
-
-    /// <summary>Applies the chosen booth-area size (clamped to the display) and persists it. The target only follows in fit mode.</summary>
-    private void ApplyBoothSize()
-    {
-        if (double.IsNaN(CustomWidth) || double.IsNaN(CustomHeight) || CustomWidth <= 0 || CustomHeight <= 0)
-        {
-            return;
-        }
-
-        var width = (int)Math.Round(CustomWidth);
-        var height = (int)Math.Round(CustomHeight);
-
-        var display = DisplayService.GetSelectedDisplay(_settings);
-        var max = _controller.GetMaxAreaSize(display);
-        if (width > max.Width || height > max.Height)
-        {
-            width = Math.Min(width, max.Width);
-            height = Math.Min(height, max.Height);
-            _isApplyingPresetProgrammatically = true;
-            CustomWidth = width;
-            CustomHeight = height;
-            _isApplyingPresetProgrammatically = false;
-            StatusMessage = R.F("StatusClamped", width, height);
-        }
-
         _settings.BoothWidth = width;
         _settings.BoothHeight = height;
         SettingsService.Save(_settings);
 
         // Not "our" layout: the booth-area layout handler then syncs the controls and applies fit mode.
+        var display = DisplayService.GetSelectedDisplay(_settings);
         _controller.LayoutBoothWithAreaSize(width, height, display, recordLayoutSize: false);
     }
 
@@ -204,8 +147,12 @@ public partial class BoothViewModel : ObservableObject
         var display = DisplayService.GetSelectedDisplay(_settings);
         var max = _controller.GetMaxAreaSize(display);
         var fitting = TargetSizePreset.BuiltIn
-            .Where(p => p.IsCustom || (p.Width <= max.Width && p.Height <= max.Height))
+            .Where(p => p.Width <= max.Width && p.Height <= max.Height)
             .ToList();
+        if (_initialArea is { } initial)
+        {
+            fitting.Add(TargetSizePreset.Custom(initial.Width, initial.Height));
+        }
 
         if (Presets.SequenceEqual(fitting))
         {
@@ -221,24 +168,17 @@ public partial class BoothViewModel : ObservableObject
             Presets.Add(preset);
         }
 
-        if (previous is not null)
-        {
-            SelectedPreset = Presets.FirstOrDefault(p => p == previous)
-                ?? Presets.LastOrDefault(p => !p.IsCustom)
-                ?? Presets[^1];
-        }
+        SelectedPreset = previous is null ? null : Presets.FirstOrDefault(p => p == previous);
         _isApplyingPresetProgrammatically = wasProgrammatic;
     }
 
-    /// <summary>Reflects the booth area's actual size in the size controls without changing anything.</summary>
+    /// <summary>Reflects the booth area's actual size in the size picker without changing anything.</summary>
     private void SyncSizeControlsToArea(System.Drawing.Size area)
     {
         var wasProgrammatic = _isApplyingPresetProgrammatically;
         _isApplyingPresetProgrammatically = true;
-        SelectedPreset = Presets.FirstOrDefault(p => !p.IsCustom && p.Width == area.Width && p.Height == area.Height)
-            ?? Presets[^1];
-        CustomWidth = area.Width;
-        CustomHeight = area.Height;
+        SelectedPreset = Presets.FirstOrDefault(p => p.Width == area.Width && p.Height == area.Height);
+        CurrentSizeText = $"{area.Width}x{area.Height}";
         _isApplyingPresetProgrammatically = wasProgrammatic;
     }
 
@@ -252,8 +192,6 @@ public partial class BoothViewModel : ObservableObject
             return;
         }
 
-        RefreshPresets();
-
         // Respect the window's own size at acquire time (fixed-size dialogs in particular): the booth
         // is laid out 4:3 around it, and only fit mode or the size controls change things afterwards.
         var display = DisplayService.GetSelectedDisplay(_settings);
@@ -261,6 +199,9 @@ public partial class BoothViewModel : ObservableObject
         var area = _controller.LayoutBoothWindowAroundTarget(bounds, display);
         _controller.SetTargetTopMost(true);
         IsTargetPinned = true;
+
+        _initialArea = area;
+        RefreshPresets();
         SyncSizeControlsToArea(area);
 
         PreviewImage = null;
