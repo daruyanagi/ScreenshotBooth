@@ -70,7 +70,6 @@
   <data name="NoticePickerNothingMessage" xml:space="preserve"><value>そこには撮影できるウィンドウがありません。デスクトップやタスクバー、このアプリ自身は対象にできません。ウィンドウをクリックしてください。</value></data>
   <data name="PresetCustom" xml:space="preserve"><value>カスタム</value></data>
   <data name="NoticeCancelledTitle" xml:space="preserve"><value>キャンセルしました</value></data>
-  <data name="IdleHintFormat" xml:space="preserve"><value>撮影したいウィンドウをアクティブにした状態で {0} を押してください。</value></data>
   <data name="NoticeSettingsBlockedMessage" xml:space="preserve"><value>対象ウィンドウを固定している間は設定を開けません。先に「解除」するか撮影してください。</value></data>
   <data name="SettingsHeader.Text" xml:space="preserve"><value>設定</value></data>
   <data name="SettingsBackButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>ブースに戻る</value></data>
@@ -142,4 +141,7 @@
   <data name="SettingsCaptureEffectCard.Header" xml:space="preserve"><value>撮影後のエフェクト</value></data>
   <data name="SettingsCaptureEffectNone.Content" xml:space="preserve"><value>なし</value></data>
   <data name="SettingsCaptureEffectPrint.Content" xml:space="preserve"><value>プリント（フラッシュと傾き）</value></data>
+  <data name="IdleHintAfterLink" xml:space="preserve"><value>をクリックして、撮影したいウィンドウを選んでください。</value></data>
+  <data name="IdleHintBeforeLink" xml:space="preserve"><value>撮影したいウィンドウをアクティブにした状態で {0} を押してください。または</value></data>
+  <data name="IdleHintLink" xml:space="preserve"><value>［対象ウィンドウを選ぶ］</value></data>
 </root>

@@ -401,8 +401,8 @@ public partial class BoothViewModel : ObservableObject
     /// <summary>The global hotkey as text ("Win + Shift + B"), for hints and notices.</summary>
     public string HotkeyText => new HotkeyBinding(_settings.HotkeyModifiers, _settings.HotkeyVirtualKey).ToString();
 
-    /// <summary>What the empty booth tells the user to do.</summary>
-    public string IdleHintText => R.F("IdleHintFormat", HotkeyText);
+    /// <summary>What the empty booth tells the user to do (the view composes the runs; this just changes with the hotkey).</summary>
+    public string IdleHintText => HotkeyText;
 
     /// <summary>The settings window changed (and registered) the hotkey.</summary>
     public void OnHotkeyChanged()

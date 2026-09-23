@@ -321,8 +321,9 @@
                     </StackPanel>
                 </Border>
 
+                <!-- Runs are filled from code-behind (hotkey-aware); the bracketed part is a link that starts the picker. -->
                 <TextBlock
-                    Text="{x:Bind ViewModel.IdleHintText, Mode=OneWay}"
+                    x:Name="IdleHint"
                     Visibility="{x:Bind local:MainWindow.BoolToVisibility(ViewModel.IsIdleHintVisible), Mode=OneWay}"
                     Style="{StaticResource BodyTextBlockStyle}"
                     Foreground="{ThemeResource TextFillColorTertiaryBrush}"
@@ -330,7 +331,7 @@
                     TextAlignment="Center"
                     MaxWidth="480"
                     HorizontalAlignment="Center"
-                    VerticalAlignment="Center" />
+                    VerticalAlignment="Center"><Run x:Name="IdleHintBefore" /><Hyperlink Click="OnIdleHintPickClick" UnderlineStyle="None"><Run x:Name="IdleHintLink" /></Hyperlink><Run x:Name="IdleHintAfter" /></TextBlock>
                 <!-- Overlaid (not a grid row) so opening it never changes the booth area's size. -->
                 <InfoBar
                     x:Name="NoticeBar"

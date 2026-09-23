@@ -53,6 +53,11 @@ public sealed partial class MainWindow : Window
                 UpdateCountdownBadge();
             }
 
+            if (e.PropertyName == nameof(BoothViewModel.IdleHintText))
+            {
+                UpdateIdleHint();
+            }
+
             if (e.PropertyName == nameof(BoothViewModel.SizeLabel))
             {
                 SizeDropDownText.Text = ViewModel.SizeLabel;
@@ -81,6 +86,7 @@ public sealed partial class MainWindow : Window
         OnFitToggleStateChanged(FitToBoothToggle, new RoutedEventArgs());
         UpdateCountdownBadge();
         RetakeButton.Icon = Icon("RetakeIcon");
+        UpdateIdleHint();
 
         // Compact 40px buttons in the bar, but natural (full-row) width once they overflow into the menu.
         Toolbar.DynamicOverflowItemsChanging += (_, _) => DispatcherQueue.TryEnqueue(UpdateOverflowWidths);
@@ -318,6 +324,17 @@ public sealed partial class MainWindow : Window
         PhotoBorder.Shadow ??= new ThemeShadow();
         CaptureEffect.Begin();
     }
+
+    /// <summary>"Press &lt;hotkey&gt;. Or click [Pick a window] ..." - the bracketed part is the picker link.</summary>
+    private void UpdateIdleHint()
+    {
+        IdleHintBefore.Text = R.F("IdleHintBeforeLink", ViewModel.HotkeyText);
+        IdleHintLink.Text = R.Get("IdleHintLink");
+        IdleHintAfter.Text = R.Get("IdleHintAfterLink");
+    }
+
+    private void OnIdleHintPickClick(Microsoft.UI.Xaml.Documents.Hyperlink sender, Microsoft.UI.Xaml.Documents.HyperlinkClickEventArgs args) =>
+        ViewModel.PickWindowCommand.Execute(null);
 
     private void OnCountdownItemClick(object sender, RoutedEventArgs e)
     {

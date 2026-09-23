@@ -70,7 +70,6 @@
   <data name="NoticePickerNothingMessage" xml:space="preserve"><value>Nothing to capture there: the desktop, the taskbar and this app's own windows cannot be targets. Click a window instead.</value></data>
   <data name="PresetCustom" xml:space="preserve"><value>Custom</value></data>
   <data name="NoticeCancelledTitle" xml:space="preserve"><value>Cancelled</value></data>
-  <data name="IdleHintFormat" xml:space="preserve"><value>Activate the window you want to capture, then press {0}.</value></data>
   <data name="NoticeSettingsBlockedMessage" xml:space="preserve"><value>Settings can't be opened while a window is held. Release it or take the shot first.</value></data>
   <data name="SettingsHeader.Text" xml:space="preserve"><value>Settings</value></data>
   <data name="SettingsBackButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Back to the booth</value></data>
@@ -142,4 +141,7 @@
   <data name="SettingsCaptureEffectCard.Header" xml:space="preserve"><value>Capture effect</value></data>
   <data name="SettingsCaptureEffectNone.Content" xml:space="preserve"><value>None</value></data>
   <data name="SettingsCaptureEffectPrint.Content" xml:space="preserve"><value>Print (flash and tilt)</value></data>
+  <data name="IdleHintAfterLink" xml:space="preserve"><value> and choose the window on screen.</value></data>
+  <data name="IdleHintBeforeLink" xml:space="preserve"><value>Activate the window you want to capture, then press {0}. Or click </value></data>
+  <data name="IdleHintLink" xml:space="preserve"><value>[Pick a window]</value></data>
 </root>
