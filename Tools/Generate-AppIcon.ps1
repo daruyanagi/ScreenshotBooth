@@ -8,7 +8,7 @@ Add-Type -AssemblyName System.Drawing
 [System.Threading.Thread]::CurrentThread.CurrentCulture = [System.Globalization.CultureInfo]::InvariantCulture
 
 $assets = Join-Path $PSScriptRoot "..\Assets"
-$ink = [System.Drawing.Color]::FromArgb(255, 70, 76, 86)          # window outline
+$ink = [System.Drawing.Color]::FromArgb(255, 96, 104, 116)          # window outline
 $accent = [System.Drawing.Color]::FromArgb(255, 0, 103, 192)       # camera
 $knockout = [System.Drawing.Color]::Transparent                    # gap between camera and window
 
@@ -16,7 +16,7 @@ $knockout = [System.Drawing.Color]::Transparent                    # gap between
 function Spec($small) {
     if ($small) {
         @{ winX = 0.06; winY = 0.14; winW = 0.70; winH = 0.58; winR = 0.09; stroke = 0.10; bar = 0.16;
-           camX = 0.44; camY = 0.46; camW = 0.52; camH = 0.44; gap = 0.09 }
+           camX = 0.42; camY = 0.44; camW = 0.56; camH = 0.48; gap = 0.09 }
     } else {
         @{ winX = 0.08; winY = 0.16; winW = 0.66; winH = 0.54; winR = 0.08; stroke = 0.06; bar = 0.13;
            camX = 0.46; camY = 0.48; camW = 0.48; camH = 0.40; gap = 0.06 }
@@ -65,7 +65,7 @@ function Draw($g, $size, $small) {
     $g.CompositingMode = 'SourceCopy'
     $g.FillEllipse((New-Object System.Drawing.SolidBrush $knockout), [single]($lensCx - $lr), [single]($lensCy - $lr), [single]($lr * 2), [single]($lr * 2))
     $g.CompositingMode = 'SourceOver'
-    $inner = $lr * $(if ($small) { 0.55 } else { 0.62 })
+    $inner = $lr * $(if ($small) { 0.50 } else { 0.62 })
     $g.FillEllipse((New-Object System.Drawing.SolidBrush $accent), [single]($lensCx - $inner), [single]($lensCy - $inner), [single]($inner * 2), [single]($inner * 2))
 }
 
