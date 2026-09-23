@@ -63,9 +63,6 @@
   <data name="PickerButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>ウィンドウを選択</value></data>
   <data name="PickerButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>撮影したいウィンドウをクリックして選びます（Esc または右クリックで中止）</value></data>
   <data name="PickerHint" xml:space="preserve"><value>撮影したいウィンドウをクリック  （Esc または右クリックで中止）</value></data>
-  <data name="RestoreLayoutToggle.Label" xml:space="preserve"><value>撮影後に対象ウィンドウのレイアウトを復元する</value></data>
-  <data name="RestoreLayoutToggle.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>対象を元の位置に戻す</value></data>
-  <data name="RestoreLayoutToggle.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>オン: 解除や撮影でブースが対象を手放したとき、元の位置とサイズに戻します</value></data>
   <data name="FitToBoothToggle.Label" xml:space="preserve"><value>フィット</value></data>
   <data name="RetakeButton.Label" xml:space="preserve"><value>撮り直し</value></data>
   <data name="CountdownButton.Label" xml:space="preserve"><value>カウントダウン</value></data>
@@ -141,4 +138,8 @@
   <data name="UpdateViaWinget" xml:space="preserve"><value>winget で更新</value></data>
   <data name="UpdateWingetConfirmBody" xml:space="preserve"><value>アプリを終了して winget upgrade を実行します。固定中のウィンドウは解除されます。</value></data>
   <data name="UpdateWingetConfirmTitle" xml:space="preserve"><value>winget で更新しますか？</value></data>
+  <data name="SettingsCaptureEffectCard.Description" xml:space="preserve"><value>撮った写真をどう見せるか</value></data>
+  <data name="SettingsCaptureEffectCard.Header" xml:space="preserve"><value>撮影後のエフェクト</value></data>
+  <data name="SettingsCaptureEffectNone.Content" xml:space="preserve"><value>なし</value></data>
+  <data name="SettingsCaptureEffectPrint.Content" xml:space="preserve"><value>プリント（フラッシュと傾き）</value></data>
 </root>

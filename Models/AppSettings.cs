@@ -36,6 +36,12 @@ public sealed class AppSettings
 
     public const int DefaultMarginDip = 64;
 
+    /// <summary>How a fresh capture is presented: "Print" (flash + tilted print) or "None" (as-is).</summary>
+    public string CaptureEffect { get; set; } = CaptureEffectPrint;
+
+    public const string CaptureEffectPrint = "Print";
+    public const string CaptureEffectNone = "None";
+
     /// <summary>Format preselected in the Save dialog: "Png" or "Jpeg".</summary>
     public string SaveFormat { get; set; } = "Png";
 

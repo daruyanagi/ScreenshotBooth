@@ -42,7 +42,7 @@ public sealed partial class MainWindow : Window
         controller.WindowPicked += hwnd => ViewModel.OnWindowPicked(hwnd);
         controller.PickerCancelled += () => ViewModel.OnPickerCancelled();
         controller.PickerNothingPicked += () => ViewModel.OnPickerNothingPicked();
-        ViewModel.Captured += () => CaptureEffect.Begin();
+        ViewModel.Captured += PlayCaptureEffect;
         ViewModel.SettingsRequested += OpenSettings;
 
         // The shutter's countdown face is driven by hand: x:Bind inside that button's content did not apply.
@@ -78,7 +78,6 @@ public sealed partial class MainWindow : Window
         RebuildSizeMenu();
         SizeDropDownText.Text = ViewModel.SizeLabel;
         FitToBoothToggle.DataContext = ViewModel;   // CommandBar items do not always inherit it
-        RestoreLayoutToggle.DataContext = ViewModel;
         OnFitToggleStateChanged(FitToBoothToggle, new RoutedEventArgs());
         UpdateCountdownBadge();
         RetakeButton.Icon = Icon("RetakeIcon");
@@ -288,6 +287,36 @@ public sealed partial class MainWindow : Window
     {
         _hotkeyService.HotkeyPressed -= OnHotkeyPressed;
         _hotkeyService.Dispose();
+    }
+
+    /// <summary>
+    /// Shows the fresh capture the way the settings ask: as a tilted print with a flash (default),
+    /// or as-is with just the "copied" toast. Stop() first so a previous run's held values do not
+    /// leak into the other mode.
+    /// </summary>
+    private void PlayCaptureEffect()
+    {
+        CaptureEffect.Stop();
+        ToastOnlyEffect.Stop();
+
+        if (_settings.CaptureEffect == AppSettings.CaptureEffectNone)
+        {
+            PhotoTransform.ScaleX = PhotoTransform.ScaleY = 1;
+            PhotoTransform.Rotation = 0;
+            PhotoBorder.Opacity = 1;
+            PhotoBorder.Padding = new Thickness(0);
+            PhotoBorder.BorderThickness = new Thickness(0);
+            PhotoBorder.Translation = System.Numerics.Vector3.Zero;
+            PhotoBorder.Shadow = null;
+            ToastOnlyEffect.Begin();
+            return;
+        }
+
+        PhotoBorder.Padding = new Thickness(10);
+        PhotoBorder.BorderThickness = new Thickness(1);
+        PhotoBorder.Translation = new System.Numerics.Vector3(0, 0, 24);
+        PhotoBorder.Shadow ??= new ThemeShadow();
+        CaptureEffect.Begin();
     }
 
     private void OnCountdownItemClick(object sender, RoutedEventArgs e)

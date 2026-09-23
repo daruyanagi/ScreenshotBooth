@@ -41,6 +41,7 @@ public partial class SettingsViewModel : ObservableObject
 
         MarginDip = settings.MarginDip;
         CountdownIndex = Array.IndexOf(CountdownChoices, booth.CountdownSeconds) is var i and >= 0 ? i : 0;
+        CaptureEffectIndex = settings.CaptureEffect == AppSettings.CaptureEffectNone ? 1 : 0;
         SaveFormatIndex = string.Equals(settings.SaveFormat, ImageExport.Jpeg, StringComparison.OrdinalIgnoreCase) ? 1 : 0;
         JpegQuality = settings.JpegQuality;
         LanguageIndex = settings.Language switch { "ja" => 1, "en-US" => 2, _ => 0 };
@@ -181,6 +182,16 @@ public partial class SettingsViewModel : ObservableObject
                 OnPropertyChanged();
             }
         }
+    }
+
+    /// <summary>0 = print effect, 1 = none. A string in settings so more effects can be added later.</summary>
+    [ObservableProperty] public partial int CaptureEffectIndex { get; set; }
+
+    partial void OnCaptureEffectIndexChanged(int value)
+    {
+        if (!_initialized) return;
+        _settings.CaptureEffect = value == 1 ? AppSettings.CaptureEffectNone : AppSettings.CaptureEffectPrint;
+        SettingsService.Save(_settings);
     }
 
     // ── saving ─────────────────────────────────────────────────────────────

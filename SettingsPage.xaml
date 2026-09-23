@@ -84,6 +84,16 @@
                     </ComboBox>
                 </controls:SettingsCard>
 
+                <controls:SettingsCard x:Uid="SettingsCaptureEffectCard">
+                    <controls:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xE8B8;" />
+                    </controls:SettingsCard.HeaderIcon>
+                    <ComboBox AutomationProperties.AutomationId="CaptureEffectBox" SelectedIndex="{x:Bind ViewModel.CaptureEffectIndex, Mode=TwoWay}" MinWidth="180">
+                        <ComboBoxItem x:Uid="SettingsCaptureEffectPrint" />
+                        <ComboBoxItem x:Uid="SettingsCaptureEffectNone" />
+                    </ComboBox>
+                </controls:SettingsCard>
+
                 <controls:SettingsCard x:Uid="SettingsRestoreLayoutCard">
                     <controls:SettingsCard.HeaderIcon>
                         <FontIcon Glyph="&#xE72B;" />

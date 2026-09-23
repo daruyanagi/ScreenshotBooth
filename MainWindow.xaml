@@ -215,15 +215,6 @@
                     </AppBarButton>
                 </CommandBar.PrimaryCommands>
                 <CommandBar.SecondaryCommands>
-                    <AppBarToggleButton
-                        x:Name="RestoreLayoutToggle"
-                        x:Uid="RestoreLayoutToggle"
-                        AutomationProperties.AutomationId="RestoreLayoutToggle"
-                        IsChecked="{Binding IsRestoreLayoutEnabled, Mode=TwoWay}">
-                        <AppBarToggleButton.Icon>
-                            <FontIcon Glyph="&#xE72B;" />
-                        </AppBarToggleButton.Icon>
-                    </AppBarToggleButton>
                     <AppBarButton x:Uid="SettingsButton" AutomationProperties.AutomationId="SettingsButton" Click="OnSettingsClick"
                                   IsEnabled="{x:Bind local:MainWindow.Not(ViewModel.IsTargetPinned), Mode=OneWay}">
                         <AppBarButton.Icon>
@@ -271,6 +262,15 @@
                             <LinearDoubleKeyFrame KeyTime="0:0:0.5" Value="1" />
                             <LinearDoubleKeyFrame KeyTime="0:0:2.2" Value="1" />
                             <LinearDoubleKeyFrame KeyTime="0:0:2.7" Value="0" />
+                        </DoubleAnimationUsingKeyFrames>
+                    </Storyboard>
+                    <!-- Effect "None": the capture is shown as-is; only the toast confirms it was taken. -->
+                    <Storyboard x:Name="ToastOnlyEffect">
+                        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="CopiedToast" Storyboard.TargetProperty="Opacity">
+                            <LinearDoubleKeyFrame KeyTime="0:0:0" Value="0" />
+                            <LinearDoubleKeyFrame KeyTime="0:0:0.2" Value="1" />
+                            <LinearDoubleKeyFrame KeyTime="0:0:1.9" Value="1" />
+                            <LinearDoubleKeyFrame KeyTime="0:0:2.4" Value="0" />
                         </DoubleAnimationUsingKeyFrames>
                     </Storyboard>
                 </Grid.Resources>
