@@ -19,6 +19,15 @@ dotnet build -p:Platform=x64
 dotnet build -p:Platform=ARM64
 ```
 
+## Icons
+
+Both icon sets are generated, not hand-drawn. Re-run the scripts after editing them:
+
+```powershell
+pwsh Tools/Generate-AppIcon.ps1   # Assets/AppIcon.svg (master), AppIcon.ico, Square*/Store/Splash PNGs
+pwsh Tools/Generate-Icons.ps1     # Assets/Icons/IconPaths.xaml (badged toolbar PathIcons)
+```
+
 ## Publish (release zip)
 
 ```powershell
