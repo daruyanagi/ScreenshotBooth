@@ -1,0 +1,80 @@
+name: GitHub Release
+
+# Pushing a v* tag builds the zips (self-contained, unpackaged) for x64 and arm64, writes the
+# sha256 sidecars the in-app updater verifies against, builds an unsigned MSIX for Store
+# submission / signed sideloading, and attaches everything to a GitHub Release.
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Check that the tag matches the project version
+        shell: pwsh
+        run: |
+          $tag = "${{ github.ref_name }}".TrimStart('v')
+          $version = ([xml](Get-Content ScreenshotBooth.csproj)).Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1
+          if ($tag -ne $version) { throw "Tag v$tag does not match <Version>$version</Version> in ScreenshotBooth.csproj (run Release.ps1 -Version $tag first)." }
+
+      - name: Publish x64
+        run: dotnet publish ScreenshotBooth.csproj -c Release -p:PublishProfile=win-x64
+
+      - name: Publish arm64
+        run: dotnet publish ScreenshotBooth.csproj -c Release -p:PublishProfile=win-arm64
+
+      - name: Build MSIX (unsigned)
+        run: msbuild ScreenshotBooth.csproj -restore -p:Configuration=Release -p:Platform=x64 -p:Packaged=true -v:m
+
+      - name: Create archives and checksums
+        shell: pwsh
+        run: |
+          $tag = "${{ github.ref_name }}"
+          New-Item -ItemType Directory -Force dist | Out-Null
+          Compress-Archive -Path bin/publish/win-x64/*   -DestinationPath "dist/ScreenshotBooth-$tag-win-x64.zip"
+          Compress-Archive -Path bin/publish/win-arm64/* -DestinationPath "dist/ScreenshotBooth-$tag-win-arm64.zip"
+          # sha256sum format; the zip self-update refuses releases without these.
+          foreach ($zip in Get-ChildItem dist/*.zip) {
+            $hash = (Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
+            Set-Content -Path "$($zip.FullName).sha256" -Value "$hash  $($zip.Name)" -NoNewline
+          }
+          $msix = Get-ChildItem bin/msix -Recurse -Filter "ScreenshotBooth_*.msix" | Select-Object -First 1
+          if ($msix) { Copy-Item $msix.FullName "dist/ScreenshotBooth-$tag-x64-unsigned.msix" }
+          Get-ChildItem dist
+
+      - name: Create or update the GitHub Release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="${{ github.ref_name }}"
+          if gh release view "$tag" > /dev/null 2>&1; then
+            gh release upload "$tag" dist/* --clobber
+          else
+            gh release create "$tag" dist/* --title "$tag" --generate-notes
+          fi
+
+      # winget: once the package exists in microsoft/winget-pkgs (first submission is manual, see
+      # README), set the WINGET_TOKEN secret and uncomment to auto-submit each release.
+      # - name: Publish to winget
+      #   uses: vedantmgoyal9/winget-releaser@v2
+      #   with:
+      #     identifier: daruyanagi.ScreenshotBooth
+      #     installers-regex: '\.zip$'
+      #     token: ${{ secrets.WINGET_TOKEN }}

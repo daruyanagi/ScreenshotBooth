@@ -1,0 +1,31 @@
+name: CI
+
+# Build check on every push / PR. Releases (v* tags) are handled by release.yml.
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      # Same unpackaged configuration as the release zip, x64 only (arm64 surfaces at release time).
+      - name: Build (unpackaged, x64)
+        run: dotnet build ScreenshotBooth.csproj -c Release -p:Platform=x64
+
+      # The MSIX variant compiles the same code with package identity; catch manifest/tooling
+      # regressions early. Unsigned (the Store signs on submission).
+      - name: Build (MSIX, x64)
+        run: msbuild ScreenshotBooth.csproj -restore -p:Configuration=Release -p:Platform=x64 -p:Packaged=true -v:m

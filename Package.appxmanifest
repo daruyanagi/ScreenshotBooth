@@ -1,29 +1,30 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 
+<!--
+  Only used by the packaged (MSIX) build: msbuild -p:Packaged=true. The default zip build is
+  unpackaged and ignores this file. Identity/Publisher are placeholders until the Store
+  (Partner Center) assigns the real ones; the Store signs the package on submission, so CI
+  produces it unsigned. Release.ps1 keeps Identity/@Version in step with the csproj <Version>.
+-->
 <Package
   xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
-  xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest"
   xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
   xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
-  xmlns:systemai="http://schemas.microsoft.com/appx/manifest/systemai/windows10"
-  IgnorableNamespaces="uap rescap systemai">
+  IgnorableNamespaces="uap rescap">
 
   <Identity
-    Name="D34541AA-8D08-4D11-93C7-7C7D14DA2FE1"
-    Publisher="CN=AppPublisher"
+    Name="daruyanagi.ScreenshotBooth"
+    Publisher="CN=daruyanagi"
     Version="1.0.0.0" />
-
-  <mp:PhoneIdentity PhoneProductId="D34541AA-8D08-4D11-93C7-7C7D14DA2FE1" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
     <DisplayName>ScreenshotBooth</DisplayName>
-    <PublisherDisplayName>AppPublisher</PublisherDisplayName>
+    <PublisherDisplayName>daruyanagi</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 
   <Dependencies>
-    <TargetDeviceFamily Name="Windows.Universal" MinVersion="10.0.17763.0" MaxVersionTested="10.0.26226.0" />
-    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.17763.0" MaxVersionTested="10.0.26226.0" />
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.17763.0" MaxVersionTested="10.0.26100.0" />
   </Dependencies>
 
   <Resources>
@@ -36,7 +37,7 @@
       EntryPoint="$targetentrypoint$">
       <uap:VisualElements
         DisplayName="ScreenshotBooth"
-        Description="ScreenshotBooth"
+        Description="Takes clean screenshots of a window: centered on a white booth, with its real shadow and rounded corners."
         BackgroundColor="transparent"
         Square150x150Logo="Assets\Square150x150Logo.png"
         Square44x44Logo="Assets\Square44x44Logo.png">
@@ -48,6 +49,5 @@
 
   <Capabilities>
     <rescap:Capability Name="runFullTrust" />
-    <systemai:Capability Name="systemAIModels"/>
   </Capabilities>
 </Package>

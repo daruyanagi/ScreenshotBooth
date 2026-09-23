@@ -10,8 +10,13 @@
     <ApplicationIcon>Assets\AppIcon.ico</ApplicationIcon>
     <Platforms>x64;ARM64</Platforms>
     <DefaultLanguage>en-US</DefaultLanguage>
+    <!-- RID follows the requested Platform; only without one does it follow the build host (the 32-bit
+         MSBuild.exe would otherwise pick win-x86 for an x64 build). -->
+    <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == '' and '$(Platform)' == 'x64'">win-x64</RuntimeIdentifier>
+    <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == '' and '$(Platform)' == 'ARM64'">win-arm64</RuntimeIdentifier>
     <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">win-$([System.Runtime.InteropServices.RuntimeInformation]::ProcessArchitecture.ToString().ToLowerInvariant())</RuntimeIdentifier>
-    <PublishProfile Condition="Exists('Properties\PublishProfiles\win-$(Platform).pubxml')">win-$(Platform).pubxml</PublishProfile>
+    <!-- Not for the packaged build: the profiles pin WindowsPackageType=None. -->
+    <PublishProfile Condition="'$(Packaged)' != 'true' and Exists('Properties\PublishProfiles\win-$(Platform).pubxml')">win-$(Platform).pubxml</PublishProfile>
     <UseWinUI>true</UseWinUI>
     <WinUISDKReferences>false</WinUISDKReferences>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -30,8 +35,20 @@
                                       the published exe dies at startup (0xC000027B in Microsoft.UI.Xaml.dll).
                                       With WindowsPackageType=None it does NOT build Package.appxmanifest.
     To produce a packaged (MSIX / Store / winget) build later, override on the command line:
-      dotnet build -p:Platform=x64 -p:WindowsPackageType=MSIX -p:WindowsAppSDKSelfContained=false
+      msbuild ScreenshotBooth.csproj -restore -p:Configuration=Release -p:Platform=x64 -p:Packaged=true   (see the Packaged group below)
   -->
+  <!-- Packaged (MSIX) variant, unsigned: msbuild -p:Packaged=true. Declared before the unpackaged
+       defaults below so its WindowsPackageType wins. -->
+  <PropertyGroup Condition="'$(Packaged)' == 'true'">
+    <WindowsPackageType>MSIX</WindowsPackageType>
+    <WindowsAppSDKSelfContained>false</WindowsAppSDKSelfContained>
+    <GenerateAppxPackageOnBuild>true</GenerateAppxPackageOnBuild>
+    <AppxPackageSigningEnabled>false</AppxPackageSigningEnabled>
+    <UapAppxPackageBuildMode>SideloadOnly</UapAppxPackageBuildMode>
+    <AppxBundle>Never</AppxBundle>
+    <AppxPackageDir>bin\msix\</AppxPackageDir>
+  </PropertyGroup>
+
   <PropertyGroup>
     <WindowsPackageType Condition="'$(WindowsPackageType)' == ''">None</WindowsPackageType>
     <WindowsAppSDKSelfContained Condition="'$(WindowsAppSDKSelfContained)' == ''">true</WindowsAppSDKSelfContained>
