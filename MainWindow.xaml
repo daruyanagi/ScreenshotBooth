@@ -93,9 +93,20 @@
                         </StackPanel>
                     </Grid>
                 </Button>
+                <!-- The shutter's counterpart: back to the live window (enabled once a capture is shown). -->
+                <AppBarButton
+                    x:Name="RetakeButton"
+                    x:Uid="RetakeButton"
+                    AutomationProperties.AutomationId="RetakeButton"
+                    LabelPosition="Collapsed"
+                    Width="40"
+                    MinWidth="0"
+                    Command="{x:Bind ViewModel.RetakeCommand}"
+                    IsEnabled="{x:Bind ViewModel.IsPreviewShown, Mode=OneWay}" />
                 <!-- Window picker (Spy++-style "finder" scope): click to pick the target on screen. -->
                 <Button
                     x:Name="PickerButton"
+                    Margin="8,0,0,0"
                     x:Uid="PickerButton"
                     AutomationProperties.AutomationId="PickerButton"
                     Command="{x:Bind ViewModel.PickWindowCommand}"
@@ -126,7 +137,6 @@
                      stay on the left, apart from the post-capture actions. -->
                 <AppBarToggleButton
                     x:Name="FitToBoothToggle"
-                    Margin="8,0,0,0"
                     x:Uid="FitToBoothToggle"
                     AutomationProperties.AutomationId="FitToBoothToggle"
                     LabelPosition="Collapsed"
@@ -136,15 +146,6 @@
                     Checked="OnFitToggleStateChanged"
                     Unchecked="OnFitToggleStateChanged"
                     ToolTipService.ToolTip="{x:Bind ViewModel.FitToBoothToolTip, Mode=OneWay}" />
-                <AppBarButton
-                    x:Name="RetakeButton"
-                    x:Uid="RetakeButton"
-                    AutomationProperties.AutomationId="RetakeButton"
-                    LabelPosition="Collapsed"
-                    Width="40"
-                    MinWidth="0"
-                    Command="{x:Bind ViewModel.RetakeCommand}"
-                    IsEnabled="{x:Bind ViewModel.IsPreviewShown, Mode=OneWay}" />
                 <AppBarButton
                     x:Name="CountdownButton"
                     x:Uid="CountdownButton"
