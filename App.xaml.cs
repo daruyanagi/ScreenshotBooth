@@ -74,6 +74,14 @@ public partial class App : Application
     /// <param name="args">Details about the launch request and process.</param>
     protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
     {
+        // Launched as the update finisher (from the staging folder next to the install folder):
+        // no UI, no single-instance check (the old instance is still exiting) - swap and relaunch.
+        if (UpdateSwap.ParseFinishArgs(Environment.GetCommandLineArgs()[1..]) is { } finish)
+        {
+            _ = UpdateSwap.FinishAsync(finish.InstallDir, finish.WaitForPid);
+            return;
+        }
+
         // Single-instance guard: a second launch exits immediately rather than opening a second
         // booth window. TODO (follow-up): forward activation (e.g. re-run the hotkey flow) to the
         // first instance via a named pipe instead of silently no-op'ing.
@@ -96,5 +104,12 @@ public partial class App : Application
             AppLog.Write($"Startup: MainWindow failed {ex}");
             throw;
         }
+
+        if (!PackageContext.IsPackaged)
+        {
+            // Leftovers of the previous self-update (.old / .update next to the install folder).
+            UpdateSwap.CleanupBackup(PackageContext.InstallDirectory);
+        }
+        _ = UpdateService.RunBackgroundLoopAsync();
     }
 }

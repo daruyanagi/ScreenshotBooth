@@ -24,6 +24,7 @@ public sealed partial class MainWindow : Window
     private readonly AppSettings _settings;
     private readonly HotkeyService _hotkeyService;
     private bool _exitRequested;
+    private SettingsPage? _settingsPage;
 
     public MainWindow()
     {
@@ -42,6 +43,7 @@ public sealed partial class MainWindow : Window
         controller.PickerCancelled += () => ViewModel.OnPickerCancelled();
         controller.PickerNothingPicked += () => ViewModel.OnPickerNothingPicked();
         ViewModel.Captured += () => CaptureEffect.Begin();
+        ViewModel.SettingsRequested += OpenSettings;
 
         // The shutter's countdown face is driven by hand: x:Bind inside that button's content did not apply.
         ViewModel.PropertyChanged += (_, e) =>
@@ -117,6 +119,13 @@ public sealed partial class MainWindow : Window
             }
         };
 
+        // The background update check found a newer release.
+        UpdateService.AvailabilityChanged += OnUpdateAvailabilityChanged;
+        if (UpdateService.AvailableTag is { } knownTag)
+        {
+            ViewModel.NotifyUpdateAvailable(knownTag);
+        }
+
         // A previous run may have died while holding a window on top; repair it and own up to it.
         if (HeldTargetRecord.TryRecover() is { } recoveredTitle)
         {
@@ -142,6 +151,7 @@ public sealed partial class MainWindow : Window
                 {
                     ViewModel.OnPickerCancelled();
                 }
+                CloseSettings();
 
                 // Acquire the foreground window BEFORE showing ourselves, otherwise the booth would
                 // become the foreground window and capture itself.
@@ -192,10 +202,71 @@ public sealed partial class MainWindow : Window
 
     private void OnTrayOpenClick(object sender, RoutedEventArgs e) => ShowBooth();
 
+    private void OnTraySettingsClick(object sender, RoutedEventArgs e) => DispatcherQueue.TryEnqueue(() =>
+    {
+        ViewModel.EnsureBoothLaidOut();
+        AppWindow.Show();
+        Activate();
+        OpenSettings();
+    });
+
+    private void OnSettingsClick(object sender, RoutedEventArgs e) => OpenSettings();
+
+    /// <summary>
+    /// Shows the settings page over the booth. Refused while a target is held: the booth is then
+    /// mid-layout in the topmost band, and hotkey/display/margin changes would fight with it.
+    /// </summary>
+    private void OpenSettings()
+    {
+        if (ViewModel.IsTargetPinned)
+        {
+            ViewModel.NotifySettingsBlocked();
+            return;
+        }
+
+        if (_settingsPage is null)
+        {
+            var viewModel = new SettingsViewModel(ViewModel, _settings,
+                binding => _hotkeyService.Register(binding.RegistrationModifiers, binding.VirtualKey));
+            _settingsPage = new SettingsPage(viewModel, ExitForUpdate);
+            _settingsPage.BackRequested += CloseSettings;
+        }
+        SettingsHost.Content = _settingsPage;
+        SettingsHost.Visibility = Visibility.Visible;
+        ViewModel.IsNoticeOpen = false;
+    }
+
+    private void CloseSettings()
+    {
+        if (SettingsHost.Visibility == Visibility.Visible)
+        {
+            SettingsHost.Visibility = Visibility.Collapsed;
+            SettingsHost.Content = null;   // Unloaded: the page drops its update-service subscription
+        }
+    }
+
+    private void OnUpdateAvailabilityChanged() => DispatcherQueue.TryEnqueue(() =>
+    {
+        if (UpdateService.AvailableTag is { } tag)
+        {
+            ViewModel.NotifyUpdateAvailable(tag);
+        }
+    });
+
+    /// <summary>Lets go of everything and exits so the update finisher (or winget) can replace the files.</summary>
+    private void ExitForUpdate()
+    {
+        _exitRequested = true;
+        ViewModel.OnBoothHidden();
+        TrayIcon.Dispose();
+        Application.Current.Exit();
+    }
+
     private void OnTrayPickClick(object sender, RoutedEventArgs e)
     {
         DispatcherQueue.TryEnqueue(() =>
         {
+            CloseSettings();
             ViewModel.EnsureBoothLaidOut();
             AppWindow.Show();
             ViewModel.PickWindowCommand.Execute(null);
@@ -290,6 +361,11 @@ public sealed partial class MainWindow : Window
             ViewModel.CancelCountdown();
             e.Handled = true;
         }
+        else if (e.Key == Windows.System.VirtualKey.Escape && SettingsHost.Visibility == Visibility.Visible)
+        {
+            CloseSettings();
+            e.Handled = true;
+        }
     }
 
     /// <summary>x:Bind helper: false -&gt; Visible (for "off" badges).</summary>
@@ -297,4 +373,10 @@ public sealed partial class MainWindow : Window
 
     /// <summary>x:Bind helper: bool -&gt; Visibility (WinUI 3 has no built-in bool/Visibility converter).</summary>
     public static Visibility BoolToVisibility(bool value) => value ? Visibility.Visible : Visibility.Collapsed;
+
+    /// <summary>x:Bind helper: non-empty string -&gt; Visible.</summary>
+    public static Visibility StringToVisibility(string value) => string.IsNullOrEmpty(value) ? Visibility.Collapsed : Visibility.Visible;
+
+    /// <summary>x:Bind helper: logical not.</summary>
+    public static bool Not(bool value) => !value;
 }

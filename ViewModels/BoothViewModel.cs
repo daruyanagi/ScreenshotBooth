@@ -24,6 +24,7 @@ public partial class BoothViewModel : ObservableObject
     private readonly AppSettings _settings;
 
     private byte[]? _lastCapturePngBytes;
+    private DateTime _lastCaptureTime;
     private bool _isApplyingPresetProgrammatically;
 
     /// <summary>Built-in presets that fit on the selected display, plus "Custom" (the acquire-time size). See <see cref="RefreshPresets"/>.</summary>
@@ -163,6 +164,7 @@ public partial class BoothViewModel : ObservableObject
         CountdownSeconds = settings.DefaultCountdownSeconds;
         IsRestoreLayoutEnabled = settings.RestoreTargetLayout;
         _controller.RestoreTargetLayout = settings.RestoreTargetLayout;
+        _controller.MarginDip = settings.MarginDip;
 
         _isApplyingPresetProgrammatically = false;
     }
@@ -396,13 +398,68 @@ public partial class BoothViewModel : ObservableObject
         ShowNotice(InfoBarSeverity.Informational, R.Get("NoticeCancelledTitle"), R.Get(key));
     }
 
+    /// <summary>The global hotkey as text ("Win + Shift + B"), for hints and notices.</summary>
+    public string HotkeyText => new HotkeyBinding(_settings.HotkeyModifiers, _settings.HotkeyVirtualKey).ToString();
+
+    /// <summary>What the empty booth tells the user to do.</summary>
+    public string IdleHintText => R.F("IdleHintFormat", HotkeyText);
+
+    /// <summary>The settings window changed (and registered) the hotkey.</summary>
+    public void OnHotkeyChanged()
+    {
+        OnPropertyChanged(nameof(HotkeyText));
+        OnPropertyChanged(nameof(IdleHintText));
+    }
+
+    /// <summary>The settings window picked another display: move the booth (and the held target) there.</summary>
+    public void OnDisplayChanged()
+    {
+        if (_controller.HasLaidOut)
+        {
+            _controller.RelayoutWithLastArea(DisplayService.GetSelectedDisplay(_settings));
+        }
+        RefreshPresets();
+    }
+
+    /// <summary>The settings window changed the shadow margin.</summary>
+    public void OnMarginChanged(int marginDip)
+    {
+        _controller.MarginDip = marginDip;
+        if (IsFitToBoothEnabled)
+        {
+            FitTargetToBooth();
+        }
+        RefreshPresets();
+    }
+
+    /// <summary>Raised when a notice's action asks for the settings window (update available).</summary>
+    public event Action? SettingsRequested;
+
+    /// <summary>Label of the notice's action button ("" = no button).</summary>
+    [ObservableProperty]
+    public partial string NoticeActionLabel { get; set; } = "";
+
+    [RelayCommand]
+    private void NoticeAction() => SettingsRequested?.Invoke();
+
+    /// <summary>Settings were asked for while a target is held (the page is unavailable then).</summary>
+    public void NotifySettingsBlocked() =>
+        ShowNotice(InfoBarSeverity.Warning, "", R.Get("NoticeSettingsBlockedMessage"));
+
+    /// <summary>A newer release was found by the background check.</summary>
+    public void NotifyUpdateAvailable(string tag)
+    {
+        ShowNotice(InfoBarSeverity.Informational, "", R.F("UpdateAvailableFmt", tag), autoClose: false);
+        NoticeActionLabel = R.Get("NoticeOpenSettingsAction");
+    }
+
     /// <summary>Called at startup when a window left on top by a crashed previous run was just released.</summary>
     public void NotifyRecoveredStuckTopMost(string title) =>
         ShowNotice(InfoBarSeverity.Warning, R.Get("NoticeRecoveredTitle"), R.F("NoticeRecoveredMessage", title), autoClose: false);
 
     /// <summary>Called by MainWindow when the global hotkey could not be registered.</summary>
     public void NotifyHotkeyFailed() =>
-        ShowNotice(InfoBarSeverity.Error, R.Get("NoticeHotkeyFailedTitle"), R.Get("NoticeHotkeyFailedMessage"), autoClose: false);
+        ShowNotice(InfoBarSeverity.Error, R.Get("NoticeHotkeyFailedTitle"), R.F("NoticeHotkeyFailedMessage", HotkeyText), autoClose: false);
 
     /// <summary>Explains the current fit-mode state (shown as the switch's tooltip).</summary>
     public string FitToBoothToolTip => R.Get(IsFitToBoothEnabled ? "FitToBoothTipOn" : "FitToBoothTipOff");
@@ -470,6 +527,7 @@ public partial class BoothViewModel : ObservableObject
         NoticeSeverity = severity;
         NoticeTitle = title;
         NoticeMessage = message;
+        NoticeActionLabel = "";
         IsNoticeOpen = true;
         _noticeTimer.Stop();
         if (autoClose)
@@ -484,7 +542,7 @@ public partial class BoothViewModel : ObservableObject
     {
         _controller.SetTargetTopMost(false);
         IsTargetPinned = false;
-        ShowNotice(InfoBarSeverity.Informational, R.Get("NoticeCancelledTitle"), R.Get("NoticeReleasedMessage"));
+        ShowNotice(InfoBarSeverity.Informational, R.Get("NoticeCancelledTitle"), R.F("NoticeReleasedMessage", HotkeyText));
     }
 
     // Concurrent executions allowed on purpose: a second press during the countdown must reach
@@ -515,7 +573,7 @@ public partial class BoothViewModel : ObservableObject
 
         if (!_controller.HasTarget || BoothAreaElement is null)
         {
-            ShowNotice(InfoBarSeverity.Warning, "", R.Get("NoticeNoTargetMessage"));
+            ShowNotice(InfoBarSeverity.Warning, "", R.F("NoticeNoTargetMessage", HotkeyText));
             return;
         }
 
@@ -547,6 +605,7 @@ public partial class BoothViewModel : ObservableObject
         var result = await _controller.CaptureAsync(BoothAreaElement);
         _controller.SetTargetTopMost(false);
         _lastCapturePngBytes = result.PngBytes;
+        _lastCaptureTime = DateTime.Now;
         PreviewImage = result.Preview;
         IsPreviewShown = true;
         IsTargetPinned = false;
@@ -614,14 +673,25 @@ public partial class BoothViewModel : ObservableObject
     [RelayCommand]
     private async Task SaveAsync()
     {
-        // Minimal first cut: PNG-only, no format choice UI yet. TODO (follow-up): JPEG option, quality slider.
         if (_lastCapturePngBytes is null || BoothAreaElement?.XamlRoot is null)
         {
             return;
         }
 
-        var picker = new FileSavePicker { SuggestedFileName = "Screenshot" };
-        picker.FileTypeChoices.Add("PNG Image", new List<string> { ".png" });
+        // The format last used (settings) is listed first, which is what the dialog preselects.
+        var picker = new FileSavePicker
+        {
+            SuggestedFileName = ImageExport.SuggestedFileName(_lastCaptureTime),
+            SuggestedStartLocation = PickerLocationId.PicturesLibrary,
+            SettingsIdentifier = "SaveCapture",
+        };
+        var preferJpeg = string.Equals(_settings.SaveFormat, ImageExport.Jpeg, StringComparison.OrdinalIgnoreCase);
+        var png = (R.Get("SaveTypePng"), new List<string> { ".png" });
+        var jpeg = (R.Get("SaveTypeJpeg"), new List<string> { ".jpg", ".jpeg" });
+        foreach (var (label, extensions) in preferJpeg ? new[] { jpeg, png } : new[] { png, jpeg })
+        {
+            picker.FileTypeChoices.Add(label, extensions);
+        }
         WinRT.Interop.InitializeWithWindow.Initialize(picker, App.WindowHandle);
 
         var file = await picker.PickSaveFileAsync();
@@ -630,14 +700,34 @@ public partial class BoothViewModel : ObservableObject
             return;
         }
 
-        await FileIO.WriteBytesAsync(file, _lastCapturePngBytes);
+        var isJpeg = file.FileType is ".jpg" or ".jpeg";
+        var bytes = ImageExport.Encode(_lastCapturePngBytes, isJpeg ? ImageExport.Jpeg : ImageExport.Png, _settings.JpegQuality);
+        await FileIO.WriteBytesAsync(file, bytes);
+
+        if (isJpeg != preferJpeg)
+        {
+            _settings.SaveFormat = isJpeg ? ImageExport.Jpeg : ImageExport.Png;
+            SettingsService.Save(_settings);
+        }
         ShowNotice(InfoBarSeverity.Success, "", R.F("NoticeSavedMessage", file.Path));
     }
 
     [RelayCommand]
-    private void Share()
+    private async Task ShareAsync()
     {
-        // TODO (follow-up): DataTransferManager share flow. Stub for this pass.
-        ShowNotice(InfoBarSeverity.Informational, "", R.Get("NoticeShareNotImplementedMessage"));
+        if (_lastCapturePngBytes is null)
+        {
+            return;
+        }
+
+        try
+        {
+            await ShareService.ShareAsync(App.WindowHandle, _lastCapturePngBytes, ImageExport.SuggestedFileName(_lastCaptureTime));
+        }
+        catch (Exception ex)
+        {
+            AppLog.Write($"Share: failed {ex}");
+            ShowNotice(InfoBarSeverity.Error, "", R.Get("NoticeShareFailedMessage"));
+        }
     }
 }

@@ -24,7 +24,7 @@
   <data name="RetakeButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>撮り直し</value></data>
   <data name="RetakeButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>撮り直し</value></data>
   <data name="SaveButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>保存</value></data>
-  <data name="SaveButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>PNG として保存</value></data>
+  <data name="SaveButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>保存</value></data>
   <data name="ShareButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>共有</value></data>
   <data name="ShareButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>共有</value></data>
   <data name="CountdownButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>カウントダウン</value></data>
@@ -38,17 +38,15 @@
   <data name="CopyButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>スクリーンショットをもう一度クリップボードにコピーします</value></data>
   <data name="SaveButton.Label" xml:space="preserve"><value>保存</value></data>
   <data name="ShareButton.Label" xml:space="preserve"><value>共有</value></data>
-  <data name="NoticeReleasedMessage" xml:space="preserve"><value>対象ウィンドウの固定を解除しました。もう一度撮るには Win+Shift+B を押してください。</value></data>
+  <data name="NoticeReleasedMessage" xml:space="preserve"><value>対象ウィンドウの固定を解除しました。もう一度撮るには {0} を押してください。</value></data>
   <data name="NoticeCopiedMessage" xml:space="preserve"><value>クリップボードにコピーしました。</value></data>
   <data name="NoticeSavedMessage" xml:space="preserve"><value>{0} に保存しました</value></data>
-  <data name="NoticeShareNotImplementedMessage" xml:space="preserve"><value>共有はまだ実装されていません。</value></data>
   <data name="NoticeNoForegroundMessage" xml:space="preserve"><value>対象にできるウィンドウが前面にありません。</value></data>
-  <data name="NoticeNoTargetMessage" xml:space="preserve"><value>対象ウィンドウがありません。撮りたいウィンドウの上で Win+Shift+B を押してください。</value></data>
+  <data name="NoticeNoTargetMessage" xml:space="preserve"><value>対象ウィンドウがありません。撮りたいウィンドウの上で {0} を押してください。</value></data>
   <data name="NoticeHotkeyFailedTitle" xml:space="preserve"><value>ホットキーを使えません</value></data>
-  <data name="NoticeHotkeyFailedMessage" xml:space="preserve"><value>Win+Shift+B を登録できませんでした（他のアプリが使用中かもしれません）。</value></data>
+  <data name="NoticeHotkeyFailedMessage" xml:space="preserve"><value>{0} を登録できませんでした（他のアプリが使用中かもしれません）。設定でホットキーを変更してください。</value></data>
   <data name="SizeDropDown.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>❗ の付いたサイズは対象ウィンドウ＋影の余白より小さく、対象がブースからはみ出します。フィットをオンにすると対象が追従します。</value></data>
   <data name="NoticeAutoFitTitle" xml:space="preserve"><value>対象ウィンドウをリサイズしました</value></data>
-  <data name="IdleHint.Text" xml:space="preserve"><value>撮影したいウィンドウをアクティブにした状態で Win+Shift+B を押してください。</value></data>
   <data name="FitToBoothToggle.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>フィットモード</value></data>
   <data name="NoticeAutoFitMessage" xml:space="preserve"><value>対象ウィンドウが最大プリセットより大きいため、ブースを {0}x{1} にして縮小し、フィットモードをオンにしました。</value></data>
   <data name="ChipHeldLabel" xml:space="preserve"><value>撮影対象として固定中</value></data>
@@ -75,4 +73,72 @@
   <data name="NoticePickerNothingMessage" xml:space="preserve"><value>そこには撮影できるウィンドウがありません。デスクトップやタスクバー、このアプリ自身は対象にできません。ウィンドウをクリックしてください。</value></data>
   <data name="PresetCustom" xml:space="preserve"><value>カスタム</value></data>
   <data name="NoticeCancelledTitle" xml:space="preserve"><value>キャンセルしました</value></data>
+  <data name="IdleHintFormat" xml:space="preserve"><value>撮影したいウィンドウをアクティブにした状態で {0} を押してください。</value></data>
+  <data name="NoticeSettingsBlockedMessage" xml:space="preserve"><value>対象ウィンドウを固定している間は設定を開けません。先に「解除」するか撮影してください。</value></data>
+  <data name="SettingsHeader.Text" xml:space="preserve"><value>設定</value></data>
+  <data name="SettingsBackButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>ブースに戻る</value></data>
+  <data name="NoticeOpenSettingsAction" xml:space="preserve"><value>設定を開く</value></data>
+  <data name="NoticeShareFailedMessage" xml:space="preserve"><value>共有パネルを開けませんでした。</value></data>
+  <data name="SaveTypeJpeg" xml:space="preserve"><value>JPEG 画像</value></data>
+  <data name="SaveTypePng" xml:space="preserve"><value>PNG 画像</value></data>
+  <data name="SettingsButton.Label" xml:space="preserve"><value>設定...</value></data>
+  <data name="SettingsChannelPackaged" xml:space="preserve"><value>パッケージ版</value></data>
+  <data name="SettingsChannelWinget" xml:space="preserve"><value>winget 版</value></data>
+  <data name="SettingsChannelZip" xml:space="preserve"><value>ZIP 版</value></data>
+  <data name="SettingsCountdown10.Content" xml:space="preserve"><value>10 秒</value></data>
+  <data name="SettingsCountdown3.Content" xml:space="preserve"><value>3 秒</value></data>
+  <data name="SettingsCountdown5.Content" xml:space="preserve"><value>5 秒</value></data>
+  <data name="SettingsCountdownCard.Description" xml:space="preserve"><value>シャッターを押してから撮影するまでの秒数</value></data>
+  <data name="SettingsCountdownCard.Header" xml:space="preserve"><value>カウントダウン</value></data>
+  <data name="SettingsCountdownOff.Content" xml:space="preserve"><value>なし</value></data>
+  <data name="SettingsDisplayAuto" xml:space="preserve"><value>自動（プライマリ ディスプレイ）</value></data>
+  <data name="SettingsDisplayCard.Description" xml:space="preserve"><value>ブースと対象ウィンドウを置くディスプレイ</value></data>
+  <data name="SettingsDisplayCard.Header" xml:space="preserve"><value>ディスプレイ</value></data>
+  <data name="SettingsDisplayOption" xml:space="preserve"><value>ディスプレイ {0}: {1}×{2}</value></data>
+  <data name="SettingsDisplayPrimarySuffix" xml:space="preserve"><value>（プライマリ）</value></data>
+  <data name="SettingsHotkeyCard.Header" xml:space="preserve"><value>ホットキー</value></data>
+  <data name="SettingsHotkeyInUse" xml:space="preserve"><value>{0} は登録できませんでした（他のアプリが使用中かもしれません）。以前の設定のままです。</value></data>
+  <data name="SettingsHotkeyKeyCard.Header" xml:space="preserve"><value>キー</value></data>
+  <data name="SettingsHotkeyModifiersCard.Description" xml:space="preserve"><value>Win、Ctrl、Alt のいずれかを含めてください</value></data>
+  <data name="SettingsHotkeyModifiersCard.Header" xml:space="preserve"><value>修飾キー</value></data>
+  <data name="SettingsHotkeyNeedsModifier" xml:space="preserve"><value>Win、Ctrl、Alt のいずれかを含めてください。</value></data>
+  <data name="SettingsJpegQualityCard.Header" xml:space="preserve"><value>JPEG の品質</value></data>
+  <data name="SettingsLanguageCard.Header" xml:space="preserve"><value>言語</value></data>
+  <data name="SettingsLanguageSystem.Content" xml:space="preserve"><value>システムの設定に従う</value></data>
+  <data name="SettingsMarginCard.Description" xml:space="preserve"><value>対象ウィンドウの周りに空ける幅（DIP）。影と角丸が収まる幅にしてください</value></data>
+  <data name="SettingsMarginCard.Header" xml:space="preserve"><value>余白</value></data>
+  <data name="SettingsRestartInfoBar.Message" xml:space="preserve"><value>言語の変更はアプリを再起動すると反映されます。</value></data>
+  <data name="SettingsRestoreLayoutCard.Description" xml:space="preserve"><value>ブースが対象を手放したとき、元の位置とサイズに戻します</value></data>
+  <data name="SettingsRestoreLayoutCard.Header" xml:space="preserve"><value>撮影後に対象ウィンドウのレイアウトを復元する</value></data>
+  <data name="SettingsSaveFormatCard.Description" xml:space="preserve"><value>保存ダイアログで最初に選ばれる形式（クリップボードは常に PNG）</value></data>
+  <data name="SettingsSaveFormatCard.Header" xml:space="preserve"><value>保存形式</value></data>
+  <data name="SettingsSectionAbout.Text" xml:space="preserve"><value>バージョン情報</value></data>
+  <data name="SettingsSectionAppearance.Text" xml:space="preserve"><value>表示</value></data>
+  <data name="SettingsSectionCapture.Text" xml:space="preserve"><value>撮影</value></data>
+  <data name="SettingsSectionSave.Text" xml:space="preserve"><value>保存</value></data>
+  <data name="SettingsSectionUpdate.Text" xml:space="preserve"><value>更新</value></data>
+  <data name="SettingsTitleBar.Title" xml:space="preserve"><value>設定</value></data>
+  <data name="SettingsUpdateCheckButton.Content" xml:space="preserve"><value>確認</value></data>
+  <data name="SettingsUpdateCheckCard.Description" xml:space="preserve"><value>1 日 1 回、GitHub の最新リリースを確認します</value></data>
+  <data name="SettingsUpdateCheckCard.Header" xml:space="preserve"><value>更新を自動で確認する</value></data>
+  <data name="SettingsUpdateNowCard.Header" xml:space="preserve"><value>今すぐ確認</value></data>
+  <data name="SettingsVersionFormat" xml:space="preserve"><value>バージョン {0}（{1}）</value></data>
+  <data name="TraySettings.Text" xml:space="preserve"><value>設定...</value></data>
+  <data name="UpdateAvailableFmt" xml:space="preserve"><value>新しいバージョン {0} があります。</value></data>
+  <data name="UpdateCancelButton" xml:space="preserve"><value>キャンセル</value></data>
+  <data name="UpdateChecking" xml:space="preserve"><value>確認しています...</value></data>
+  <data name="UpdateConfirmButton" xml:space="preserve"><value>続行</value></data>
+  <data name="UpdateDownloading" xml:space="preserve"><value>ダウンロードしています...</value></data>
+  <data name="UpdateErrorText" xml:space="preserve"><value>更新を確認できませんでした。しばらくしてからもう一度お試しください。</value></data>
+  <data name="UpdateLastCheckedFmt" xml:space="preserve"><value>最終確認: {0}</value></data>
+  <data name="UpdateLatest" xml:space="preserve"><value>お使いのバージョンは最新です。</value></data>
+  <data name="UpdateNotChecked" xml:space="preserve"><value>まだ更新を確認していません。</value></data>
+  <data name="UpdateOpenReleasePage" xml:space="preserve"><value>リリースページを開く</value></data>
+  <data name="UpdateRestartAndUpdate" xml:space="preserve"><value>更新して再起動</value></data>
+  <data name="UpdateRestartConfirmBody" xml:space="preserve"><value>新しいバージョンをダウンロードして置き換え、アプリを再起動します。固定中のウィンドウは解除されます。</value></data>
+  <data name="UpdateRestartConfirmTitle" xml:space="preserve"><value>更新して再起動しますか？</value></data>
+  <data name="UpdateSelfUpdateUnavailableFmt" xml:space="preserve"><value>{0} はアプリ内から更新できません。リリースページからダウンロードしてください。</value></data>
+  <data name="UpdateViaWinget" xml:space="preserve"><value>winget で更新</value></data>
+  <data name="UpdateWingetConfirmBody" xml:space="preserve"><value>アプリを終了して winget upgrade を実行します。固定中のウィンドウは解除されます。</value></data>
+  <data name="UpdateWingetConfirmTitle" xml:space="preserve"><value>winget で更新しますか？</value></data>
 </root>

@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Page
+    x:Class="ScreenshotBooth.SettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:ScreenshotBooth"
+    xmlns:controls="using:CommunityToolkit.WinUI.Controls"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    mc:Ignorable="d"
+    Background="{ThemeResource SolidBackgroundFillColorBaseBrush}">
+
+    <!-- Classic Binding is used for bool? targets (ToggleButton.IsChecked): x:Bind cannot convert
+         bool -> bool?. Root.DataContext is set to ViewModel in code-behind. -->
+    <Grid x:Name="Root">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Header: back to the booth -->
+        <Grid Grid.Row="0" Padding="12,6" ColumnSpacing="8" BorderThickness="0,0,0,1" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Button x:Name="BackButton" x:Uid="SettingsBackButton" AutomationProperties.AutomationId="SettingsBackButton" Click="OnBackClick" Style="{StaticResource NavigationBackButtonNormalStyle}" />
+            <TextBlock x:Uid="SettingsHeader" Grid.Column="1" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" />
+        </Grid>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel Padding="24,8,24,24" Spacing="4" MaxWidth="760" HorizontalAlignment="Stretch">
+
+                <!-- Capture -->
+                <TextBlock x:Uid="SettingsSectionCapture" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,8,0,4" />
+
+                <controls:SettingsExpander x:Uid="SettingsHotkeyCard" AutomationProperties.AutomationId="HotkeyExpander" Description="{x:Bind ViewModel.HotkeyText, Mode=OneWay}">
+                    <controls:SettingsExpander.HeaderIcon>
+                        <FontIcon Glyph="&#xE765;" />
+                    </controls:SettingsExpander.HeaderIcon>
+                    <TextBlock Text="{x:Bind ViewModel.HotkeyText, Mode=OneWay}" Style="{StaticResource BodyStrongTextBlockStyle}" VerticalAlignment="Center" />
+                    <controls:SettingsExpander.Items>
+                        <controls:SettingsCard x:Uid="SettingsHotkeyModifiersCard">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <ToggleButton Content="Win" MinWidth="56" IsChecked="{Binding HotkeyWin, Mode=TwoWay}" />
+                                <ToggleButton Content="Ctrl" MinWidth="56" IsChecked="{Binding HotkeyControl, Mode=TwoWay}" />
+                                <ToggleButton Content="Alt" MinWidth="56" IsChecked="{Binding HotkeyAlt, Mode=TwoWay}" />
+                                <ToggleButton Content="Shift" MinWidth="56" IsChecked="{Binding HotkeyShift, Mode=TwoWay}" />
+                            </StackPanel>
+                        </controls:SettingsCard>
+                        <controls:SettingsCard x:Uid="SettingsHotkeyKeyCard">
+                            <ComboBox x:Name="HotkeyKeyBox" AutomationProperties.AutomationId="HotkeyKeyBox" ItemsSource="{x:Bind ViewModel.HotkeyKeys}" SelectedIndex="{x:Bind ViewModel.HotkeyKeyIndex, Mode=TwoWay}" MinWidth="160" />
+                        </controls:SettingsCard>
+                        <controls:SettingsCard ContentAlignment="Vertical" HorizontalContentAlignment="Stretch"
+                                               Visibility="{x:Bind local:MainWindow.BoolToVisibility(ViewModel.IsHotkeyErrorOpen), Mode=OneWay}">
+                            <InfoBar IsOpen="True" IsClosable="False" Severity="Error" Message="{x:Bind ViewModel.HotkeyError, Mode=OneWay}" />
+                        </controls:SettingsCard>
+                    </controls:SettingsExpander.Items>
+                </controls:SettingsExpander>
+
+                <controls:SettingsCard x:Uid="SettingsDisplayCard">
+                    <controls:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xE7F4;" />
+                    </controls:SettingsCard.HeaderIcon>
+                    <ComboBox AutomationProperties.AutomationId="DisplayBox" ItemsSource="{x:Bind ViewModel.DisplayOptions}" SelectedIndex="{x:Bind ViewModel.DisplayIndex, Mode=TwoWay}" MinWidth="240" />
+                </controls:SettingsCard>
+
+                <controls:SettingsCard x:Uid="SettingsMarginCard">
+                    <controls:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xE744;" />
+                    </controls:SettingsCard.HeaderIcon>
+                    <NumberBox AutomationProperties.AutomationId="MarginBox" Value="{x:Bind ViewModel.MarginDip, Mode=TwoWay}" Minimum="0" Maximum="200" SmallChange="8" LargeChange="32" SpinButtonPlacementMode="Inline" MinWidth="140" />
+                </controls:SettingsCard>
+
+                <controls:SettingsCard x:Uid="SettingsCountdownCard">
+                    <controls:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xE916;" />
+                    </controls:SettingsCard.HeaderIcon>
+                    <ComboBox SelectedIndex="{x:Bind ViewModel.CountdownIndex, Mode=TwoWay}" MinWidth="140">
+                        <ComboBoxItem x:Uid="SettingsCountdownOff" />
+                        <ComboBoxItem x:Uid="SettingsCountdown3" />
+                        <ComboBoxItem x:Uid="SettingsCountdown5" />
+                        <ComboBoxItem x:Uid="SettingsCountdown10" />
+                    </ComboBox>
+                </controls:SettingsCard>
+
+                <controls:SettingsCard x:Uid="SettingsRestoreLayoutCard">
+                    <controls:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xE72B;" />
+                    </controls:SettingsCard.HeaderIcon>
+                    <ToggleSwitch IsOn="{x:Bind ViewModel.IsRestoreLayoutEnabled, Mode=TwoWay}" />
+                </controls:SettingsCard>
+
+                <!-- Saving -->
+                <TextBlock x:Uid="SettingsSectionSave" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,20,0,4" />
+
+                <controls:SettingsExpander x:Uid="SettingsSaveFormatCard" IsExpanded="{x:Bind ViewModel.IsJpegSelected, Mode=OneWay}">
+                    <controls:SettingsExpander.HeaderIcon>
+                        <FontIcon Glyph="&#xEB9F;" />
+                    </controls:SettingsExpander.HeaderIcon>
+                    <ComboBox SelectedIndex="{x:Bind ViewModel.SaveFormatIndex, Mode=TwoWay}" MinWidth="140">
+                        <ComboBoxItem Content="PNG" />
+                        <ComboBoxItem Content="JPEG" />
+                    </ComboBox>
+                    <controls:SettingsExpander.Items>
+                        <controls:SettingsCard x:Uid="SettingsJpegQualityCard" IsEnabled="{x:Bind ViewModel.IsJpegSelected, Mode=OneWay}">
+                            <StackPanel Orientation="Horizontal" Spacing="12">
+                                <Slider Value="{x:Bind ViewModel.JpegQuality, Mode=TwoWay}" Minimum="1" Maximum="100" StepFrequency="1" Width="200" VerticalAlignment="Center" />
+                                <TextBlock Text="{x:Bind ViewModel.JpegQuality, Mode=OneWay}" MinWidth="32" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </controls:SettingsCard>
+                    </controls:SettingsExpander.Items>
+                </controls:SettingsExpander>
+
+                <!-- Appearance -->
+                <TextBlock x:Uid="SettingsSectionAppearance" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,20,0,4" />
+
+                <controls:SettingsCard x:Uid="SettingsLanguageCard">
+                    <controls:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xF2B7;" />
+                    </controls:SettingsCard.HeaderIcon>
+                    <ComboBox SelectedIndex="{x:Bind ViewModel.LanguageIndex, Mode=TwoWay}" MinWidth="180">
+                        <ComboBoxItem x:Uid="SettingsLanguageSystem" />
+                        <ComboBoxItem Content="日本語" />
+                        <ComboBoxItem Content="English" />
+                    </ComboBox>
+                </controls:SettingsCard>
+                <InfoBar x:Uid="SettingsRestartInfoBar" IsOpen="{x:Bind ViewModel.ShowRestartHint, Mode=OneWay}" Severity="Informational" IsClosable="False" />
+
+                <!-- Updates (hidden for the MSIX build: the Store handles it) -->
+                <StackPanel Spacing="4" Visibility="{x:Bind local:MainWindow.BoolToVisibility(ViewModel.IsUpdateSectionVisible)}">
+                    <TextBlock x:Uid="SettingsSectionUpdate" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,20,0,4" />
+
+                    <controls:SettingsCard x:Uid="SettingsUpdateCheckCard">
+                        <controls:SettingsCard.HeaderIcon>
+                            <FontIcon Glyph="&#xE895;" />
+                        </controls:SettingsCard.HeaderIcon>
+                        <ToggleSwitch IsOn="{x:Bind ViewModel.IsUpdateCheckEnabled, Mode=TwoWay}" />
+                    </controls:SettingsCard>
+
+                    <controls:SettingsCard x:Name="UpdateCard" x:Uid="SettingsUpdateNowCard">
+                        <controls:SettingsCard.HeaderIcon>
+                            <FontIcon Glyph="&#xE777;" />
+                        </controls:SettingsCard.HeaderIcon>
+                        <Button x:Name="CheckButton" x:Uid="SettingsUpdateCheckButton" AutomationProperties.AutomationId="UpdateCheckButton" Click="OnCheckClick" />
+                    </controls:SettingsCard>
+
+                    <InfoBar x:Name="UpdateBar" IsOpen="True" IsClosable="False">
+                        <InfoBar.Content>
+                            <ProgressBar x:Name="DownloadProgress" Visibility="Collapsed" Margin="0,0,16,12" Minimum="0" Maximum="1" />
+                        </InfoBar.Content>
+                    </InfoBar>
+                </StackPanel>
+
+                <!-- About -->
+                <TextBlock x:Uid="SettingsSectionAbout" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,20,0,4" />
+
+                <controls:SettingsCard Header="ScreenshotBooth" Description="{x:Bind ViewModel.VersionText}" IsClickEnabled="True" Click="OnRepositoryClick">
+                    <controls:SettingsCard.HeaderIcon>
+                        <ImageIcon Source="Assets/AppIcon.ico" />
+                    </controls:SettingsCard.HeaderIcon>
+                    <controls:SettingsCard.ActionIcon>
+                        <FontIcon Glyph="&#xE8A7;" />
+                    </controls:SettingsCard.ActionIcon>
+                    <TextBlock Text="{x:Bind ViewModel.RepositoryUrl}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Center" />
+                </controls:SettingsCard>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Page>

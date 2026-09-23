@@ -22,9 +22,11 @@ public sealed record CaptureResult(byte[] PngBytes, BitmapImage Preview);
 /// </summary>
 public sealed class BoothController
 {
-    // Visual breathing room (physical px, at 96 DPI baseline) around the target window so its
-    // DWM-composited rounded corners and drop shadow are fully visible against the white backdrop.
-    private const int MarginDip = 64;
+    /// <summary>
+    /// Visual breathing room (DIPs) around the target window so its DWM-composited rounded corners
+    /// and drop shadow are fully visible against the white backdrop. User-adjustable (settings).
+    /// </summary>
+    public int MarginDip { get; set; } = AppSettings.DefaultMarginDip;
 
     // Window chrome above/below the booth area (title bar + toolbar on top), in DIPs. These are
     // estimates for the very first layout; MeasureChrome replaces them once the area has been laid out.

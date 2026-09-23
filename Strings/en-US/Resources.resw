@@ -24,7 +24,7 @@
   <data name="RetakeButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Retake</value></data>
   <data name="RetakeButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>Retake</value></data>
   <data name="SaveButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Save screenshot</value></data>
-  <data name="SaveButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>Save as PNG</value></data>
+  <data name="SaveButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>Save</value></data>
   <data name="ShareButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Share screenshot</value></data>
   <data name="ShareButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>Share</value></data>
   <data name="CountdownButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Countdown</value></data>
@@ -38,17 +38,15 @@
   <data name="CopyButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>Copy the screenshot to the clipboard again</value></data>
   <data name="SaveButton.Label" xml:space="preserve"><value>Save</value></data>
   <data name="ShareButton.Label" xml:space="preserve"><value>Share</value></data>
-  <data name="NoticeReleasedMessage" xml:space="preserve"><value>The target window is no longer held. Press Win+Shift+B to start again.</value></data>
+  <data name="NoticeReleasedMessage" xml:space="preserve"><value>The target window is no longer held. Press {0} to start again.</value></data>
   <data name="NoticeCopiedMessage" xml:space="preserve"><value>Copied to the clipboard.</value></data>
   <data name="NoticeSavedMessage" xml:space="preserve"><value>Saved to {0}</value></data>
-  <data name="NoticeShareNotImplementedMessage" xml:space="preserve"><value>Share isn't implemented yet.</value></data>
   <data name="NoticeNoForegroundMessage" xml:space="preserve"><value>No suitable window is in the foreground.</value></data>
-  <data name="NoticeNoTargetMessage" xml:space="preserve"><value>No target window - press Win+Shift+B over a window first.</value></data>
+  <data name="NoticeNoTargetMessage" xml:space="preserve"><value>No target window - press {0} over a window first.</value></data>
   <data name="NoticeHotkeyFailedTitle" xml:space="preserve"><value>Hotkey unavailable</value></data>
-  <data name="NoticeHotkeyFailedMessage" xml:space="preserve"><value>Couldn't register Win+Shift+B (another app may be using it).</value></data>
+  <data name="NoticeHotkeyFailedMessage" xml:space="preserve"><value>Couldn't register {0} (another app may be using it). Change the hotkey in Settings.</value></data>
   <data name="SizeDropDown.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>Sizes marked ❗ are smaller than the target window plus its shadow margin, so the target would stick out of the booth. Turn on Fit to make the target follow instead.</value></data>
   <data name="NoticeAutoFitTitle" xml:space="preserve"><value>Target resized</value></data>
-  <data name="IdleHint.Text" xml:space="preserve"><value>Activate the window you want to capture, then press Win+Shift+B.</value></data>
   <data name="FitToBoothToggle.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Fit mode</value></data>
   <data name="NoticeAutoFitMessage" xml:space="preserve"><value>The window was larger than the largest preset, so the booth was set to {0}x{1}, the window was shrunk into it, and Fit mode was turned on.</value></data>
   <data name="ChipHeldLabel" xml:space="preserve"><value>Held as the capture target</value></data>
@@ -75,4 +73,72 @@
   <data name="NoticePickerNothingMessage" xml:space="preserve"><value>Nothing to capture there: the desktop, the taskbar and this app's own windows cannot be targets. Click a window instead.</value></data>
   <data name="PresetCustom" xml:space="preserve"><value>Custom</value></data>
   <data name="NoticeCancelledTitle" xml:space="preserve"><value>Cancelled</value></data>
+  <data name="IdleHintFormat" xml:space="preserve"><value>Activate the window you want to capture, then press {0}.</value></data>
+  <data name="NoticeSettingsBlockedMessage" xml:space="preserve"><value>Settings can't be opened while a window is held. Release it or take the shot first.</value></data>
+  <data name="SettingsHeader.Text" xml:space="preserve"><value>Settings</value></data>
+  <data name="SettingsBackButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Back to the booth</value></data>
+  <data name="NoticeOpenSettingsAction" xml:space="preserve"><value>Open Settings</value></data>
+  <data name="NoticeShareFailedMessage" xml:space="preserve"><value>Couldn't open the Share pane.</value></data>
+  <data name="SaveTypeJpeg" xml:space="preserve"><value>JPEG image</value></data>
+  <data name="SaveTypePng" xml:space="preserve"><value>PNG image</value></data>
+  <data name="SettingsButton.Label" xml:space="preserve"><value>Settings...</value></data>
+  <data name="SettingsChannelPackaged" xml:space="preserve"><value>packaged</value></data>
+  <data name="SettingsChannelWinget" xml:space="preserve"><value>winget</value></data>
+  <data name="SettingsChannelZip" xml:space="preserve"><value>zip</value></data>
+  <data name="SettingsCountdown10.Content" xml:space="preserve"><value>10 seconds</value></data>
+  <data name="SettingsCountdown3.Content" xml:space="preserve"><value>3 seconds</value></data>
+  <data name="SettingsCountdown5.Content" xml:space="preserve"><value>5 seconds</value></data>
+  <data name="SettingsCountdownCard.Description" xml:space="preserve"><value>Seconds between pressing the shutter and the capture</value></data>
+  <data name="SettingsCountdownCard.Header" xml:space="preserve"><value>Countdown</value></data>
+  <data name="SettingsCountdownOff.Content" xml:space="preserve"><value>Off</value></data>
+  <data name="SettingsDisplayAuto" xml:space="preserve"><value>Automatic (primary display)</value></data>
+  <data name="SettingsDisplayCard.Description" xml:space="preserve"><value>Where the booth and the target window go</value></data>
+  <data name="SettingsDisplayCard.Header" xml:space="preserve"><value>Display</value></data>
+  <data name="SettingsDisplayOption" xml:space="preserve"><value>Display {0}: {1}×{2}</value></data>
+  <data name="SettingsDisplayPrimarySuffix" xml:space="preserve"><value>(primary)</value></data>
+  <data name="SettingsHotkeyCard.Header" xml:space="preserve"><value>Hotkey</value></data>
+  <data name="SettingsHotkeyInUse" xml:space="preserve"><value>{0} couldn't be registered (another app may be using it). The previous hotkey is still active.</value></data>
+  <data name="SettingsHotkeyKeyCard.Header" xml:space="preserve"><value>Key</value></data>
+  <data name="SettingsHotkeyModifiersCard.Description" xml:space="preserve"><value>Include at least one of Win, Ctrl or Alt</value></data>
+  <data name="SettingsHotkeyModifiersCard.Header" xml:space="preserve"><value>Modifiers</value></data>
+  <data name="SettingsHotkeyNeedsModifier" xml:space="preserve"><value>Include at least one of Win, Ctrl or Alt.</value></data>
+  <data name="SettingsJpegQualityCard.Header" xml:space="preserve"><value>JPEG quality</value></data>
+  <data name="SettingsLanguageCard.Header" xml:space="preserve"><value>Language</value></data>
+  <data name="SettingsLanguageSystem.Content" xml:space="preserve"><value>Follow the system</value></data>
+  <data name="SettingsMarginCard.Description" xml:space="preserve"><value>Space around the target window (DIPs); leave room for the shadow and rounded corners</value></data>
+  <data name="SettingsMarginCard.Header" xml:space="preserve"><value>Margin</value></data>
+  <data name="SettingsRestartInfoBar.Message" xml:space="preserve"><value>The language change takes effect after restarting the app.</value></data>
+  <data name="SettingsRestoreLayoutCard.Description" xml:space="preserve"><value>When the booth lets go of the target, it goes back to where it was, at its original size</value></data>
+  <data name="SettingsRestoreLayoutCard.Header" xml:space="preserve"><value>Restore the target window's layout after capture</value></data>
+  <data name="SettingsSaveFormatCard.Description" xml:space="preserve"><value>Preselected in the Save dialog (the clipboard always gets PNG)</value></data>
+  <data name="SettingsSaveFormatCard.Header" xml:space="preserve"><value>Save format</value></data>
+  <data name="SettingsSectionAbout.Text" xml:space="preserve"><value>About</value></data>
+  <data name="SettingsSectionAppearance.Text" xml:space="preserve"><value>Appearance</value></data>
+  <data name="SettingsSectionCapture.Text" xml:space="preserve"><value>Capture</value></data>
+  <data name="SettingsSectionSave.Text" xml:space="preserve"><value>Saving</value></data>
+  <data name="SettingsSectionUpdate.Text" xml:space="preserve"><value>Updates</value></data>
+  <data name="SettingsTitleBar.Title" xml:space="preserve"><value>Settings</value></data>
+  <data name="SettingsUpdateCheckButton.Content" xml:space="preserve"><value>Check</value></data>
+  <data name="SettingsUpdateCheckCard.Description" xml:space="preserve"><value>Looks at the latest GitHub release once a day</value></data>
+  <data name="SettingsUpdateCheckCard.Header" xml:space="preserve"><value>Check for updates automatically</value></data>
+  <data name="SettingsUpdateNowCard.Header" xml:space="preserve"><value>Check now</value></data>
+  <data name="SettingsVersionFormat" xml:space="preserve"><value>Version {0} ({1})</value></data>
+  <data name="TraySettings.Text" xml:space="preserve"><value>Settings...</value></data>
+  <data name="UpdateAvailableFmt" xml:space="preserve"><value>Version {0} is available.</value></data>
+  <data name="UpdateCancelButton" xml:space="preserve"><value>Cancel</value></data>
+  <data name="UpdateChecking" xml:space="preserve"><value>Checking...</value></data>
+  <data name="UpdateConfirmButton" xml:space="preserve"><value>Continue</value></data>
+  <data name="UpdateDownloading" xml:space="preserve"><value>Downloading...</value></data>
+  <data name="UpdateErrorText" xml:space="preserve"><value>Couldn't check for updates. Please try again later.</value></data>
+  <data name="UpdateLastCheckedFmt" xml:space="preserve"><value>Last checked: {0}</value></data>
+  <data name="UpdateLatest" xml:space="preserve"><value>You're on the latest version.</value></data>
+  <data name="UpdateNotChecked" xml:space="preserve"><value>Updates haven't been checked yet.</value></data>
+  <data name="UpdateOpenReleasePage" xml:space="preserve"><value>Open the release page</value></data>
+  <data name="UpdateRestartAndUpdate" xml:space="preserve"><value>Update and restart</value></data>
+  <data name="UpdateRestartConfirmBody" xml:space="preserve"><value>The new version is downloaded, swapped in, and the app restarts. A held window is released.</value></data>
+  <data name="UpdateRestartConfirmTitle" xml:space="preserve"><value>Update and restart?</value></data>
+  <data name="UpdateSelfUpdateUnavailableFmt" xml:space="preserve"><value>{0} can't be installed from inside the app. Please download it from the release page.</value></data>
+  <data name="UpdateViaWinget" xml:space="preserve"><value>Update with winget</value></data>
+  <data name="UpdateWingetConfirmBody" xml:space="preserve"><value>The app exits and runs winget upgrade. A held window is released.</value></data>
+  <data name="UpdateWingetConfirmTitle" xml:space="preserve"><value>Update with winget?</value></data>
 </root>

@@ -45,6 +45,11 @@
                             <FontIcon Glyph="&#xE8A7;" />
                         </MenuFlyoutItem.Icon>
                     </MenuFlyoutItem>
+                    <MenuFlyoutItem x:Uid="TraySettings" Click="OnTraySettingsClick">
+                        <MenuFlyoutItem.Icon>
+                            <FontIcon Glyph="&#xE713;" />
+                        </MenuFlyoutItem.Icon>
+                    </MenuFlyoutItem>
                     <MenuFlyoutSeparator />
                     <MenuFlyoutItem x:Uid="TrayExit" Click="OnTrayExitClick">
                         <MenuFlyoutItem.Icon>
@@ -219,9 +224,19 @@
                             <FontIcon Glyph="&#xE72B;" />
                         </AppBarToggleButton.Icon>
                     </AppBarToggleButton>
+                    <AppBarButton x:Uid="SettingsButton" AutomationProperties.AutomationId="SettingsButton" Click="OnSettingsClick"
+                                  IsEnabled="{x:Bind local:MainWindow.Not(ViewModel.IsTargetPinned), Mode=OneWay}">
+                        <AppBarButton.Icon>
+                            <FontIcon Glyph="&#xE713;" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
                 </CommandBar.SecondaryCommands>
             </CommandBar>
         </Grid>
+
+        <!-- Settings page overlay. Covers the toolbar and the booth area; the booth keeps its layout
+             underneath so nothing is disturbed when the page closes. Only opened while no target is held. -->
+        <ContentPresenter x:Name="SettingsHost" Grid.Row="1" Grid.RowSpan="2" Visibility="Collapsed" Canvas.ZIndex="10" />
 
         <!-- Booth client area: plain white backdrop whose size is the captured image size. The live
              target window is positioned by BoothController to sit on top of this, centered in it.
@@ -302,7 +317,7 @@
                 </Border>
 
                 <TextBlock
-                    x:Uid="IdleHint"
+                    Text="{x:Bind ViewModel.IdleHintText, Mode=OneWay}"
                     Visibility="{x:Bind local:MainWindow.BoolToVisibility(ViewModel.IsIdleHintVisible), Mode=OneWay}"
                     Style="{StaticResource BodyTextBlockStyle}"
                     Foreground="{ThemeResource TextFillColorTertiaryBrush}"
@@ -319,7 +334,14 @@
                     Message="{x:Bind ViewModel.NoticeMessage, Mode=OneWay}"
                     Severity="{x:Bind ViewModel.NoticeSeverity, Mode=OneWay}"
                     VerticalAlignment="Top"
-                    Margin="12,8" />
+                    Margin="12,8">
+                    <InfoBar.ActionButton>
+                        <Button
+                            Content="{x:Bind ViewModel.NoticeActionLabel, Mode=OneWay}"
+                            Command="{x:Bind ViewModel.NoticeActionCommand}"
+                            Visibility="{x:Bind local:MainWindow.StringToVisibility(ViewModel.NoticeActionLabel), Mode=OneWay}" />
+                    </InfoBar.ActionButton>
+                </InfoBar>
             </Grid>
         </Border>
     </Grid>

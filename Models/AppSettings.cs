@@ -30,6 +30,26 @@ public sealed class AppSettings
 
     /// <summary>UI language override (BCP-47, e.g. "ja", "en-US"). Empty follows the system.</summary>
     public string Language { get; set; } = "";
+
+    /// <summary>Breathing room (DIPs) between the target window and the booth edge.</summary>
+    public int MarginDip { get; set; } = DefaultMarginDip;
+
+    public const int DefaultMarginDip = 64;
+
+    /// <summary>Format preselected in the Save dialog: "Png" or "Jpeg".</summary>
+    public string SaveFormat { get; set; } = "Png";
+
+    /// <summary>JPEG quality (1-100) used when saving as JPEG.</summary>
+    public int JpegQuality { get; set; } = 90;
+
+    /// <summary>Check GitHub Releases for a newer version in the background (Zip channel only).</summary>
+    public bool UpdateCheckEnabled { get; set; } = true;
+
+    /// <summary>The newest tag seen by the last successful check when it was newer than this build (e.g. "v1.0.1"); null otherwise.</summary>
+    public string? CachedLatestVersion { get; set; }
+
+    /// <summary>When the last successful update check happened.</summary>
+    public DateTimeOffset? LastUpdateCheck { get; set; }
 }
 
 /// <summary>Shared default hotkey constants (used by AppSettings and HotkeyService).</summary>
