@@ -128,7 +128,8 @@
                     VerticalAlignment="Center">
                     <TextBlock x:Name="SizeDropDownText" />
                     <DropDownButton.Flyout>
-                        <MenuFlyout Placement="BottomEdgeAlignedLeft" />
+                        <!-- Windowed (unconstrained) popup: drawn in the XAML root it would sit under the held target, which is topmost. -->
+                        <MenuFlyout Placement="BottomEdgeAlignedLeft" ShouldConstrainToRootBounds="False" />
                     </DropDownButton.Flyout>
                 </DropDownButton>
                 <!-- Capture-side options, next to the shutter: fit, retake, countdown. Their badged icons
@@ -155,7 +156,7 @@
                     MinWidth="0"
                     ToolTipService.ToolTip="{x:Bind ViewModel.CountdownToolTip, Mode=OneWay}">
                     <AppBarButton.Flyout>
-                        <MenuFlyout>
+                        <MenuFlyout Placement="BottomEdgeAlignedLeft" ShouldConstrainToRootBounds="False">
                             <RadioMenuFlyoutItem x:Uid="CountdownOffItem" GroupName="Countdown" Tag="0" Click="OnCountdownItemClick"
                                 IsChecked="{x:Bind local:MainWindow.IntEquals(ViewModel.CountdownSeconds, 0), Mode=OneWay}" />
                             <RadioMenuFlyoutItem x:Uid="Countdown3Item" GroupName="Countdown" Tag="3" Click="OnCountdownItemClick"
