@@ -44,6 +44,12 @@ public sealed record TargetSizePreset(string Name, int Width, int Height, bool I
         new("1920x1080", 1920, 1080),
     ];
 
+    /// <summary>The user's presets from settings, or the built-in list when none are stored.</summary>
+    public static IReadOnlyList<TargetSizePreset> FromSettings(AppSettings settings) =>
+        settings.SizePresets is { Count: > 0 } sizes
+            ? sizes.Where(s => PresetSize.IsValid(s.Width, s.Height)).Select(s => new TargetSizePreset($"{s.Width}x{s.Height}", s.Width, s.Height)).ToList()
+            : BuiltIn;
+
     /// <summary>The size the booth was given automatically when the target was acquired, so it can be restored.</summary>
     public static TargetSizePreset Custom(int width, int height) => new(R.Get("PresetCustom"), width, height, IsCustom: true);
 }

@@ -1,4 +1,6 @@
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Windowing;
 using ScreenshotBooth.Models;
 using ScreenshotBooth.Services;
@@ -39,6 +41,7 @@ public partial class SettingsViewModel : ObservableObject
             ? settings.SelectedDisplayIndex + 1
             : 0;
 
+        LoadPresetRows();
         MarginDip = settings.MarginDip;
         CountdownIndex = Array.IndexOf(CountdownChoices, booth.CountdownSeconds) is var i and >= 0 ? i : 0;
         CaptureEffectIndex = settings.CaptureEffect == AppSettings.CaptureEffectNone ? 1 : 0;
@@ -182,6 +185,110 @@ public partial class SettingsViewModel : ObservableObject
                 OnPropertyChanged();
             }
         }
+    }
+
+    // ── size presets ───────────────────────────────────────────────────────
+
+    public ObservableCollection<PresetRowViewModel> SizePresets { get; } = new();
+
+    /// <summary>"7 sizes" for the expander header.</summary>
+    public string PresetsSummary => R.F("SettingsPresetsCountFmt", SizePresets.Count);
+
+    [ObservableProperty] public partial double NewPresetWidth { get; set; } = 1280;
+    [ObservableProperty] public partial double NewPresetHeight { get; set; } = 960;
+
+    /// <summary>Why the last add/edit was refused ("" = fine).</summary>
+    [ObservableProperty] public partial string PresetError { get; set; } = "";
+
+    public bool IsPresetErrorOpen => PresetError.Length > 0;
+
+    partial void OnPresetErrorChanged(string value) => OnPropertyChanged(nameof(IsPresetErrorOpen));
+
+    private bool _loadingPresets;
+
+    private void LoadPresetRows()
+    {
+        _loadingPresets = true;
+        SizePresets.Clear();
+        foreach (var p in TargetSizePreset.FromSettings(_settings))
+        {
+            SizePresets.Add(new PresetRowViewModel(p.Width, p.Height, OnPresetRowChanged, RemovePreset));
+        }
+        UpdatePresetRowState();
+        _loadingPresets = false;
+    }
+
+    private void UpdatePresetRowState()
+    {
+        foreach (var row in SizePresets)
+        {
+            row.CanRemove = SizePresets.Count > 1;
+        }
+        OnPropertyChanged(nameof(PresetsSummary));
+    }
+
+    private void OnPresetRowChanged(PresetRowViewModel row)
+    {
+        if (_loadingPresets) return;
+        PresetError = "";
+        if (!PresetSize.IsValid(row.WidthPx, row.HeightPx) || double.IsNaN(row.Width) || double.IsNaN(row.Height))
+        {
+            PresetError = R.Get("SettingsPresetRangeError");
+        }
+        PersistPresets();
+    }
+
+    [RelayCommand]
+    private void AddPreset()
+    {
+        var w = double.IsNaN(NewPresetWidth) ? 0 : (int)NewPresetWidth;
+        var h = double.IsNaN(NewPresetHeight) ? 0 : (int)NewPresetHeight;
+        if (!PresetSize.IsValid(w, h))
+        {
+            PresetError = R.Get("SettingsPresetRangeError");
+            return;
+        }
+        if (SizePresets.Any(r => r.WidthPx == w && r.HeightPx == h))
+        {
+            PresetError = R.Get("SettingsPresetDuplicateError");
+            return;
+        }
+
+        PresetError = "";
+        // Keep the list ordered by size, like the built-in one.
+        var index = SizePresets.TakeWhile(r => (long)r.WidthPx * r.HeightPx <= (long)w * h).Count();
+        SizePresets.Insert(index, new PresetRowViewModel(w, h, OnPresetRowChanged, RemovePreset));
+        UpdatePresetRowState();
+        PersistPresets();
+    }
+
+    private void RemovePreset(PresetRowViewModel row)
+    {
+        if (SizePresets.Count <= 1) return;
+        SizePresets.Remove(row);
+        PresetError = "";
+        UpdatePresetRowState();
+        PersistPresets();
+    }
+
+    [RelayCommand]
+    private void ResetPresets()
+    {
+        _settings.SizePresets = null;
+        SettingsService.Save(_settings);
+        PresetError = "";
+        LoadPresetRows();
+        _booth.OnPresetsChanged();
+    }
+
+    private void PersistPresets()
+    {
+        _settings.SizePresets = SizePresets
+            .Select(r => new PresetSize(r.WidthPx, r.HeightPx))
+            .GroupBy(p => (p.Width, p.Height)).Select(g => g.First())
+            .ToList();
+        SettingsService.Save(_settings);
+        _booth.OnPresetsChanged();
     }
 
     /// <summary>0 = print effect, 1 = none. A string in settings so more effects can be added later.</summary>

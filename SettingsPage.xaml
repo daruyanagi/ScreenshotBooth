@@ -5,6 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:ScreenshotBooth"
     xmlns:controls="using:CommunityToolkit.WinUI.Controls"
+    xmlns:vm="using:ScreenshotBooth.ViewModels"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     mc:Ignorable="d"
@@ -64,6 +65,54 @@
                     </controls:SettingsCard.HeaderIcon>
                     <ComboBox AutomationProperties.AutomationId="DisplayBox" ItemsSource="{x:Bind ViewModel.DisplayOptions}" SelectedIndex="{x:Bind ViewModel.DisplayIndex, Mode=TwoWay}" MinWidth="240" />
                 </controls:SettingsCard>
+
+                <controls:SettingsExpander x:Uid="SettingsSizePresetsCard" Description="{x:Bind ViewModel.PresetsSummary, Mode=OneWay}">
+                    <controls:SettingsExpander.HeaderIcon>
+                        <FontIcon Glyph="&#xE8A9;" />
+                    </controls:SettingsExpander.HeaderIcon>
+                    <controls:SettingsExpander.Items>
+                        <!-- One row per preset: width x height (editable), ratio, remove. -->
+                        <controls:SettingsCard ContentAlignment="Vertical" HorizontalContentAlignment="Stretch">
+                            <ItemsControl ItemsSource="{x:Bind ViewModel.SizePresets}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:PresetRowViewModel">
+                                        <Grid ColumnSpacing="8" Margin="0,2">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="120" />
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="120" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <NumberBox Grid.Column="0" Value="{x:Bind Width, Mode=TwoWay}" Minimum="100" Maximum="8192" SpinButtonPlacementMode="Hidden" />
+                                            <TextBlock Grid.Column="1" Text="×" VerticalAlignment="Center" />
+                                            <NumberBox Grid.Column="2" Value="{x:Bind Height, Mode=TwoWay}" Minimum="100" Maximum="8192" SpinButtonPlacementMode="Hidden" />
+                                            <TextBlock Grid.Column="3" Text="{x:Bind AspectText, Mode=OneWay}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Center" Margin="8,0,0,0" />
+                                            <Button Grid.Column="4" x:Uid="SettingsPresetRemoveButton" Command="{x:Bind RemoveCommand}" IsEnabled="{x:Bind CanRemove, Mode=OneWay}" Background="Transparent" BorderThickness="0" Padding="8">
+                                                <FontIcon Glyph="&#xE74D;" FontSize="14" />
+                                            </Button>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </controls:SettingsCard>
+                        <controls:SettingsCard x:Uid="SettingsPresetAddCard">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <NumberBox AutomationProperties.AutomationId="NewPresetWidth" Value="{x:Bind ViewModel.NewPresetWidth, Mode=TwoWay}" Minimum="100" Maximum="8192" SpinButtonPlacementMode="Hidden" Width="120" />
+                                <TextBlock Text="×" VerticalAlignment="Center" />
+                                <NumberBox AutomationProperties.AutomationId="NewPresetHeight" Value="{x:Bind ViewModel.NewPresetHeight, Mode=TwoWay}" Minimum="100" Maximum="8192" SpinButtonPlacementMode="Hidden" Width="120" />
+                                <Button x:Uid="SettingsPresetAddButton" AutomationProperties.AutomationId="AddPresetButton" Command="{x:Bind ViewModel.AddPresetCommand}" />
+                            </StackPanel>
+                        </controls:SettingsCard>
+                        <controls:SettingsCard ContentAlignment="Vertical" HorizontalContentAlignment="Stretch"
+                                               Visibility="{x:Bind local:MainWindow.BoolToVisibility(ViewModel.IsPresetErrorOpen), Mode=OneWay}">
+                            <InfoBar IsOpen="True" IsClosable="False" Severity="Error" Message="{x:Bind ViewModel.PresetError, Mode=OneWay}" />
+                        </controls:SettingsCard>
+                        <controls:SettingsCard x:Uid="SettingsPresetResetCard">
+                            <Button x:Uid="SettingsPresetResetButton" AutomationProperties.AutomationId="ResetPresetsButton" Command="{x:Bind ViewModel.ResetPresetsCommand}" />
+                        </controls:SettingsCard>
+                    </controls:SettingsExpander.Items>
+                </controls:SettingsExpander>
 
                 <controls:SettingsCard x:Uid="SettingsMarginCard">
                     <controls:SettingsCard.HeaderIcon>

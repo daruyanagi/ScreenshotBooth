@@ -147,4 +147,16 @@
   <data name="NoticeRestartElevatedAction" xml:space="preserve"><value>管理者として再起動</value></data>
   <data name="NoticeTargetElevatedMessage" xml:space="preserve"><value>このウィンドウは管理者として実行中のアプリのもので、Windows の制限（UIPI）により ScreenshotBooth からは動かせません。ScreenshotBooth を管理者として再起動すると撮影できます。</value></data>
   <data name="NoticeTargetElevatedTitle" xml:space="preserve"><value>管理者権限のウィンドウです</value></data>
+  <data name="SettingsPresetAddButton.Content" xml:space="preserve"><value>追加</value></data>
+  <data name="SettingsPresetAddCard.Description" xml:space="preserve"><value>幅 × 高さ（ピクセル、100〜8192）</value></data>
+  <data name="SettingsPresetAddCard.Header" xml:space="preserve"><value>サイズを追加</value></data>
+  <data name="SettingsPresetDuplicateError" xml:space="preserve"><value>同じサイズがすでにあります。</value></data>
+  <data name="SettingsPresetRangeError" xml:space="preserve"><value>幅と高さは 100〜8192 の範囲で指定してください。</value></data>
+  <data name="SettingsPresetRemoveButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>削除</value></data>
+  <data name="SettingsPresetRemoveButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>このサイズを削除</value></data>
+  <data name="SettingsPresetResetButton.Content" xml:space="preserve"><value>戻す</value></data>
+  <data name="SettingsPresetResetCard.Description" xml:space="preserve"><value>540x405 〜 1920x1080 の組み込みプリセットに戻します</value></data>
+  <data name="SettingsPresetResetCard.Header" xml:space="preserve"><value>既定のサイズに戻す</value></data>
+  <data name="SettingsPresetsCountFmt" xml:space="preserve"><value>{0} 件。撮影される画像のサイズです</value></data>
+  <data name="SettingsSizePresetsCard.Header" xml:space="preserve"><value>ブースのサイズ（プリセット）</value></data>
 </root>

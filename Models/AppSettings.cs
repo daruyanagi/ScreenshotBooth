@@ -31,6 +31,9 @@ public sealed class AppSettings
     /// <summary>UI language override (BCP-47, e.g. "ja", "en-US"). Empty follows the system.</summary>
     public string Language { get; set; } = "";
 
+    /// <summary>The booth sizes offered by the size picker. Null = the built-in list (<see cref="TargetSizePreset.BuiltIn"/>).</summary>
+    public List<PresetSize>? SizePresets { get; set; }
+
     /// <summary>Breathing room (DIPs) between the target window and the booth edge.</summary>
     public int MarginDip { get; set; } = DefaultMarginDip;
 

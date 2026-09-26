@@ -204,7 +204,7 @@ public partial class BoothViewModel : ObservableObject
     {
         var display = DisplayService.GetSelectedDisplay(_settings);
         var max = _controller.GetMaxAreaSize(display);
-        var fitting = TargetSizePreset.BuiltIn
+        var fitting = TargetSizePreset.FromSettings(_settings)
             .Where(p => p.Width <= max.Width && p.Height <= max.Height)
             .ToList();
         if (_initialArea is { } initial && !fitting.Any(p => p.Width == initial.Width && p.Height == initial.Height))
@@ -426,6 +426,16 @@ public partial class BoothViewModel : ObservableObject
             _controller.RelayoutWithLastArea(DisplayService.GetSelectedDisplay(_settings));
         }
         RefreshPresets();
+    }
+
+    /// <summary>The settings page edited the size presets: rebuild the menu and re-sync its face.</summary>
+    public void OnPresetsChanged()
+    {
+        RefreshPresets();
+        if (BoothAreaElement is { ActualHeight: > 0 })
+        {
+            SyncSizeControlsToArea(_controller.GetAreaSizePx(BoothAreaElement));
+        }
     }
 
     /// <summary>The settings window changed the shadow margin.</summary>

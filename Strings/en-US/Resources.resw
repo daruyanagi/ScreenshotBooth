@@ -147,4 +147,16 @@
   <data name="NoticeRestartElevatedAction" xml:space="preserve"><value>Restart as administrator</value></data>
   <data name="NoticeTargetElevatedMessage" xml:space="preserve"><value>This window belongs to an app running as administrator, and Windows (UIPI) doesn't let ScreenshotBooth move it. Restart ScreenshotBooth as administrator to capture it.</value></data>
   <data name="NoticeTargetElevatedTitle" xml:space="preserve"><value>Elevated window</value></data>
+  <data name="SettingsPresetAddButton.Content" xml:space="preserve"><value>Add</value></data>
+  <data name="SettingsPresetAddCard.Description" xml:space="preserve"><value>Width × height in pixels (100-8192)</value></data>
+  <data name="SettingsPresetAddCard.Header" xml:space="preserve"><value>Add a size</value></data>
+  <data name="SettingsPresetDuplicateError" xml:space="preserve"><value>That size is already in the list.</value></data>
+  <data name="SettingsPresetRangeError" xml:space="preserve"><value>Width and height must be between 100 and 8192.</value></data>
+  <data name="SettingsPresetRemoveButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Remove</value></data>
+  <data name="SettingsPresetRemoveButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>Remove this size</value></data>
+  <data name="SettingsPresetResetButton.Content" xml:space="preserve"><value>Restore</value></data>
+  <data name="SettingsPresetResetCard.Description" xml:space="preserve"><value>Back to the built-in presets, 540x405 through 1920x1080</value></data>
+  <data name="SettingsPresetResetCard.Header" xml:space="preserve"><value>Restore the default sizes</value></data>
+  <data name="SettingsPresetsCountFmt" xml:space="preserve"><value>{0} sizes. This is the captured image size</value></data>
+  <data name="SettingsSizePresetsCard.Header" xml:space="preserve"><value>Booth sizes (presets)</value></data>
 </root>
