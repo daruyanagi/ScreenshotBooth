@@ -297,6 +297,13 @@ public partial class BoothViewModel : ObservableObject
 
         if (!acquire())
         {
+            if (_controller.LastAcquireFailure == AcquireFailure.Elevated)
+            {
+                ShowNotice(InfoBarSeverity.Warning, R.Get("NoticeTargetElevatedTitle"), R.Get("NoticeTargetElevatedMessage"), autoClose: false);
+                SetNoticeAction(R.Get("NoticeRestartElevatedAction"), () => RestartElevatedRequested?.Invoke());
+                return;
+            }
+
             AppLog.Write("Acquire: no suitable window");
             ShowNotice(InfoBarSeverity.Warning, "", R.Get("NoticeNoForegroundMessage"));
             return;
@@ -432,15 +439,27 @@ public partial class BoothViewModel : ObservableObject
         RefreshPresets();
     }
 
-    /// <summary>Raised when a notice's action asks for the settings window (update available).</summary>
+    /// <summary>Raised when a notice's action asks for the settings page (update available).</summary>
     public event Action? SettingsRequested;
+
+    /// <summary>Raised when the user asks to relaunch the app as administrator (to hold an elevated window).</summary>
+    public event Action? RestartElevatedRequested;
 
     /// <summary>Label of the notice's action button ("" = no button).</summary>
     [ObservableProperty]
     public partial string NoticeActionLabel { get; set; } = "";
 
+    private Action? _noticeAction;
+
+    /// <summary>Gives the current notice an action button.</summary>
+    private void SetNoticeAction(string label, Action action)
+    {
+        _noticeAction = action;
+        NoticeActionLabel = label;
+    }
+
     [RelayCommand]
-    private void NoticeAction() => SettingsRequested?.Invoke();
+    private void NoticeAction() => _noticeAction?.Invoke();
 
     /// <summary>Settings were asked for while a target is held (the page is unavailable then).</summary>
     public void NotifySettingsBlocked() =>
@@ -450,7 +469,7 @@ public partial class BoothViewModel : ObservableObject
     public void NotifyUpdateAvailable(string tag)
     {
         ShowNotice(InfoBarSeverity.Informational, "", R.F("UpdateAvailableFmt", tag), autoClose: false);
-        NoticeActionLabel = R.Get("NoticeOpenSettingsAction");
+        SetNoticeAction(R.Get("NoticeOpenSettingsAction"), () => SettingsRequested?.Invoke());
     }
 
     /// <summary>Called at startup when a window left on top by a crashed previous run was just released.</summary>
@@ -528,6 +547,7 @@ public partial class BoothViewModel : ObservableObject
         NoticeTitle = title;
         NoticeMessage = message;
         NoticeActionLabel = "";
+        _noticeAction = null;
         IsNoticeOpen = true;
         _noticeTimer.Stop();
         if (autoClose)

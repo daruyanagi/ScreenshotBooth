@@ -22,4 +22,19 @@ public static class SingleInstanceGuard
         _mutex = new Mutex(initiallyOwned: true, MutexName, out var createdNew);
         return createdNew;
     }
+
+    /// <summary>Gives the lock up early (before relaunching ourselves elevated), so the successor can take it.</summary>
+    public static void Release()
+    {
+        try
+        {
+            _mutex?.ReleaseMutex();
+        }
+        catch (ApplicationException)
+        {
+            // Not owned (a second instance that lost the race): nothing to release.
+        }
+        _mutex?.Dispose();
+        _mutex = null;
+    }
 }

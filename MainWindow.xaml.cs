@@ -44,6 +44,7 @@ public sealed partial class MainWindow : Window
         controller.PickerNothingPicked += () => ViewModel.OnPickerNothingPicked();
         ViewModel.Captured += PlayCaptureEffect;
         ViewModel.SettingsRequested += OpenSettings;
+        ViewModel.RestartElevatedRequested += RestartElevated;
 
         // The shutter's countdown face is driven by hand: x:Bind inside that button's content did not apply.
         ViewModel.PropertyChanged += (_, e) =>
@@ -257,6 +258,45 @@ public sealed partial class MainWindow : Window
             ViewModel.NotifyUpdateAvailable(tag);
         }
     });
+
+    /// <summary>
+    /// Relaunches this exe through UAC so it can hold windows of elevated processes (UIPI only lets
+    /// a process move windows of equal or lower integrity). The single-instance mutex has to be
+    /// released before the new process starts, or it would exit at once as a "second instance".
+    /// </summary>
+    private void RestartElevated()
+    {
+        var exe = Environment.ProcessPath;
+        if (exe is null)
+        {
+            return;
+        }
+
+        ViewModel.OnBoothHidden();
+        SingleInstanceGuard.Release();
+        try
+        {
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+            {
+                FileName = exe,
+                WorkingDirectory = Path.GetDirectoryName(exe),
+                UseShellExecute = true,
+                Verb = "runas",
+            });
+        }
+        catch (System.ComponentModel.Win32Exception ex)
+        {
+            // ERROR_CANCELLED: the UAC prompt was declined. Carry on as we were.
+            AppLog.Write($"RestartElevated: not started ({ex.NativeErrorCode})");
+            SingleInstanceGuard.TryAcquire();
+            return;
+        }
+
+        AppLog.Write("RestartElevated: elevated instance started; exiting");
+        _exitRequested = true;
+        TrayIcon.Dispose();
+        Application.Current.Exit();
+    }
 
     /// <summary>Lets go of everything and exits so the update finisher (or winget) can replace the files.</summary>
     private void ExitForUpdate()

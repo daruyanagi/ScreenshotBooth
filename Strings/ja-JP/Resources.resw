@@ -144,4 +144,7 @@
   <data name="IdleHintAfterLink" xml:space="preserve"><value>をクリックして、撮影したいウィンドウを選んでください。</value></data>
   <data name="IdleHintBeforeLink" xml:space="preserve"><value>撮影したいウィンドウをアクティブにした状態で {0} を押してください。または</value></data>
   <data name="IdleHintLink" xml:space="preserve"><value>［対象ウィンドウを選ぶ］</value></data>
+  <data name="NoticeRestartElevatedAction" xml:space="preserve"><value>管理者として再起動</value></data>
+  <data name="NoticeTargetElevatedMessage" xml:space="preserve"><value>このウィンドウは管理者として実行中のアプリのもので、Windows の制限（UIPI）により ScreenshotBooth からは動かせません。ScreenshotBooth を管理者として再起動すると撮影できます。</value></data>
+  <data name="NoticeTargetElevatedTitle" xml:space="preserve"><value>管理者権限のウィンドウです</value></data>
 </root>

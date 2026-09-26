@@ -144,4 +144,7 @@
   <data name="IdleHintAfterLink" xml:space="preserve"><value> and choose the window on screen.</value></data>
   <data name="IdleHintBeforeLink" xml:space="preserve"><value>Activate the window you want to capture, then press {0}. Or click </value></data>
   <data name="IdleHintLink" xml:space="preserve"><value>[Pick a window]</value></data>
+  <data name="NoticeRestartElevatedAction" xml:space="preserve"><value>Restart as administrator</value></data>
+  <data name="NoticeTargetElevatedMessage" xml:space="preserve"><value>This window belongs to an app running as administrator, and Windows (UIPI) doesn't let ScreenshotBooth move it. Restart ScreenshotBooth as administrator to capture it.</value></data>
+  <data name="NoticeTargetElevatedTitle" xml:space="preserve"><value>Elevated window</value></data>
 </root>

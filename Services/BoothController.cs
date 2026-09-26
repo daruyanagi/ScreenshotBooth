@@ -157,14 +157,34 @@ public sealed class BoothController
     /// </summary>
     public bool TryAcquireForegroundAsTarget() => TryAcquireTarget((nint)GetForegroundWindow());
 
+    /// <summary>Why the last <see cref="TryAcquireTarget"/> returned false.</summary>
+    public AcquireFailure LastAcquireFailure { get; private set; }
+
     /// <summary>Makes <paramref name="hwnd"/> the target (from the hotkey's foreground window or the picker). Returns false if it is not usable.</summary>
     public bool TryAcquireTarget(nint hwnd)
     {
         var fg = (HWND)hwnd;
+        LastAcquireFailure = AcquireFailure.NoWindow;
         if (fg.IsNull || fg == _boothHwnd || !IsWindow(fg) || !IsWindowVisible(fg))
         {
             return false;
         }
+
+        // UIPI: a window of a higher-integrity (elevated) process cannot be moved, resized or made
+        // topmost from here - SetWindowPos fails with ERROR_ACCESS_DENIED. Probe with a no-op so the
+        // failure surfaces now, as a clear message, instead of as a ring around an empty booth.
+        const SetWindowPosFlags probe = SetWindowPosFlags.SWP_NOMOVE | SetWindowPosFlags.SWP_NOSIZE
+            | SetWindowPosFlags.SWP_NOZORDER | SetWindowPosFlags.SWP_NOACTIVATE;
+        if (!SetWindowPos(fg, HWND.NULL, 0, 0, 0, 0, probe)
+            && Win32Error.GetLastError() == Win32Error.ERROR_ACCESS_DENIED)
+        {
+            var elevatedTitle = new System.Text.StringBuilder(256);
+            GetWindowText(fg, elevatedTitle, elevatedTitle.Capacity);
+            AppLog.Write($"Acquire: refused 0x{(nint)fg:X} \"{elevatedTitle}\" - elevated process (UIPI)");
+            LastAcquireFailure = AcquireFailure.Elevated;
+            return false;
+        }
+        LastAcquireFailure = AcquireFailure.None;
 
         // Switching targets restores the previous one first: never more than one window is held.
         var sameWindow = HasTarget && _targetHwnd == fg;
@@ -849,6 +869,16 @@ public sealed class BoothController
 
         SetTargetTopMost(true);
     }
+}
+
+/// <summary>Why a window could not become the target.</summary>
+public enum AcquireFailure
+{
+    None,
+    /// <summary>No usable window (nothing in the foreground, or the booth itself).</summary>
+    NoWindow,
+    /// <summary>The window belongs to an elevated (administrator) process; UIPI blocks us from moving it.</summary>
+    Elevated,
 }
 
 public enum TargetLostReason
