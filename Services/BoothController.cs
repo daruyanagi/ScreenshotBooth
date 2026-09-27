@@ -395,6 +395,33 @@ public sealed class BoothController
         SetWindowPos(_targetHwnd, HWND.HWND_TOPMOST, 0, 0, 0, 0, flags);
         _frame.BringToTop();
         SetWindowPos(_boothHwnd, _targetHwnd, 0, 0, 0, 0, flags);
+        LiftOwnPopups();
+    }
+
+    /// <summary>
+    /// Our menus (size, countdown, overflow) are windowed popups. Opening one changes the foreground,
+    /// which re-runs the ordering above and would put the target back over the freshly opened menu;
+    /// so every pass ends by lifting whatever popup windows this process has open above the target.
+    /// </summary>
+    private void LiftOwnPopups()
+    {
+        GetWindowThreadProcessId(_boothHwnd, out var ourPid);
+        EnumWindows((hwnd, _) =>
+        {
+            GetWindowThreadProcessId(hwnd, out var pid);
+            if (pid == ourPid && IsWindowVisible(hwnd) && hwnd != _boothHwnd && hwnd != _targetHwnd)
+            {
+                var cls = new System.Text.StringBuilder(64);
+                GetClassName(hwnd, cls, cls.Capacity);
+                // WinAppSDK 2.x hosts windowed popups in a PopupWindowSiteBridge; 1.x used Xaml_WindowedPopupClass.
+                if (cls.ToString() is "Microsoft.UI.Content.PopupWindowSiteBridge" or "Xaml_WindowedPopupClass")
+                {
+                    SetWindowPos(hwnd, HWND.HWND_TOPMOST, 0, 0, 0, 0,
+                        SetWindowPosFlags.SWP_NOMOVE | SetWindowPosFlags.SWP_NOSIZE | SetWindowPosFlags.SWP_NOACTIVATE);
+                }
+            }
+            return true;
+        }, IntPtr.Zero);
     }
 
     /// <summary>Puts the target back to where it was when acquired (position, size, maximized state).</summary>
