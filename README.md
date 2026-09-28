@@ -78,7 +78,17 @@ certificate on the target machine. `Package.appxmanifest` carries placeholder id
 `Services\PackageContext.cs` detects package identity at runtime and reports
 `InstallChannel.Packaged` / `Winget` / `Zip`.
 
-winget: the first submission to [microsoft/winget-pkgs](https://github.com/microsoft/winget-pkgs) is
-manual (`wingetcreate new` with the release zip URL, installer type `zip` / nested `portable`,
-identifier `daruyanagi.ScreenshotBooth`). After that, uncomment the `winget-releaser` step in
-`release.yml` and set the `WINGET_TOKEN` secret to submit each release automatically.
+### winget
+
+Same recipe as Petapeta / XTimelineViewer: the release zips are the installers
+(`InstallerType: zip`, `NestedInstallerType: portable`, alias `screenshotbooth`), identifier
+`daruyanagi.ScreenshotBooth`.
+
+- First submission (once): after the release is published, `.\Tools\Submit-Winget.ps1 -Version x.y.z`
+  renders `winget\*.yaml.template` with the release's SHA256 sidecars, runs `winget validate`, and
+  opens the PR to microsoft/winget-pkgs with `wingetcreate submit` (add `-DryRun` to only render).
+- Every later release: `release.yml` runs winget-releaser when the `WINGET_TOKEN` secret is set
+  (`gh secret set WINGET_TOKEN --repo daruyanagi/ScreenshotBooth`; the same token as the other
+  repos, `public_repo` scope on the winget-pkgs fork). Without the secret the steps are skipped.
+- `winget install daruyanagi.ScreenshotBooth` installs into `%LOCALAPPDATA%\Microsoft\WinGet\Packages\`;
+  the app detects that path as the winget channel and hands updates to `winget upgrade`.

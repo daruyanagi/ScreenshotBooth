@@ -1,0 +1,22 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.12.0.schema.json
+
+PackageIdentifier: daruyanagi.ScreenshotBooth
+PackageVersion: {{VERSION}}
+Platform:
+- Windows.Desktop
+MinimumOSVersion: 10.0.17763.0
+InstallerType: zip
+NestedInstallerType: portable
+NestedInstallerFiles:
+- RelativeFilePath: ScreenshotBooth.exe
+  PortableCommandAlias: screenshotbooth
+ReleaseDate: {{DATE}}
+Installers:
+- Architecture: x64
+  InstallerUrl: https://github.com/daruyanagi/ScreenshotBooth/releases/download/v{{VERSION}}/ScreenshotBooth-v{{VERSION}}-win-x64.zip
+  InstallerSha256: {{SHA_X64}}
+- Architecture: arm64
+  InstallerUrl: https://github.com/daruyanagi/ScreenshotBooth/releases/download/v{{VERSION}}/ScreenshotBooth-v{{VERSION}}-win-arm64.zip
+  InstallerSha256: {{SHA_ARM64}}
+ManifestType: installer
+ManifestVersion: 1.12.0
