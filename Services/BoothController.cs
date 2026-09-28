@@ -48,6 +48,10 @@ public sealed class BoothController
 
     // The target's placement at acquire time, so it can be put back when the booth lets go.
     private RECT _originalRect;
+
+    // Where the target (and the booth area's center) was at shutter time, so a retake can put it back.
+    private RECT _capturedRect;
+    private Point? _capturedAreaCenter;
     private bool _originalZoomed;
 
     /// <summary>When true, releasing the target also restores its original position and size.</summary>
@@ -848,6 +852,11 @@ public sealed class BoothController
     {
         var screenRect = GetScreenRectOfElement(boothArea);
         AppLog.Write($"Capture: rect={screenRect}");
+        if (HasTarget)
+        {
+            GetWindowRect(_targetHwnd, out _capturedRect);
+            _capturedAreaCenter = _lastAreaCenter;
+        }
 
         using var bitmap = new Bitmap(screenRect.Width, screenRect.Height, PixelFormat.Format32bppArgb);
         using (var g = Graphics.FromImage(bitmap))
@@ -903,7 +912,26 @@ public sealed class BoothController
             return;
         }
 
+        // Releasing after the capture may have put the target back where it came from (restore
+        // layout) or maximized it; a retake wants it exactly as it was at shutter time, in the booth.
+        if (IsIconic(_targetHwnd) || IsZoomed(_targetHwnd))
+        {
+            ShowWindow(_targetHwnd, ShowWindowCommand.SW_RESTORE);
+        }
+        if (_capturedRect.Width > 0 && _capturedRect.Height > 0)
+        {
+            SetWindowPos(_targetHwnd, HWND.NULL, _capturedRect.left, _capturedRect.top, _capturedRect.Width, _capturedRect.Height,
+                SetWindowPosFlags.SWP_NOZORDER | SetWindowPosFlags.SWP_NOACTIVATE);
+        }
+
         SetTargetTopMost(true);
+
+        // Only re-center when the booth itself moved while the photo was shown; otherwise the
+        // restored rect is already exactly where the target was.
+        if (_lastAreaCenter is { } center && center != _capturedAreaCenter)
+        {
+            CenterTargetAt(center.X, center.Y);
+        }
     }
 }
 
