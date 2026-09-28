@@ -624,8 +624,9 @@ public partial class BoothViewModel : ObservableObject
             return;
         }
 
-        // Nothing of ours may be in the shot: the notice overlays the booth area and the frame
-        // ring sits around the target.
+        // Nothing of ours may be in the shot: the notice overlays the booth area (and may have been
+        // raised during the countdown) and the frame ring sits around the target.
+        IsNoticeOpen = false;
         _controller.HideTargetFrame();
 
         // Restore the target's active/focused visual state before grabbing pixels: clicking our

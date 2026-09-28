@@ -336,9 +336,12 @@
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"><Run x:Name="IdleHintBefore" /><Hyperlink Click="OnIdleHintPickClick" UnderlineStyle="None"><Run x:Name="IdleHintLink" /></Hyperlink><Run x:Name="IdleHintAfter" /></TextBlock>
                 <!-- Overlaid (not a grid row) so opening it never changes the booth area's size. -->
+                <!-- Visibility as well as IsOpen: IsOpen=false fades out, and a shot taken during the fade
+                     would still contain the notice. Collapsing is immediate. -->
                 <InfoBar
                     x:Name="NoticeBar"
                     IsOpen="{x:Bind ViewModel.IsNoticeOpen, Mode=TwoWay}"
+                    Visibility="{x:Bind local:MainWindow.BoolToVisibility(ViewModel.IsNoticeOpen), Mode=OneWay}"
                     Title="{x:Bind ViewModel.NoticeTitle, Mode=OneWay}"
                     Message="{x:Bind ViewModel.NoticeMessage, Mode=OneWay}"
                     Severity="{x:Bind ViewModel.NoticeSeverity, Mode=OneWay}"
