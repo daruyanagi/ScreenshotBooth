@@ -67,7 +67,9 @@
         </TitleBar>
 
         <!-- Toolbar (on top, so drop-downs open over the booth instead of off the bottom edge) -->
-        <Grid Grid.Row="1" Padding="16,4,8,4" ColumnSpacing="16" BorderThickness="0,0,0,1" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}">
+        <!-- Margin below the divider: at fractional DPI the 1-DIP line anti-aliases into the next row,
+             which is the booth area (and so the capture). The gap keeps the bleed off the booth. -->
+        <Grid Grid.Row="1" Padding="16,4,8,4" Margin="0,0,0,2" ColumnSpacing="16" BorderThickness="0,0,0,1" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />

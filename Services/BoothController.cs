@@ -110,6 +110,11 @@ public sealed class BoothController
         var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(boothWindowHandle);
         _boothAppWindow = AppWindow.GetFromWindowId(windowId);
 
+        // Square corners: the booth area reaches the window's bottom edge, and Windows 11's rounded
+        // corners would leave the desktop showing through the bottom-left/right pixels of a capture.
+        var corner = DWM_WINDOW_CORNER_PREFERENCE.DWMWCP_DONOTROUND;
+        DwmSetWindowAttribute(_boothHwnd, DWMWINDOWATTRIBUTE.DWMWA_WINDOW_CORNER_PREFERENCE, corner);
+
         _current = this;
         _frame = new TargetFrameOverlay();
         _frame.ReleaseRequested += () => ReleaseRequested?.Invoke();
@@ -842,6 +847,7 @@ public sealed class BoothController
     public async Task<CaptureResult> CaptureAsync(FrameworkElement boothArea)
     {
         var screenRect = GetScreenRectOfElement(boothArea);
+        AppLog.Write($"Capture: rect={screenRect}");
 
         using var bitmap = new Bitmap(screenRect.Width, screenRect.Height, PixelFormat.Format32bppArgb);
         using (var g = Graphics.FromImage(bitmap))
@@ -871,11 +877,14 @@ public sealed class BoothController
         var transform = element.TransformToVisual(null);
         var bounds = transform.TransformBounds(new Windows.Foundation.Rect(0, 0, element.ActualWidth, element.ActualHeight));
 
+        // XAML layout-rounds to physical pixels; truncating here landed the rect one row too high at
+        // fractional scales (the capture then started on the toolbar's divider line). Round the
+        // edges, and derive the size from the rounded edges so it stays consistent.
         var scale = DpiScale;
-        var physicalX = (int)(bounds.X * scale);
-        var physicalY = (int)(bounds.Y * scale);
-        var physicalW = (int)(bounds.Width * scale);
-        var physicalH = (int)(bounds.Height * scale);
+        var physicalX = (int)Math.Round(bounds.X * scale);
+        var physicalY = (int)Math.Round(bounds.Y * scale);
+        var physicalW = (int)Math.Round((bounds.X + bounds.Width) * scale) - physicalX;
+        var physicalH = (int)Math.Round((bounds.Y + bounds.Height) * scale) - physicalY;
 
         var origin = new POINT(0, 0);
         ClientToScreen(_boothHwnd, ref origin);
