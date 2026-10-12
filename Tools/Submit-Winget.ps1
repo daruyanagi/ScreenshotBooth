@@ -16,6 +16,10 @@
 .PARAMETER DryRun
     Render and validate only; print the manifest folder instead of submitting.
 
+.PARAMETER Token
+    GitHub token used for the pull request (e.g. `gh auth token`). Without it wingetcreate asks
+    you to sign in.
+
 .EXAMPLE
     .\Tools\Submit-Winget.ps1 -Version 1.1.0 -DryRun
     .\Tools\Submit-Winget.ps1 -Version 1.1.0
@@ -23,7 +27,9 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory)] [string] $Version,
-    [switch] $DryRun
+    [switch] $DryRun,
+    # GitHub token for the PR (public_repo). Omitted: wingetcreate signs in interactively.
+    [string] $Token
 )
 
 $ErrorActionPreference = 'Stop'
@@ -77,6 +83,7 @@ if ($DryRun) {
 Step 'Submit to microsoft/winget-pkgs'
 # wingetcreate signs in with GitHub (device flow) when no token is cached; the PR is opened from
 # your fork of winget-pkgs, exactly like Petapeta / XTimelineViewer.
-wingetcreate submit --prtitle "New package: $id version $Version" $out
+$tokenArgs = if ($Token) { @('--token', $Token) } else { @() }
+wingetcreate submit --prtitle "New package: $id version $Version" @tokenArgs $out
 if ($LASTEXITCODE -ne 0) { throw 'wingetcreate submit failed' }
 Write-Host "`nSubmitted. Once the PR is merged, later releases are published by release.yml (WINGET_TOKEN)." -ForegroundColor Green
