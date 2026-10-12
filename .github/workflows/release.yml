@@ -89,8 +89,11 @@ jobs:
           gh api -X POST repos/daruyanagi/winget-pkgs/merge-upstream \
             -f branch=master --jq '.message'
 
+      # The release itself must not fail if the submission does (e.g. before the package exists in
+      # winget-pkgs, or when the fork is out of sync); the run shows the step as failed either way.
       - name: Publish to winget
         if: env.WINGET_TOKEN != ''
+        continue-on-error: true
         uses: vedantmgoyal9/winget-releaser@v2
         with:
           identifier: daruyanagi.ScreenshotBooth
