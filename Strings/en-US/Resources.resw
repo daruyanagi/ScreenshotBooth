@@ -159,4 +159,8 @@
   <data name="SettingsPresetResetCard.Header" xml:space="preserve"><value>Restore the default sizes</value></data>
   <data name="SettingsPresetsCountFmt" xml:space="preserve"><value>{0} sizes. This is the captured image size</value></data>
   <data name="SettingsSizePresetsCard.Header" xml:space="preserve"><value>Booth sizes (presets)</value></data>
+  <data name="SettingsSectionApp.Text" xml:space="preserve"><value>App</value></data>
+  <data name="SettingsStartupCard.Description" xml:space="preserve"><value>Adds a shortcut to the Startup folder; the app starts in the tray</value></data>
+  <data name="SettingsStartupCard.Header" xml:space="preserve"><value>Start when you sign in to Windows</value></data>
+  <data name="SettingsStartupError" xml:space="preserve"><value>Couldn't change the startup setting: {0}</value></data>
 </root>

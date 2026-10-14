@@ -48,6 +48,14 @@ public partial class SettingsViewModel : ObservableObject
         SaveFormatIndex = string.Equals(settings.SaveFormat, ImageExport.Jpeg, StringComparison.OrdinalIgnoreCase) ? 1 : 0;
         JpegQuality = settings.JpegQuality;
         LanguageIndex = settings.Language switch { "ja" => 1, "en-US" => 2, _ => 0 };
+        try
+        {
+            IsStartupEnabled = StartupRegistration.IsEnabled();
+        }
+        catch (Exception ex)
+        {
+            AppLog.Write($"Startup: query failed {ex.Message}");
+        }
         IsUpdateCheckEnabled = settings.UpdateCheckEnabled;
 
         _initialized = true;
@@ -322,6 +330,38 @@ public partial class SettingsViewModel : ObservableObject
         if (!_initialized || double.IsNaN(value)) return;
         _settings.JpegQuality = (int)Math.Clamp(value, 1, 100);
         SettingsService.Save(_settings);
+    }
+
+    // ── start with Windows ─────────────────────────────────────────────────
+
+    [ObservableProperty] public partial bool IsStartupEnabled { get; set; }
+
+    /// <summary>Why the startup shortcut could not be written/removed ("" = fine).</summary>
+    [ObservableProperty] public partial string StartupError { get; set; } = "";
+
+    public bool IsStartupErrorOpen => StartupError.Length > 0;
+
+    partial void OnStartupErrorChanged(string value) => OnPropertyChanged(nameof(IsStartupErrorOpen));
+
+    private bool _revertingStartup;
+
+    partial void OnIsStartupEnabledChanged(bool value)
+    {
+        if (!_initialized || _revertingStartup) return;
+        try
+        {
+            StartupRegistration.SetEnabled(value);
+            StartupError = "";
+            AppLog.Write($"Startup: {(value ? "enabled" : "disabled")}");
+        }
+        catch (Exception ex)
+        {
+            AppLog.Write($"Startup: change failed {ex}");
+            StartupError = R.F("SettingsStartupError", ex.Message);
+            // The real state did not change: put the toggle back without re-applying.
+            _revertingStartup = true;
+            try { IsStartupEnabled = !value; } finally { _revertingStartup = false; }
+        }
     }
 
     // ── language ───────────────────────────────────────────────────────────

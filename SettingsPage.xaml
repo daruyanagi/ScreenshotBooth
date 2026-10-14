@@ -172,6 +172,17 @@
                 </controls:SettingsExpander>
 
                 <!-- Appearance -->
+                <!-- App -->
+                <TextBlock x:Uid="SettingsSectionApp" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,20,0,4" />
+
+                <controls:SettingsCard x:Uid="SettingsStartupCard">
+                    <controls:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xE7E8;" />
+                    </controls:SettingsCard.HeaderIcon>
+                    <ToggleSwitch AutomationProperties.AutomationId="StartupToggle" IsOn="{x:Bind ViewModel.IsStartupEnabled, Mode=TwoWay}" />
+                </controls:SettingsCard>
+                <InfoBar IsOpen="{x:Bind ViewModel.IsStartupErrorOpen, Mode=OneWay}" Severity="Error" IsClosable="False" Message="{x:Bind ViewModel.StartupError, Mode=OneWay}" />
+
                 <TextBlock x:Uid="SettingsSectionAppearance" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,20,0,4" />
 
                 <controls:SettingsCard x:Uid="SettingsLanguageCard">

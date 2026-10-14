@@ -159,4 +159,8 @@
   <data name="SettingsPresetResetCard.Header" xml:space="preserve"><value>既定のサイズに戻す</value></data>
   <data name="SettingsPresetsCountFmt" xml:space="preserve"><value>{0} 件。撮影される画像のサイズです</value></data>
   <data name="SettingsSizePresetsCard.Header" xml:space="preserve"><value>ブースのサイズ（プリセット）</value></data>
+  <data name="SettingsSectionApp.Text" xml:space="preserve"><value>アプリ</value></data>
+  <data name="SettingsStartupCard.Description" xml:space="preserve"><value>スタートアップ フォルダーにショートカットを置きます。起動後はトレイに常駐します</value></data>
+  <data name="SettingsStartupCard.Header" xml:space="preserve"><value>Windows へのサインイン時に自動で起動する</value></data>
+  <data name="SettingsStartupError" xml:space="preserve"><value>自動起動の設定を変更できませんでした: {0}</value></data>
 </root>
